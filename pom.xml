@@ -14,17 +14,7 @@
 
   <name>The Key client library</name>
 
-  <properties>
-    <android.sdk.version>17</android.sdk.version>
-  </properties>
-
   <dependencies>
-    <dependency>
-      <groupId>com.google.android</groupId>
-      <artifactId>android</artifactId>
-      <version>4.1.1.4</version>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-android</artifactId>
@@ -37,13 +27,4 @@
       <url>https://maven.gcx.org</url>
     </repository>
   </repositories>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>com.jayway.maven.plugins.android.generation2</groupId>
-        <artifactId>android-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
 </project>
