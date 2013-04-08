@@ -1,7 +1,10 @@
 package org.ccci.gto.android.thekey;
 
+import android.net.Uri;
+
 public final class Constant {
-    public static final String CAS_SERVER = "https://thekey.me/cas/";
+    public static final Uri CAS_SERVER = Uri.parse("https://thekey.me/cas/");
+    protected static final Uri REDIRECT_URI = Uri.parse("thekey:/oauth/mobile/android");
 
     // OAuth request/response params
     public static final String OAUTH_PARAM_ACCESS_TOKEN = "access_token";

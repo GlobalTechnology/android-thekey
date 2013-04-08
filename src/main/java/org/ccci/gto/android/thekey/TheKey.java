@@ -9,7 +9,9 @@ import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_CODE;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_GRANT_TYPE;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_REDIRECT_URI;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_REFRESH_TOKEN;
+import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_STATE;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_THEKEY_GUID;
+import static org.ccci.gto.android.thekey.Constant.REDIRECT_URI;
 import static org.ccci.gto.android.thekey.Constant.THEKEY_PARAM_SERVICE;
 import static org.ccci.gto.android.thekey.Constant.THEKEY_PARAM_TICKET;
 
@@ -35,6 +37,10 @@ import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Build;
 
+/**
+ * The Key interaction library, handles all interactions with The Key OAuth API
+ * endpoints and correctly stores/utilizes OAuth access_tokens locally
+ */
 public final class TheKey {
     private static final Logger LOG = LoggerFactory.getLogger(TheKey.class.getName().substring(21));
 
@@ -53,9 +59,13 @@ public final class TheKey {
     }
 
     public TheKey(final Context context, final Long clientId, final String casServer) {
+        this(context, clientId, Uri.parse(casServer));
+    }
+
+    public TheKey(final Context context, final Long clientId, final Uri casServer) {
         this.context = context;
         this.clientId = clientId;
-        this.casServer = Uri.parse(casServer);
+        this.casServer = casServer;
     }
 
     public Uri getCasUri() {
@@ -76,6 +86,22 @@ public final class TheKey {
 
     public String getGuid() {
         return this.getPrefs().getString(PREF_GUID, null);
+    }
+
+    protected Uri getAuthorizeUri() {
+        return this.getAuthorizeUri(null);
+    }
+
+    protected Uri getAuthorizeUri(final String state) {
+        // build oauth authorize url
+        final Builder uri = this.getCasUri("oauth", "authorize").buildUpon()
+                .appendQueryParameter(OAUTH_PARAM_CLIENT_ID, this.getClientId().toString())
+                .appendQueryParameter(OAUTH_PARAM_REDIRECT_URI, REDIRECT_URI.toString());
+        if (state != null) {
+            uri.appendQueryParameter(OAUTH_PARAM_STATE, state);
+        }
+
+        return uri.build();
     }
 
     /**
@@ -184,7 +210,7 @@ public final class TheKey {
         }
     }
 
-    public boolean processCodeGrant(final String code, final Uri redirectUri) {
+    protected boolean processCodeGrant(final String code, final Uri redirectUri) {
         final Uri tokenUri = this.getCasUri("api", "oauth", "token");
         HttpsURLConnection conn = null;
         try {
