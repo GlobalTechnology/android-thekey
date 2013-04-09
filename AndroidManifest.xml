@@ -5,6 +5,7 @@
     <application>
         <activity
             android:name="org.ccci.gto.android.thekey.LoginActivity"
+            android:configChanges="orientation|screenSize"
             android:exported="false"
             android:label="@string/thekey_title_activity_login" >
         </activity>

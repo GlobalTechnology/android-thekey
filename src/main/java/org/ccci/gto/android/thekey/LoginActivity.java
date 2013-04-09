@@ -4,9 +4,12 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebView;
+import android.widget.FrameLayout;
 
 public class LoginActivity extends Activity {
     public final static String EXTRA_CASSERVER = "org.ccci.gto.android.thekey.CAS_SERVER";
@@ -14,6 +17,10 @@ public class LoginActivity extends Activity {
     public final static String EXTRA_RESPONSE_GUID = "org.ccci.gto.android.thekey.response.GUID";
 
     private TheKey thekey;
+
+    // login WebView
+    private FrameLayout frame = null;
+    private WebView loginView = null;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -29,26 +36,57 @@ public class LoginActivity extends Activity {
             this.thekey = new TheKey(this, clientId);
         }
 
-        // build the Login WebView
-        this.buildWebView();
+        // init the Login WebView
+        this.attachLoginView();
+    }
+
+    @Override
+    public void onConfigurationChanged(final Configuration newConfig) {
+        this.detachLoginView();
+
+        super.onConfigurationChanged(newConfig);
+
+        // reload the view
+        setContentView(R.layout.thekey_login);
+
+        // attach the loginView
+        this.attachLoginView();
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private void buildWebView() {
-        // build oauth authorize url
-        final String state = "asdf";
-        final Uri authUri = this.thekey.getAuthorizeUri(state);
+    private void attachLoginView() {
+        this.detachLoginView();
 
-        // set WebView to navigate to the OAuth authorize url
-        final WebView loginView = (WebView) findViewById(R.id.login_web_view);
-        loginView.getSettings().setJavaScriptEnabled(true);
-        loginView.setWebViewClient(new ActivityLoginWebViewClient(this, this.thekey, state));
-        loginView.loadUrl(authUri.toString());
+        // create a loginView if it doesn't exist already
+        if (this.loginView == null) {
+            this.loginView = new WebView(this);
+            this.loginView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT,
+                    LayoutParams.MATCH_PARENT));
+            this.loginView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+            this.loginView.setScrollbarFadingEnabled(true);
+            this.loginView.getSettings().setJavaScriptEnabled(true);
+            this.loginView.getSettings().setLoadsImagesAutomatically(true);
+            this.loginView.setWebViewClient(new ActivityLoginWebViewClient(this, this.thekey));
+
+            this.loginView.loadUrl(this.thekey.getAuthorizeUri().toString());
+        }
+        
+        // attach the login view to the current frame
+        this.frame = (FrameLayout) findViewById(R.id.loginViewFrame);
+        this.frame.addView(this.loginView);
+    }
+
+    private void detachLoginView() {
+        // remove the login view from any existing frame
+        if (this.frame != null) {
+            this.frame.removeView(this.loginView);
+            this.frame = null;
+        }
     }
 
     private class ActivityLoginWebViewClient extends LoginWebViewClient {
-        public ActivityLoginWebViewClient(final Context context, final TheKey thekey, final String state) {
-            super(context, thekey, state);
+        public ActivityLoginWebViewClient(final Context context, final TheKey thekey) {
+            super(context, thekey);
         }
 
         @Override
