@@ -13,7 +13,11 @@ public abstract class CodeGrantAsyncTask extends AsyncTask<String, Void, Boolean
     @Override
     protected Boolean doInBackground(final String... code) {
         if (code.length > 0) {
-            return this.thekey.processCodeGrant(code[0], REDIRECT_URI);
+            try {
+                return this.thekey.processCodeGrant(code[0], REDIRECT_URI);
+            } catch (final TheKeySocketException e) {
+                return false;
+            }
         } else {
             return false;
         }

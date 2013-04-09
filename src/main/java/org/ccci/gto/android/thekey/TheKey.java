@@ -16,9 +16,11 @@ import static org.ccci.gto.android.thekey.Constant.THEKEY_PARAM_SERVICE;
 import static org.ccci.gto.android.thekey.Constant.THEKEY_PARAM_TICKET;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
@@ -111,7 +113,7 @@ public final class TheKey {
      * @param service
      * @return The ticket
      */
-    public String getTicket(final String service) {
+    public String getTicket(final String service) throws TheKeySocketException {
         String accessToken = null;
         while ((accessToken = this.getValidAccessToken(0)) != null) {
             // fetch a ticket
@@ -128,7 +130,7 @@ public final class TheKey {
         return null;
     }
 
-    private String getTicket(final String accessToken, final String service) {
+    private String getTicket(final String accessToken, final String service) throws TheKeySocketException {
         HttpsURLConnection conn = null;
         try {
             // generate & send request
@@ -140,8 +142,10 @@ public final class TheKey {
             // parse the json response
             final JSONObject json = this.parseJsonResponse(conn.getInputStream());
             return json.optString(THEKEY_PARAM_TICKET, null);
-        } catch (final Exception e) {
-            return null;
+        } catch (final MalformedURLException e) {
+            throw new RuntimeException("malformed CAS URL", e);
+        } catch (final IOException e) {
+            throw new TheKeySocketException("connect error", e);
         } finally {
             if (conn != null) {
                 conn.disconnect();
@@ -160,7 +164,7 @@ public final class TheKey {
         return this.getPrefs().getString(PREF_REFRESH_TOKEN, null);
     }
 
-    private String getValidAccessToken(final int depth) {
+    private String getValidAccessToken(final int depth) throws TheKeySocketException {
         // prevent infinite recursion
         if (depth > 5) {
             return null;
@@ -210,7 +214,7 @@ public final class TheKey {
         }
     }
 
-    protected boolean processCodeGrant(final String code, final Uri redirectUri) {
+    protected boolean processCodeGrant(final String code, final Uri redirectUri) throws TheKeySocketException {
         final Uri tokenUri = this.getCasUri("api", "oauth", "token");
         HttpsURLConnection conn = null;
         try {
@@ -231,8 +235,12 @@ public final class TheKey {
 
             // return success
             return true;
-        } catch (final Exception e) {
-            return false;
+        } catch (final MalformedURLException e) {
+            throw new RuntimeException("invalid CAS URL", e);
+        } catch (final UnsupportedEncodingException e) {
+            throw new RuntimeException("Unsupported encoding??? this shouldn't happen", e);
+        } catch (final IOException e) {
+            throw new TheKeySocketException(e);
         } finally {
             if (conn != null) {
                 conn.disconnect();
@@ -240,7 +248,7 @@ public final class TheKey {
         }
     }
 
-    private boolean processRefreshTokenGrant(final String refreshToken) {
+    private boolean processRefreshTokenGrant(final String refreshToken) throws TheKeySocketException {
         final Uri tokenUri = this.getCasUri("api", "oauth", "token");
         HttpsURLConnection conn = null;
         try {
@@ -260,8 +268,12 @@ public final class TheKey {
 
             // return success
             return true;
-        } catch (final Exception e) {
-            return false;
+        } catch (final MalformedURLException e) {
+            throw new RuntimeException("invalid CAS URL", e);
+        } catch (final UnsupportedEncodingException e) {
+            throw new RuntimeException("Unsupported encoding??? this shouldn't happen", e);
+        } catch (final IOException e) {
+            throw new TheKeySocketException(e);
         } finally {
             if (conn != null) {
                 conn.disconnect();
@@ -313,8 +325,15 @@ public final class TheKey {
         return this.context.getSharedPreferences(PREFFILE_THEKEY, Context.MODE_PRIVATE);
     }
 
-    private String encodeParam(final String name, final String value) throws UnsupportedEncodingException {
-        return URLEncoder.encode(name, "UTF-8") + "=" + URLEncoder.encode(value, "UTF-8");
+    @SuppressWarnings("deprecation")
+    private String encodeParam(final String name, final String value) {
+        try {
+            return URLEncoder.encode(name, "UTF-8") + "=" + URLEncoder.encode(value, "UTF-8");
+        } catch (final UnsupportedEncodingException e) {
+            // we should never get here, but if for some odd reason we do, use
+            // the default encoder which should be UTF-8
+            return URLEncoder.encode(name) + "=" + URLEncoder.encode(value);
+        }
     }
 
     private JSONObject parseJsonResponse(final InputStream in) {
