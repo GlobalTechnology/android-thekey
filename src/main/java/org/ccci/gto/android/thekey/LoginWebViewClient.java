@@ -1,5 +1,7 @@
 package org.ccci.gto.android.thekey;
 
+import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_CODE;
+import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ERROR;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_STATE;
 import static org.ccci.gto.android.thekey.Constant.REDIRECT_URI;
 import android.content.Context;
@@ -30,9 +32,11 @@ public abstract class LoginWebViewClient extends WebViewClient {
         final Uri parsedUri = Uri.parse(uri);
         // response redirect
         if (this.isRedirectUri(parsedUri)) {
-            final String code = Uri.parse(uri).getQueryParameter("code");
+            final String code = parsedUri.getQueryParameter(OAUTH_PARAM_CODE);
             if (code != null) {
-                this.getCodeGrantAsyncTask().execute(code);
+                this.onAuthorizeSuccess(parsedUri, code);
+            } else {
+                this.onAuthorizeError(parsedUri, parsedUri.getQueryParameter(OAUTH_PARAM_ERROR));
             }
             return true;
         }
@@ -59,5 +63,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
                         .getQueryParameter(OAUTH_PARAM_STATE)));
     }
 
-    protected abstract CodeGrantAsyncTask getCodeGrantAsyncTask();
+    protected abstract void onAuthorizeSuccess(final Uri uri, final String code);
+
+    protected abstract void onAuthorizeError(final Uri uri, final String errorCode);
 }

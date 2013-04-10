@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -90,8 +91,14 @@ public class LoginActivity extends Activity {
         }
 
         @Override
-        protected CodeGrantAsyncTask getCodeGrantAsyncTask() {
-            return new ActivityCodeGrantAsyncTask(this.thekey);
+        protected void onAuthorizeSuccess(final Uri uri, final String code) {
+            new ActivityCodeGrantAsyncTask(this.thekey).execute(code);
+        }
+
+        @Override
+        protected void onAuthorizeError(final Uri uri, final String errorCode) {
+            LoginActivity.this.setResult(RESULT_CANCELED);
+            LoginActivity.this.finish();
         }
     }
 
