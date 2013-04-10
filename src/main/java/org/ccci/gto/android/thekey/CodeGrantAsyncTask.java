@@ -11,7 +11,7 @@ public abstract class CodeGrantAsyncTask extends AsyncTask<String, Void, Boolean
     }
 
     @Override
-    protected Boolean doInBackground(final String... code) {
+    protected final Boolean doInBackground(final String... code) {
         if (code.length > 0) {
             try {
                 return this.thekey.processCodeGrant(code[0], REDIRECT_URI);

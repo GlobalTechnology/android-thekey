@@ -1,14 +1,11 @@
 package org.ccci.gto.android.thekey;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
@@ -54,22 +51,13 @@ public class LoginActivity extends Activity {
         this.attachLoginView();
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
     private void attachLoginView() {
         this.detachLoginView();
 
         // create a loginView if it doesn't exist already
         if (this.loginView == null) {
-            this.loginView = new WebView(this);
-            this.loginView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT,
-                    LayoutParams.MATCH_PARENT));
-            this.loginView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-            this.loginView.setScrollbarFadingEnabled(true);
-            this.loginView.getSettings().setJavaScriptEnabled(true);
-            this.loginView.getSettings().setLoadsImagesAutomatically(true);
-            this.loginView.setWebViewClient(new ActivityLoginWebViewClient(this, this.thekey));
-
-            this.loginView.loadUrl(this.thekey.getAuthorizeUri().toString());
+            this.loginView = DisplayUtil.createLoginWebView(this, this.thekey, new ActivityLoginWebViewClient(this,
+                    this.thekey));
         }
         
         // attach the login view to the current frame
