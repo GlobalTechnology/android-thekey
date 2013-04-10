@@ -47,6 +47,8 @@ public class LoginDialogFragment extends DialogFragment {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        this.setRetainInstance(true);
+
         // load arguments
         final long clientId = getArguments().getLong(ARG_CLIENTID, -1);
         final String casServer = getArguments().getString(ARG_CASSERVER);
@@ -67,6 +69,17 @@ public class LoginDialogFragment extends DialogFragment {
         builder.setView(frame);
 
         return builder.create();
+    }
+
+    @Override
+    public void onDestroyView() {
+        // Work around bug:
+        // http://code.google.com/p/android/issues/detail?id=17423
+        final Dialog dialog = getDialog();
+        if ((dialog != null) && getRetainInstance())
+            dialog.setDismissMessage(null);
+
+        super.onDestroyView();
     }
 
     private void attachLoginView(final FrameLayout frame) {
