@@ -70,11 +70,11 @@ public final class TheKey {
         this.casServer = casServer;
     }
 
-    public Uri getCasUri() {
+    protected Uri getCasUri() {
         return this.casServer;
     }
 
-    public Uri getCasUri(final String... segments) {
+    protected Uri getCasUri(final String... segments) {
         final Builder uri = this.casServer.buildUpon();
         for (final String segment : segments) {
             uri.appendPath(segment);
@@ -82,7 +82,7 @@ public final class TheKey {
         return uri.build();
     }
 
-    public Long getClientId() {
+    protected Long getClientId() {
         return this.clientId;
     }
 
