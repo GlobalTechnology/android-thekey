@@ -2,6 +2,7 @@ package org.ccci.gto.android.thekey;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebView;
@@ -11,6 +12,7 @@ public final class DisplayUtil {
     public final static WebView createLoginWebView(final Context context, final TheKey thekey,
             final LoginWebViewClient webViewClient) {
         final WebView webView = new WebView(context);
+        webView.setVisibility(View.GONE);
         webView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         webView.setScrollbarFadingEnabled(true);

@@ -7,6 +7,8 @@ import static org.ccci.gto.android.thekey.Constant.REDIRECT_URI;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.view.View;
+import android.view.ViewParent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -49,6 +51,47 @@ public abstract class LoginWebViewClient extends WebViewClient {
             this.context.startActivity(new Intent(Intent.ACTION_VIEW, parsedUri));
             return true;
         }
+    }
+
+    @Override
+    public void onPageFinished(final WebView webView, final String uri) {
+        super.onPageFinished(webView, uri);
+
+        // find the login progress view
+        ViewParent parent = webView;
+        View rootView = webView;
+        while ((parent = parent.getParent()) != null) {
+            if (parent instanceof View) {
+                rootView = (View) parent;
+            }
+        }
+        final View progress = rootView.findViewById(R.id.loginProgress);
+
+        // toggle visibility based on redirects received
+        final Uri parsedUri = Uri.parse(uri);
+        if (this.isOAuthUri(parsedUri)) {
+            if (progress != null) {
+                // hide progress bar
+                progress.setVisibility(View.GONE);
+            }
+
+            // show WebView
+            webView.setVisibility(View.VISIBLE);
+        } else if (this.isRedirectUri(parsedUri)) {
+            if (progress != null) {
+                // hide WebView
+                webView.setVisibility(View.GONE);
+
+                // show progress bar
+                progress.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    @Override
+    public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+        super.onReceivedError(view, errorCode, description, failingUrl);
+        this.onAuthorizeError(Uri.parse(failingUrl), null);
     }
 
     private boolean isOAuthUri(final Uri uri) {
