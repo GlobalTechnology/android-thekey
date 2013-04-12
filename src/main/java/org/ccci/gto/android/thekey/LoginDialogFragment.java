@@ -1,12 +1,8 @@
 package org.ccci.gto.android.thekey;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
-import android.content.Context;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,7 +10,7 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class LoginDialogFragment extends DialogFragment {
+public class LoginDialogFragment extends android.app.DialogFragment implements DialogFragment {
     public final static String ARG_CASSERVER = "org.ccci.gto.android.thekey.CAS_SERVER";
     public final static String ARG_CLIENTID = "org.ccci.gto.android.thekey.CLIENT_ID";
 
@@ -23,9 +19,6 @@ public class LoginDialogFragment extends DialogFragment {
     // login WebView
     private FrameLayout frame = null;
     private WebView loginView = null;
-
-    public LoginDialogFragment() {
-    }
 
     public static final LoginDialogFragment newInstance(final long clientId) {
         return LoginDialogFragment.newInstance(clientId, null);
@@ -53,18 +46,19 @@ public class LoginDialogFragment extends DialogFragment {
         final long clientId = getArguments().getLong(ARG_CLIENTID, -1);
         final String casServer = getArguments().getString(ARG_CASSERVER);
         if (casServer != null) {
-            this.thekey = new TheKey(getActivity(), clientId, casServer);
+            this.thekey = new TheKey(this.getActivity(), clientId, casServer);
         } else {
-            this.thekey = new TheKey(getActivity(), clientId);
+            this.thekey = new TheKey(this.getActivity(), clientId);
         }
     }
 
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
 
         // build dialog
-        final FrameLayout frame = (FrameLayout) LayoutInflater.from(getActivity()).inflate(R.layout.thekey_login, null);
+        final FrameLayout frame = (FrameLayout) LayoutInflater.from(this.getActivity()).inflate(R.layout.thekey_login,
+                null);
         this.attachLoginView(frame);
         builder.setView(frame);
 
@@ -75,8 +69,8 @@ public class LoginDialogFragment extends DialogFragment {
     public void onDestroyView() {
         // Work around bug:
         // http://code.google.com/p/android/issues/detail?id=17423
-        final Dialog dialog = getDialog();
-        if ((dialog != null) && getRetainInstance())
+        final Dialog dialog = this.getDialog();
+        if ((dialog != null) && this.getRetainInstance())
             dialog.setDismissMessage(null);
 
         super.onDestroyView();
@@ -87,8 +81,8 @@ public class LoginDialogFragment extends DialogFragment {
 
         // create a loginView if it doesn't exist already
         if (this.loginView == null) {
-            this.loginView = DisplayUtil.createLoginWebView(getActivity(), this.thekey, new DialogLoginWebViewClient(
-                    this.getActivity(), this.thekey));
+            this.loginView = DisplayUtil.createLoginWebView(this.getActivity(), this.thekey,
+                    new LoginDialogWebViewClient(this, this.thekey));
         }
 
         // attach the login view to the current frame
@@ -104,57 +98,6 @@ public class LoginDialogFragment extends DialogFragment {
         }
     }
 
-    public interface TheKeyAuthorizeDialogListener {
-        public void onAuthorizeSuccess(final LoginDialogFragment dialog, final String guid);
-
-        public void onAuthorizeFailure(final LoginDialogFragment dialog);
-    }
-
-    private class DialogLoginWebViewClient extends LoginWebViewClient {
-        public DialogLoginWebViewClient(final Context context, final TheKey thekey) {
-            super(context, thekey);
-        }
-
-        @Override
-        protected void onAuthorizeSuccess(final Uri uri, final String code) {
-            new DialogCodeGrantAsyncTask(this.thekey).execute(code);
-        }
-
-        @Override
-        protected void onAuthorizeError(final Uri uri, final String errorCode) {
-            final LoginDialogFragment dialog = LoginDialogFragment.this;
-
-            final Activity activity = dialog.getActivity();
-            if (activity instanceof TheKeyAuthorizeDialogListener) {
-                ((TheKeyAuthorizeDialogListener) activity).onAuthorizeFailure(dialog);
-            }
-
-            dialog.dismiss();
-        }
-    }
-
-    private class DialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
-        public DialogCodeGrantAsyncTask(final TheKey thekey) {
-            super(thekey);
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean result) {
-            super.onPostExecute(result);
-            final LoginDialogFragment dialog = LoginDialogFragment.this;
-
-            final Activity activity = dialog.getActivity();
-            if (activity instanceof TheKeyAuthorizeDialogListener) {
-                // trigger the correct callback
-                if (result.booleanValue()) {
-                    ((TheKeyAuthorizeDialogListener) activity).onAuthorizeSuccess(dialog, this.thekey.getGuid());
-                } else {
-                    ((TheKeyAuthorizeDialogListener) activity).onAuthorizeFailure(dialog);
-                }
-            }
-
-            // close the dialog
-            dialog.dismiss();
-        }
+    public interface Listener extends LoginDialogListener<LoginDialogFragment> {
     }
 }
