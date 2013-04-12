@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ccci.gto.android.thekey" >
 
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="17" />
+
     <application>
         <activity
             android:name="org.ccci.gto.android.thekey.LoginActivity"
@@ -10,7 +14,5 @@
             android:label="@string/thekey_title_activity_login" >
         </activity>
     </application>
-
-    <uses-sdk android:minSdkVersion="8" />
 
 </manifest>
