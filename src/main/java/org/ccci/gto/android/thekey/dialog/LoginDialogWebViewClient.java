@@ -1,4 +1,7 @@
-package org.ccci.gto.android.thekey;
+package org.ccci.gto.android.thekey.dialog;
+
+import org.ccci.gto.android.thekey.LoginWebViewClient;
+import org.ccci.gto.android.thekey.TheKey;
 
 import android.app.Activity;
 import android.net.Uri;

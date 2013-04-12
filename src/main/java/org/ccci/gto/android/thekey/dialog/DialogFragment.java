@@ -1,4 +1,4 @@
-package org.ccci.gto.android.thekey;
+package org.ccci.gto.android.thekey.dialog;
 
 import android.app.Activity;
 

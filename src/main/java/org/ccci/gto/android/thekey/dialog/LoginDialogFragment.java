@@ -1,4 +1,8 @@
-package org.ccci.gto.android.thekey;
+package org.ccci.gto.android.thekey.dialog;
+
+import org.ccci.gto.android.thekey.DisplayUtil;
+import org.ccci.gto.android.thekey.R;
+import org.ccci.gto.android.thekey.TheKey;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;

@@ -8,7 +8,7 @@ import android.webkit.WebView;
 
 public final class DisplayUtil {
     @SuppressLint("SetJavaScriptEnabled")
-    protected final static WebView createLoginWebView(final Context context, final TheKey thekey,
+    public final static WebView createLoginWebView(final Context context, final TheKey thekey,
             final LoginWebViewClient webViewClient) {
         final WebView webView = new WebView(context);
         webView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
