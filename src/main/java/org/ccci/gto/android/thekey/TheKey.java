@@ -166,7 +166,7 @@ public final class TheKey {
 
     private String getValidAccessToken(final int depth) throws TheKeySocketException {
         // prevent infinite recursion
-        if (depth > 5) {
+        if (depth > 2) {
             return null;
         }
 
