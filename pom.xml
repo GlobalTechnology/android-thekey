@@ -15,8 +15,8 @@
   <name>The Key client library</name>
 
   <scm>
-    <connection>scm:git@git.gcx.org:android/lib/thekey.git</connection>
-    <developerConnection>scm:git@git.gcx.org:android/lib/thekey.git</developerConnection>
+    <connection>scm:git:git@git.gcx.org:android/lib/thekey.git</connection>
+    <developerConnection>scm:git:git@git.gcx.org:android/lib/thekey.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
