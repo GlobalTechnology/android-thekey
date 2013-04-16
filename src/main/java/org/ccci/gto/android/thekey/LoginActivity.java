@@ -59,7 +59,7 @@ public class LoginActivity extends Activity {
             this.loginView = DisplayUtil.createLoginWebView(this, this.thekey, new ActivityLoginWebViewClient(this,
                     this.thekey));
         }
-        
+
         // attach the login view to the current frame
         this.frame = (FrameLayout) findViewById(R.id.loginViewFrame);
         this.frame.addView(this.loginView);
