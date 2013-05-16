@@ -5,3 +5,6 @@
 target/
 bin/
 gen/
+
+.idea/
+lib-thekey.iml
