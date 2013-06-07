@@ -3,7 +3,7 @@ package org.ccci.gto.android.thekey;
 import android.net.Uri;
 
 public final class Constant {
-    public static final Uri CAS_SERVER = Uri.parse("https://thekey.me/cas/");
+    public static final Uri CAS_SERVER = Uri.parse("https://casdev.gcx.org/cas/");
     protected static final Uri REDIRECT_URI = Uri.parse("thekey:/oauth/mobile/android");
 
     // OAuth request/response params
