@@ -1,19 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.ccci.gto.android.thekey"
-    android:versionCode="2000"
-    android:versionName="0.2.0-SNAPSHOT" >
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="2000" android:versionName="0.2.0-SNAPSHOT" package="org.ccci.gto.android.thekey">
 
-    <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="17" />
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17"/>
 
     <application>
-        <activity
-            android:name="org.ccci.gto.android.thekey.LoginActivity"
-            android:configChanges="orientation|screenSize"
-            android:exported="false"
-            android:label="@string/thekey_title_activity_login" >
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/thekey_title_activity_login" android:name="org.ccci.gto.android.thekey.LoginActivity">
         </activity>
     </application>
 
