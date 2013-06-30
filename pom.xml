@@ -26,7 +26,6 @@
       <artifactId>compatibility-v4</artifactId>
       <optional>true</optional>
     </dependency>
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-android</artifactId>
@@ -39,4 +38,20 @@
       <url>https://maven.gcx.org</url>
     </repository>
   </repositories>
+
+  <build>
+    <plugins>
+      <!-- disable the jarsigner plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jarsigner-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>signing</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
