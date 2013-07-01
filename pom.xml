@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>lib-thekey</artifactId>
-  <version>0.2.0-SNAPSHOT</version>
+  <version>0.2.0</version>
   <packaging>apklib</packaging>
 
   <name>The Key client library</name>
@@ -17,7 +17,7 @@
   <scm>
     <connection>scm:git:git@git.gcx.org:android/lib/thekey.git</connection>
     <developerConnection>scm:git:git@git.gcx.org:android/lib/thekey.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>v0.2.0</tag>
   </scm>
 
   <dependencies>
