@@ -1,0 +1,52 @@
+group 'org.ccci.gto.android'
+version '0.3.0-SNAPSHOT'
+
+apply plugin: 'android-library'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.5.+'
+    }
+}
+
+android {
+    compileSdkVersion 18
+    buildToolsVersion "18.0.0"
+
+    defaultConfig {
+        minSdkVersion 8
+        targetSdkVersion 18
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name "maven.gcx.org"
+        url "https://maven.gcx.org/"
+        credentials {
+            username gcxMavenRepositoryUsername
+            password gcxMavenRepositoryPassword
+        }
+    }
+}
+
+dependencies {
+    compile group: 'com.android.support', name: 'support-v4', version: '18.0.0', ext: 'jar'
+    compile group: 'org.slf4j', name: 'slf4j-android', version: '1.6.1-RC1', ext: 'jar'
+}

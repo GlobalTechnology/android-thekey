@@ -38,6 +38,16 @@
       <url>https://maven.gcx.org</url>
     </repository>
   </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>gradle-maven-plugin-release</id>
+      <name>gradle-maven-plugin-release</name>
+      <url>http://dl.bintray.com/content/robschoening/gradle-maven-plugin</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <build>
     <plugins>
@@ -49,6 +59,64 @@
           <execution>
             <id>signing</id>
             <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- generate an aar for this android library -->
+      <plugin>
+        <groupId>org.fortasoft</groupId>
+        <artifactId>gradle-maven-plugin</artifactId>
+        <version>1.0.1</version>
+        <configuration>
+          <gradleVersion>1.6</gradleVersion>
+        </configuration>
+        <executions>
+          <execution>
+            <id>clean</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>invoke</goal>
+            </goals>
+            <configuration>
+              <tasks>
+                <task>clean</task>
+              </tasks>
+            </configuration>
+          </execution>
+          <execution>
+            <id>build-aar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>invoke</goal>
+            </goals>
+            <configuration>
+              <tasks>
+                <task>build</task>
+              </tasks>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>${basedir}/build/libs/${project.artifactId}-${project.version}.aar</file>
+                  <type>aar</type>
+                </artifact>
+              </artifacts>
+            </configuration>
           </execution>
         </executions>
       </plugin>
