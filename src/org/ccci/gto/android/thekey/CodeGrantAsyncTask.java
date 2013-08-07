@@ -14,7 +14,7 @@ public abstract class CodeGrantAsyncTask extends AsyncTask<String, Void, Boolean
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public final AsyncTask<String, Void, Boolean> execute(final String code) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             return this.executeOnExecutor(THREAD_POOL_EXECUTOR, new String[] { code });
         } else {
             return this.execute(new String[] { code });
