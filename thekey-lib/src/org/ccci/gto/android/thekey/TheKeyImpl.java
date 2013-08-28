@@ -15,18 +15,6 @@ import static org.ccci.gto.android.thekey.Constant.REDIRECT_URI;
 import static org.ccci.gto.android.thekey.Constant.THEKEY_PARAM_SERVICE;
 import static org.ccci.gto.android.thekey.Constant.THEKEY_PARAM_TICKET;
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.net.Uri;
-import android.net.Uri.Builder;
-import android.os.Build;
-import android.util.Pair;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,11 +27,26 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import me.thekey.android.TheKey;
+import me.thekey.android.TheKeySocketException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.net.Uri;
+import android.net.Uri.Builder;
+import android.os.Build;
+import android.util.Pair;
+
 /**
  * The Key interaction library, handles all interactions with The Key OAuth API
  * endpoints and correctly stores/utilizes OAuth access_tokens locally
  */
-public final class TheKey {
+public final class TheKeyImpl implements TheKey {
     private static final String PREFFILE_THEKEY = "thekey";
     private static final String PREF_ACCESS_TOKEN = "access_token";
     private static final String PREF_EXPIRE_TIME = "expire_time";
@@ -54,15 +57,15 @@ public final class TheKey {
     private final Uri casServer;
     private final Long clientId;
 
-    public TheKey(final Context context, final Long clientId) {
+    public TheKeyImpl(final Context context, final Long clientId) {
         this(context, clientId, CAS_SERVER);
     }
 
-    public TheKey(final Context context, final Long clientId, final String casServer) {
+    public TheKeyImpl(final Context context, final Long clientId, final String casServer) {
         this(context, clientId, Uri.parse(casServer));
     }
 
-    public TheKey(final Context context, final Long clientId, final Uri casServer) {
+    public TheKeyImpl(final Context context, final Long clientId, final Uri casServer) {
         this.context = context;
         this.clientId = clientId;
         this.casServer = casServer;
@@ -175,7 +178,7 @@ public final class TheKey {
         final String accessToken = expireTime >= currentTime ? (String) attrs.get(PREF_ACCESS_TOKEN) : null;
 
         // return the access_token, attributes pair if we have an access_token
-        return accessToken != null ? Pair.create(accessToken, new Attributes(attrs)) : null;
+        return accessToken != null ? Pair.create(accessToken, (Attributes) new AttributesImpl(attrs)) : null;
     }
 
     private String getRefreshToken() {
@@ -369,10 +372,10 @@ public final class TheKey {
         }
     }
 
-    public static final class Attributes {
+    private static final class AttributesImpl implements Attributes {
         private final Map<String, ?> attrs;
 
-        private Attributes(final Map<String, ?> prefsMap) {
+        private AttributesImpl(final Map<String, ?> prefsMap) {
             this.attrs = prefsMap;
         }
 

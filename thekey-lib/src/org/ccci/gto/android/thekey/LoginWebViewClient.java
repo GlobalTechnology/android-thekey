@@ -14,15 +14,15 @@ import android.webkit.WebViewClient;
 
 public abstract class LoginWebViewClient extends WebViewClient {
     private final Context context;
-    protected final TheKey thekey;
+    protected final TheKeyImpl thekey;
     private final Uri oauthUri;
     private final String state;
 
-    public LoginWebViewClient(final Context context, final TheKey thekey) {
+    public LoginWebViewClient(final Context context, final TheKeyImpl thekey) {
         this(context, thekey, null);
     }
 
-    public LoginWebViewClient(final Context context, final TheKey thekey, final String state) {
+    public LoginWebViewClient(final Context context, final TheKeyImpl thekey, final String state) {
         this.context = context;
         this.thekey = thekey;
         this.oauthUri = this.thekey.getAuthorizeUri().buildUpon().query("").build();

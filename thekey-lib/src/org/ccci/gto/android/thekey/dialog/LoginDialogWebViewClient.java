@@ -1,7 +1,7 @@
 package org.ccci.gto.android.thekey.dialog;
 
 import org.ccci.gto.android.thekey.LoginWebViewClient;
-import org.ccci.gto.android.thekey.TheKey;
+import org.ccci.gto.android.thekey.TheKeyImpl;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -9,7 +9,7 @@ import android.net.Uri;
 public class LoginDialogWebViewClient extends LoginWebViewClient {
     final DialogFragment dialog;
 
-    public LoginDialogWebViewClient(final DialogFragment dialog, final TheKey thekey) {
+    public LoginDialogWebViewClient(final DialogFragment dialog, final TheKeyImpl thekey) {
         super(dialog.getActivity(), thekey);
         this.dialog = dialog;
     }

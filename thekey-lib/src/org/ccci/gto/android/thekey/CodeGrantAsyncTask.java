@@ -1,14 +1,15 @@
 package org.ccci.gto.android.thekey;
 
 import static org.ccci.gto.android.thekey.Constant.REDIRECT_URI;
+import me.thekey.android.TheKeySocketException;
 import android.annotation.TargetApi;
 import android.os.AsyncTask;
 import android.os.Build;
 
 public abstract class CodeGrantAsyncTask extends AsyncTask<String, Void, Boolean> {
-    protected final TheKey thekey;
+    protected final TheKeyImpl thekey;
 
-    public CodeGrantAsyncTask(final TheKey thekey) {
+    public CodeGrantAsyncTask(final TheKeyImpl thekey) {
         this.thekey = thekey;
     }
 

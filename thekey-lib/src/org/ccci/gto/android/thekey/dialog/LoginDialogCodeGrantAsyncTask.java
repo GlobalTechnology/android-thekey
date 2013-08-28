@@ -1,14 +1,14 @@
 package org.ccci.gto.android.thekey.dialog;
 
 import org.ccci.gto.android.thekey.CodeGrantAsyncTask;
-import org.ccci.gto.android.thekey.TheKey;
+import org.ccci.gto.android.thekey.TheKeyImpl;
 
 import android.app.Activity;
 
 public final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
     final DialogFragment dialog;
 
-    public LoginDialogCodeGrantAsyncTask(final DialogFragment dialog, final TheKey thekey) {
+    public LoginDialogCodeGrantAsyncTask(final DialogFragment dialog, final TheKeyImpl thekey) {
         super(thekey);
         this.dialog = dialog;
     }

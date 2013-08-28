@@ -14,7 +14,7 @@ public class LoginActivity extends Activity {
     public final static String EXTRA_CLIENTID = "org.ccci.gto.android.thekey.CLIENT_ID";
     public final static String EXTRA_RESPONSE_GUID = "org.ccci.gto.android.thekey.response.GUID";
 
-    private TheKey thekey;
+    private TheKeyImpl thekey;
 
     // login WebView
     private FrameLayout frame = null;
@@ -29,9 +29,9 @@ public class LoginActivity extends Activity {
         final Intent intent = getIntent();
         final long clientId = intent.getLongExtra(EXTRA_CLIENTID, -1);
         if (intent.hasExtra(EXTRA_CASSERVER)) {
-            this.thekey = new TheKey(this, clientId, intent.getStringExtra(EXTRA_CASSERVER));
+            this.thekey = new TheKeyImpl(this, clientId, intent.getStringExtra(EXTRA_CASSERVER));
         } else {
-            this.thekey = new TheKey(this, clientId);
+            this.thekey = new TheKeyImpl(this, clientId);
         }
 
         // init the Login WebView
@@ -74,7 +74,7 @@ public class LoginActivity extends Activity {
     }
 
     private class ActivityLoginWebViewClient extends LoginWebViewClient {
-        public ActivityLoginWebViewClient(final Context context, final TheKey thekey) {
+        public ActivityLoginWebViewClient(final Context context, final TheKeyImpl thekey) {
             super(context, thekey);
         }
 
@@ -91,7 +91,7 @@ public class LoginActivity extends Activity {
     }
 
     private class ActivityCodeGrantAsyncTask extends CodeGrantAsyncTask {
-        public ActivityCodeGrantAsyncTask(final TheKey thekey) {
+        public ActivityCodeGrantAsyncTask(final TheKeyImpl thekey) {
             super(thekey);
         }
 

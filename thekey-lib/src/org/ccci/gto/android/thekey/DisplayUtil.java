@@ -14,7 +14,7 @@ import android.webkit.WebView;
 public final class DisplayUtil {
     @SuppressLint("SetJavaScriptEnabled")
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public static WebView createLoginWebView(final Context context, final TheKey thekey,
+    public static WebView createLoginWebView(final Context context, final TheKeyImpl thekey,
                                              final LoginWebViewClient webViewClient) {
         final WebView webView = new WebView(context);
         webView.setVisibility(View.GONE);

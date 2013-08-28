@@ -2,7 +2,7 @@ package org.ccci.gto.android.thekey.dialog;
 
 import org.ccci.gto.android.thekey.DisplayUtil;
 import org.ccci.gto.android.thekey.R;
-import org.ccci.gto.android.thekey.TheKey;
+import org.ccci.gto.android.thekey.TheKeyImpl;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -18,7 +18,7 @@ public class LoginDialogFragment extends android.app.DialogFragment implements D
     public final static String ARG_CASSERVER = "org.ccci.gto.android.thekey.CAS_SERVER";
     public final static String ARG_CLIENTID = "org.ccci.gto.android.thekey.CLIENT_ID";
 
-    private TheKey thekey;
+    private TheKeyImpl thekey;
 
     // login WebView
     private FrameLayout frame = null;
@@ -50,9 +50,9 @@ public class LoginDialogFragment extends android.app.DialogFragment implements D
         final long clientId = getArguments().getLong(ARG_CLIENTID, -1);
         final String casServer = getArguments().getString(ARG_CASSERVER);
         if (casServer != null) {
-            this.thekey = new TheKey(this.getActivity(), clientId, casServer);
+            this.thekey = new TheKeyImpl(this.getActivity(), clientId, casServer);
         } else {
-            this.thekey = new TheKey(this.getActivity(), clientId);
+            this.thekey = new TheKeyImpl(this.getActivity(), clientId);
         }
     }
 
