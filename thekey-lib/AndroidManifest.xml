@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="3000" android:versionName="0.3.0" package="org.ccci.gto.android.thekey">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="4000" android:versionName="0.4.0-SNAPSHOT" package="org.ccci.gto.android.thekey">
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="18"/>
 
     <application>
-        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/thekey_title_activity_login" android:name="org.ccci.gto.android.thekey.LoginActivity">
-        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/thekey_title_activity_login" android:name="org.ccci.gto.android.thekey.LoginActivity"/>
     </application>
 
 </manifest>
