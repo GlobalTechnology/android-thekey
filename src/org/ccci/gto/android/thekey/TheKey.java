@@ -15,6 +15,18 @@ import static org.ccci.gto.android.thekey.Constant.REDIRECT_URI;
 import static org.ccci.gto.android.thekey.Constant.THEKEY_PARAM_SERVICE;
 import static org.ccci.gto.android.thekey.Constant.THEKEY_PARAM_TICKET;
 
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.net.Uri;
+import android.net.Uri.Builder;
+import android.os.Build;
+import android.util.Pair;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,29 +35,15 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.net.Uri;
-import android.net.Uri.Builder;
-import android.os.Build;
 
 /**
  * The Key interaction library, handles all interactions with The Key OAuth API
  * endpoints and correctly stores/utilizes OAuth access_tokens locally
  */
 public final class TheKey {
-    private static final Logger LOG = LoggerFactory.getLogger(TheKey.class.getName().substring(21));
-
     private static final String PREFFILE_THEKEY = "thekey";
     private static final String PREF_ACCESS_TOKEN = "access_token";
     private static final String PREF_EXPIRE_TIME = "expire_time";
@@ -109,17 +107,29 @@ public final class TheKey {
     /**
      * This method returns a ticket for the specified service. This method is a
      * blocking method, this should never be called directly on the UI thread.
-     * 
+     *
      * @param service
      * @return The ticket
      */
     public String getTicket(final String service) throws TheKeySocketException {
-        String accessToken = null;
-        while ((accessToken = this.getValidAccessToken(0)) != null) {
+        final Pair<String, Attributes> ticketPair = this.getTicketAndAttributes(service);
+        return ticketPair != null ? ticketPair.first : null;
+    }
+
+    /**
+     * This method returns a ticket for the specified service and attributes the ticket was issued for. This is a
+     * blocking method, this should never be called directly on the UI thread.
+     *
+     * @param service
+     * @return The ticket & attributes
+     */
+    public Pair<String, Attributes> getTicketAndAttributes(final String service) throws TheKeySocketException {
+        Pair<String, Attributes> credentials = null;
+        while ((credentials = this.getValidAccessTokenAndAttributes(0)) != null) {
             // fetch a ticket
-            final String ticket = this.getTicket(accessToken, service);
+            final String ticket = this.getTicket(credentials.first, service);
             if (ticket != null) {
-                return ticket;
+                return Pair.create(ticket, credentials.second);
             }
 
             // the access token didn't work, remove it and restart processing
@@ -153,34 +163,42 @@ public final class TheKey {
         }
     }
 
-    private String getAccessToken() {
-        final SharedPreferences prefs = this.getPrefs();
-        final Long currentTime = System.currentTimeMillis();
-        final Long expireTime = prefs.getLong(PREF_EXPIRE_TIME, currentTime);
-        return expireTime >= currentTime ? prefs.getString(PREF_ACCESS_TOKEN, null) : null;
+    private Pair<String, Attributes> getAccessTokenAndAttributes() {
+        // we use getAll to access the preferences to guarantee atomic access
+        final Map<String, ?> attrs = this.getPrefs().getAll();
+        final long currentTime = System.currentTimeMillis();
+        final long expireTime;
+        {
+            final Long v = (Long) attrs.get(PREF_EXPIRE_TIME);
+            expireTime = v != null ? v : currentTime;
+        }
+        final String accessToken = expireTime >= currentTime ? (String) attrs.get(PREF_ACCESS_TOKEN) : null;
+
+        // return the access_token, attributes pair if we have an access_token
+        return accessToken != null ? Pair.create(accessToken, new Attributes(attrs)) : null;
     }
 
     private String getRefreshToken() {
         return this.getPrefs().getString(PREF_REFRESH_TOKEN, null);
     }
 
-    private String getValidAccessToken(final int depth) throws TheKeySocketException {
+    private Pair<String, Attributes> getValidAccessTokenAndAttributes(final int depth) throws TheKeySocketException {
         // prevent infinite recursion
         if (depth > 2) {
             return null;
         }
 
         // check for an existing accessToken
-        final String accessToken = this.getAccessToken();
-        if (accessToken != null) {
-            return accessToken;
+        final Pair<String, Attributes> credentials = this.getAccessTokenAndAttributes();
+        if (credentials != null && credentials.first != null) {
+            return credentials;
         }
 
         // try fetching a new access_token using a refresh_token
         final String refreshToken = this.getRefreshToken();
         if (refreshToken != null) {
             if (this.processRefreshTokenGrant(refreshToken)) {
-                return this.getValidAccessToken(depth + 1);
+                return this.getValidAccessTokenAndAttributes(depth + 1);
             }
 
             // the refresh_token isn't valid anymore
@@ -344,12 +362,22 @@ public final class TheKey {
             while ((buffer = reader.readLine()) != null) {
                 json.append(buffer);
             }
-            LOG.debug("json: {}", json);
-
             return new JSONObject(json.toString());
         } catch (final Exception e) {
             // return an empty object on error
             return new JSONObject();
+        }
+    }
+
+    public static final class Attributes {
+        private final Map<String, ?> attrs;
+
+        private Attributes(final Map<String, ?> prefsMap) {
+            this.attrs = prefsMap;
+        }
+
+        public String getGuid() {
+            return (String) this.attrs.get(PREF_GUID);
         }
     }
 }
