@@ -15,6 +15,7 @@
   <name>The Key Android client</name>
 
   <modules>
+    <module>thekey-api</module>
     <module>thekey-lib</module>
   </modules>
 
