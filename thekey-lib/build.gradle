@@ -31,19 +31,6 @@ android {
     }
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven {
-        name "maven.gcx.org"
-        url "https://maven.gcx.org/"
-        credentials {
-            username gcxMavenRepositoryUsername
-            password gcxMavenRepositoryPassword
-        }
-    }
-}
-
 dependencies {
     compile project(':thekey-api')
     compile group: 'com.android.support', name: 'support-v4', version: '18.0.0', ext: 'jar'
