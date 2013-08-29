@@ -17,6 +17,6 @@ bin/
 
 # Android Studio project ignores
 .idea/
-lib-thekey.iml
+*.iml
 gen-external-apklibs/
 out/
