@@ -9,9 +9,6 @@ buildscript {
 
 apply plugin: 'android-library'
 
-group 'me.thekey.android'
-version '0.4.0-SNAPSHOT'
-
 android {
     compileSdkVersion 18
     buildToolsVersion "18.0.1"
