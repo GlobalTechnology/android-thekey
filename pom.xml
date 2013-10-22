@@ -36,6 +36,13 @@
     </dependencies>
   </dependencyManagement>
 
+  <repositories>
+    <repository>
+      <id>maven.gcx.org</id>
+      <url>https://maven.gcx.org</url>
+    </repository>
+  </repositories>
+
   <build>
     <plugins>
       <plugin>
@@ -50,11 +57,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <repositories>
-    <repository>
-      <id>maven.gcx.org</id>
-      <url>https://maven.gcx.org</url>
-    </repository>
-  </repositories>
 </project>
