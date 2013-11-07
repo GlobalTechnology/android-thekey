@@ -23,6 +23,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -167,8 +168,9 @@ public final class TheKeyImpl implements TheKey {
     }
 
     private Pair<String, Attributes> getAccessTokenAndAttributes() {
-        // we use getAll to access the preferences to guarantee atomic access
-        final Map<String, ?> attrs = this.getPrefs().getAll();
+        // we use getAll to access the preferences to reduce the chance of a
+        // race condition
+        final Map<String, ?> attrs = new HashMap<String, Object>(this.getPrefs().getAll());
         final long currentTime = System.currentTimeMillis();
         final long expireTime;
         {
@@ -376,7 +378,7 @@ public final class TheKeyImpl implements TheKey {
         private final Map<String, ?> attrs;
 
         private AttributesImpl(final Map<String, ?> prefsMap) {
-            this.attrs = prefsMap;
+            this.attrs = new HashMap<String, Object>(prefsMap);
         }
 
         public String getGuid() {
