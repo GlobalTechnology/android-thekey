@@ -16,7 +16,7 @@ public interface TheKey {
      * @param service
      * @return The ticket
      */
-    public String getTicket(final String service) throws TheKeySocketException;
+    String getTicket(String service) throws TheKeySocketException;
 
     /**
      * This method returns a ticket for the specified service and attributes the
@@ -26,5 +26,5 @@ public interface TheKey {
      * @param service
      * @return The ticket & attributes
      */
-    public Pair<String, Attributes> getTicketAndAttributes(final String service) throws TheKeySocketException;
+    Pair<String, Attributes> getTicketAndAttributes(String service) throws TheKeySocketException;
 }
