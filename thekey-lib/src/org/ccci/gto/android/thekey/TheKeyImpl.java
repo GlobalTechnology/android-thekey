@@ -210,7 +210,8 @@ public final class TheKeyImpl implements TheKey {
             this.removeRefreshToken();
         }
 
-        // no valid access_token was found
+        // no valid access_token was found, clear auth state
+        this.clearAuthState();
         return null;
     }
 
@@ -230,6 +231,20 @@ public final class TheKeyImpl implements TheKey {
     private void removeRefreshToken() {
         final Editor prefs = this.getPrefs().edit();
         prefs.remove(PREF_REFRESH_TOKEN);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            prefs.apply();
+        } else {
+            prefs.commit();
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    private void clearAuthState() {
+        final Editor prefs = this.getPrefs().edit();
+        prefs.remove(PREF_ACCESS_TOKEN);
+        prefs.remove(PREF_REFRESH_TOKEN);
+        prefs.remove(PREF_EXPIRE_TIME);
+        prefs.remove(PREF_GUID);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
             prefs.apply();
         } else {
