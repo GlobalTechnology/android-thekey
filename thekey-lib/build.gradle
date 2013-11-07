@@ -10,12 +10,12 @@ buildscript {
 apply plugin: 'android-library'
 
 android {
-    compileSdkVersion 18
-    buildToolsVersion "18.1.1"
+    compileSdkVersion 19
+    buildToolsVersion "19"
 
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 18
+        targetSdkVersion 19
     }
 
     sourceSets {
@@ -33,6 +33,6 @@ android {
 
 dependencies {
     compile project(':thekey-api')
-    compile group: 'com.android.support', name: 'support-v4', version: '18.0.0', ext: 'jar'
+    compile group: 'com.android.support', name: 'support-v4', version: '19.0.0', ext: 'jar'
     compile group: 'org.slf4j', name: 'slf4j-android', version: '1.6.1-RC1', ext: 'jar'
 }
