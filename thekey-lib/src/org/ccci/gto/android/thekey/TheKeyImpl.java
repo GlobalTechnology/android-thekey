@@ -41,6 +41,7 @@ import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Build;
+import android.support.v4.util.LongSparseArray;
 import android.util.Pair;
 
 /**
@@ -54,22 +55,29 @@ public final class TheKeyImpl implements TheKey {
     private static final String PREF_GUID = "guid";
     private static final String PREF_REFRESH_TOKEN = "refresh_token";
 
+    private static final Object LOCK_INSTANCE = new Object();
+    private static final LongSparseArray<TheKeyImpl> instances = new LongSparseArray<TheKeyImpl>();
+
     private final Context context;
     private final Uri casServer;
     private final Long clientId;
 
-    public TheKeyImpl(final Context context, final Long clientId) {
-        this(context, clientId, CAS_SERVER);
-    }
-
-    public TheKeyImpl(final Context context, final Long clientId, final String casServer) {
-        this(context, clientId, Uri.parse(casServer));
-    }
-
-    public TheKeyImpl(final Context context, final Long clientId, final Uri casServer) {
+    private TheKeyImpl(final Context context, final long clientId, final Uri casServer) {
         this.context = context;
         this.clientId = clientId;
         this.casServer = casServer;
+    }
+
+    public static TheKeyImpl getInstance(final Context context, final long clientId) {
+        if (instances.get(clientId) == null) {
+            synchronized (LOCK_INSTANCE) {
+                if (instances.get(clientId) == null) {
+                    instances.put(clientId, new TheKeyImpl(context.getApplicationContext(), clientId, CAS_SERVER));
+                }
+            }
+        }
+
+        return instances.get(clientId);
     }
 
     protected Uri getCasUri() {

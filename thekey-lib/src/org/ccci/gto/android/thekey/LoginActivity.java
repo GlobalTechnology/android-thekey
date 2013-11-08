@@ -10,7 +10,6 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 public class LoginActivity extends Activity {
-    public final static String EXTRA_CASSERVER = "org.ccci.gto.android.thekey.CAS_SERVER";
     public final static String EXTRA_CLIENTID = "org.ccci.gto.android.thekey.CLIENT_ID";
     public final static String EXTRA_RESPONSE_GUID = "org.ccci.gto.android.thekey.response.GUID";
 
@@ -28,11 +27,7 @@ public class LoginActivity extends Activity {
         // create TheKey object
         final Intent intent = getIntent();
         final long clientId = intent.getLongExtra(EXTRA_CLIENTID, -1);
-        if (intent.hasExtra(EXTRA_CASSERVER)) {
-            this.thekey = new TheKeyImpl(this, clientId, intent.getStringExtra(EXTRA_CASSERVER));
-        } else {
-            this.thekey = new TheKeyImpl(this, clientId);
-        }
+        this.thekey = TheKeyImpl.getInstance(this, clientId);
 
         // init the Login WebView
         this.attachLoginView();

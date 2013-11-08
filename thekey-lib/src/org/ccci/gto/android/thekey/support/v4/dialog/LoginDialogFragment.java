@@ -15,7 +15,6 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 public class LoginDialogFragment extends android.support.v4.app.DialogFragment implements DialogFragment {
-    public final static String ARG_CASSERVER = "org.ccci.gto.android.thekey.CAS_SERVER";
     public final static String ARG_CLIENTID = "org.ccci.gto.android.thekey.CLIENT_ID";
 
     private TheKeyImpl thekey;
@@ -25,16 +24,11 @@ public class LoginDialogFragment extends android.support.v4.app.DialogFragment i
     private WebView loginView = null;
 
     public static final LoginDialogFragment newInstance(final long clientId) {
-        return LoginDialogFragment.newInstance(clientId, null);
-    }
-
-    public static final LoginDialogFragment newInstance(final long clientId, final String casServer) {
         final LoginDialogFragment fragment = new LoginDialogFragment();
 
         // handle arguments
         final Bundle args = new Bundle();
         args.putLong(ARG_CLIENTID, clientId);
-        args.putString(ARG_CASSERVER, casServer);
         fragment.setArguments(args);
 
         return fragment;
@@ -48,12 +42,7 @@ public class LoginDialogFragment extends android.support.v4.app.DialogFragment i
 
         // load arguments
         final long clientId = getArguments().getLong(ARG_CLIENTID, -1);
-        final String casServer = getArguments().getString(ARG_CASSERVER);
-        if (casServer != null) {
-            this.thekey = new TheKeyImpl(this.getActivity(), clientId, casServer);
-        } else {
-            this.thekey = new TheKeyImpl(this.getActivity(), clientId);
-        }
+        this.thekey = TheKeyImpl.getInstance(this.getActivity(), clientId);
     }
 
     @Override
