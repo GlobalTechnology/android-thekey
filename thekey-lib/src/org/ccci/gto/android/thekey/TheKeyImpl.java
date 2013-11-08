@@ -12,6 +12,7 @@ import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ATTR_GUID;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ATTR_LAST_NAME;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_CLIENT_ID;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_CODE;
+import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_EXPIRES_IN;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_GRANT_TYPE;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_REDIRECT_URI;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_REFRESH_TOKEN;
@@ -38,6 +39,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeySocketException;
+import me.thekey.android.util.BroadcastUtils;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicHeaderValueParser;
@@ -150,6 +152,9 @@ public final class TheKeyImpl implements TheKey {
                     // parse the json response
                     final JSONObject json = this.parseJsonResponse(conn.getInputStream());
                     storeAttributes(json);
+
+                    // broadcast that we just loaded the attributes
+                    BroadcastUtils.broadcastAttributesLoaded(context, json.optString(OAUTH_PARAM_ATTR_GUID, null));
 
                     // return that attributes were loaded
                     return true;
@@ -404,10 +409,16 @@ public final class TheKeyImpl implements TheKey {
         prefs.remove(PREF_GUID);
 
         synchronized (this.lock_auth) {
+            final String guid = this.getPrefs().getString(PREF_GUID, null);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
                 prefs.apply();
             } else {
                 prefs.commit();
+            }
+
+            // broadcast a logout action if we had a guid
+            if (guid != null) {
+                BroadcastUtils.broadcastLogout(context, guid);
             }
         }
     }
@@ -481,45 +492,50 @@ public final class TheKeyImpl implements TheKey {
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     private void storeGrants(final JSONObject json) {
-        final Editor prefs = this.getPrefs().edit();
+        try {
+            final Editor prefs = this.getPrefs().edit();
 
-        // store access_token
-        if (json.has(OAUTH_PARAM_ACCESS_TOKEN)) {
-            try {
+            // store access_token
+            if (json.has(OAUTH_PARAM_ACCESS_TOKEN)) {
                 prefs.putString(PREF_ACCESS_TOKEN, json.getString(OAUTH_PARAM_ACCESS_TOKEN));
                 prefs.remove(PREF_EXPIRE_TIME);
-                if (json.has("expires_in")) {
-                    prefs.putLong(PREF_EXPIRE_TIME, System.currentTimeMillis() + json.getLong("expires_in") * 1000);
+                if (json.has(OAUTH_PARAM_EXPIRES_IN)) {
+                    prefs.putLong(PREF_EXPIRE_TIME, System.currentTimeMillis() + json.getLong(OAUTH_PARAM_EXPIRES_IN)
+                            * 1000);
                 }
                 prefs.remove(PREF_GUID);
                 if (json.has(OAUTH_PARAM_THEKEY_GUID)) {
                     prefs.putString(PREF_GUID, json.getString(OAUTH_PARAM_THEKEY_GUID));
                 }
-            } catch (final JSONException e) {
-                prefs.remove(PREF_ACCESS_TOKEN);
-                prefs.remove(PREF_EXPIRE_TIME);
-                prefs.remove(PREF_GUID);
             }
-        }
 
-        // store refresh_token
-        if (json.has(OAUTH_PARAM_REFRESH_TOKEN)) {
-            try {
+            // store refresh_token
+            if (json.has(OAUTH_PARAM_REFRESH_TOKEN)) {
                 prefs.putString(PREF_REFRESH_TOKEN, json.getString(OAUTH_PARAM_REFRESH_TOKEN));
-            } catch (final JSONException e) {
-                prefs.remove(PREF_REFRESH_TOKEN);
             }
-        }
 
-        // we synchronize this to prevent race conditions with using the
-        // access_token
-        synchronized (this.lock_auth) {
-            // store updates
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                prefs.apply();
-            } else {
-                prefs.commit();
+            // we synchronize update to prevent race conditions
+            synchronized (this.lock_auth) {
+                final String oldGuid = this.getPrefs().getString(PREF_GUID, null);
+                final String newGuid = json.optString(OAUTH_PARAM_THEKEY_GUID, null);
+
+                // store updates
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                    prefs.apply();
+                } else {
+                    prefs.commit();
+                }
+
+                // trigger logout/login broadcasts based on guid changes
+                if (oldGuid != null && !oldGuid.equals(newGuid)) {
+                    BroadcastUtils.broadcastLogout(context, oldGuid);
+                }
+                if (newGuid != null && !newGuid.equals(oldGuid)) {
+                    BroadcastUtils.broadcastLogin(context, newGuid);
+                }
             }
+        } catch (final JSONException e) {
+            this.clearAuthState();
         }
     }
 

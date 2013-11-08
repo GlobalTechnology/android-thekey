@@ -5,6 +5,11 @@ import java.util.Date;
 import android.util.Pair;
 
 public interface TheKey {
+    public static final String ACTION_LOGIN = TheKey.class.getName() + ".ACTION_LOGIN";
+    public static final String ACTION_LOGOUT = TheKey.class.getName() + ".ACTION_LOGOUT";
+    public static final String ACTION_ATTRIBUTES_LOADED = TheKey.class.getName() + ".ACTION_ATTRIBUTES_LOADED";
+    public static final String EXTRA_GUID = "guid";
+
     interface Attributes {
         String getGuid();
 
