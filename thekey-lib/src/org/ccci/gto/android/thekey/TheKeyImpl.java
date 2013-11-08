@@ -62,6 +62,8 @@ public final class TheKeyImpl implements TheKey {
     private final Uri casServer;
     private final Long clientId;
 
+    private final Object lock_auth = new Object();
+
     private TheKeyImpl(final Context context, final long clientId, final Uri casServer) {
         this.context = context;
         this.clientId = clientId;
@@ -145,7 +147,7 @@ public final class TheKeyImpl implements TheKey {
             }
 
             // the access token didn't work, remove it and restart processing
-            this.removeAccessToken();
+            this.removeAccessToken(credentials.first);
         }
 
         // the user needs to authenticate before a ticket can be retrieved
@@ -201,37 +203,44 @@ public final class TheKeyImpl implements TheKey {
             return null;
         }
 
-        // check for an existing accessToken
-        final Pair<String, Attributes> credentials = this.getAccessTokenAndAttributes();
-        if (credentials != null && credentials.first != null) {
-            return credentials;
-        }
-
-        // try fetching a new access_token using a refresh_token
-        final String refreshToken = this.getRefreshToken();
-        if (refreshToken != null) {
-            if (this.processRefreshTokenGrant(refreshToken)) {
-                return this.getValidAccessTokenAndAttributes(depth + 1);
+        synchronized (this.lock_auth) {
+            // check for an existing accessToken
+            final Pair<String, Attributes> credentials = this.getAccessTokenAndAttributes();
+            if (credentials != null && credentials.first != null) {
+                return credentials;
             }
 
-            // the refresh_token isn't valid anymore
-            this.removeRefreshToken();
+            // try fetching a new access_token using a refresh_token
+            final String refreshToken = this.getRefreshToken();
+            if (refreshToken != null) {
+                if (this.processRefreshTokenGrant(refreshToken)) {
+                    return this.getValidAccessTokenAndAttributes(depth + 1);
+                }
+
+                // the refresh_token isn't valid anymore
+                this.removeRefreshToken();
+            }
+
+            // no valid access_token was found, clear auth state
+            this.clearAuthState();
         }
 
-        // no valid access_token was found, clear auth state
-        this.clearAuthState();
         return null;
     }
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void removeAccessToken() {
-        final Editor prefs = this.getPrefs().edit();
-        prefs.remove(PREF_ACCESS_TOKEN);
-        prefs.remove(PREF_EXPIRE_TIME);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            prefs.apply();
-        } else {
-            prefs.commit();
+    private void removeAccessToken(final String token) {
+        synchronized (this.lock_auth) {
+            if (token != null && token.equals(this.getPrefs().getString(PREF_ACCESS_TOKEN, null))) {
+                final Editor prefs = this.getPrefs().edit();
+                prefs.remove(PREF_ACCESS_TOKEN);
+                prefs.remove(PREF_EXPIRE_TIME);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                    prefs.apply();
+                } else {
+                    prefs.commit();
+                }
+            }
         }
     }
 
@@ -253,10 +262,13 @@ public final class TheKeyImpl implements TheKey {
         prefs.remove(PREF_REFRESH_TOKEN);
         prefs.remove(PREF_EXPIRE_TIME);
         prefs.remove(PREF_GUID);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            prefs.apply();
-        } else {
-            prefs.commit();
+
+        synchronized (this.lock_auth) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                prefs.apply();
+            } else {
+                prefs.commit();
+            }
         }
     }
 
@@ -359,11 +371,15 @@ public final class TheKeyImpl implements TheKey {
             }
         }
 
-        // store updates
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            prefs.apply();
-        } else {
-            prefs.commit();
+        // we synchronize this to prevent race conditions with using the
+        // access_token
+        synchronized (this.lock_auth) {
+            // store updates
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                prefs.apply();
+            } else {
+                prefs.commit();
+            }
         }
     }
 
