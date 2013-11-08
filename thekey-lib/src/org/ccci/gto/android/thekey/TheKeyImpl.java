@@ -1,9 +1,15 @@
 package org.ccci.gto.android.thekey;
 
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.ccci.gto.android.thekey.Constant.CAS_SERVER;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_GRANT_TYPE_AUTHORIZATION_CODE;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_GRANT_TYPE_REFRESH_TOKEN;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ACCESS_TOKEN;
+import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ATTR_EMAIL;
+import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ATTR_FIRST_NAME;
+import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ATTR_GUID;
+import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ATTR_LAST_NAME;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_CLIENT_ID;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_CODE;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_GRANT_TYPE;
@@ -23,7 +29,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -31,6 +39,8 @@ import javax.net.ssl.HttpsURLConnection;
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeySocketException;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicHeaderValueParser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -54,6 +64,11 @@ public final class TheKeyImpl implements TheKey {
     private static final String PREF_EXPIRE_TIME = "expire_time";
     private static final String PREF_GUID = "guid";
     private static final String PREF_REFRESH_TOKEN = "refresh_token";
+    private static final String PREF_ATTR_LOAD_TIME = "attr_load_time";
+    private static final String PREF_ATTR_GUID = "attr_guid";
+    private static final String PREF_ATTR_EMAIL = "attr_email";
+    private static final String PREF_ATTR_FIRST_NAME = "attr_firstName";
+    private static final String PREF_ATTR_LAST_NAME = "attr_lastName";
 
     private static final Object LOCK_INSTANCE = new Object();
     private static final LongSparseArray<TheKeyImpl> instances = new LongSparseArray<TheKeyImpl>();
@@ -63,6 +78,7 @@ public final class TheKeyImpl implements TheKey {
     private final Long clientId;
 
     private final Object lock_auth = new Object();
+    private final Object lock_attrs = new Object();
 
     private TheKeyImpl(final Context context, final long clientId, final Uri casServer) {
         this.context = context;
@@ -116,6 +132,129 @@ public final class TheKeyImpl implements TheKey {
         }
 
         return uri.build();
+    }
+
+    @Override
+    public boolean loadAttributes() throws TheKeySocketException {
+        Pair<String, Attributes> credentials = null;
+        while ((credentials = this.getValidAccessTokenAndAttributes(0)) != null) {
+            // request the attributes from CAS
+            HttpsURLConnection conn = null;
+            try {
+                // generate & send request
+                final Uri attrsUri = this.getCasUri("api", "oauth", "attributes").buildUpon()
+                        .appendQueryParameter(OAUTH_PARAM_ACCESS_TOKEN, credentials.first).build();
+                conn = (HttpsURLConnection) new URL(attrsUri.toString()).openConnection();
+
+                if (conn.getResponseCode() == HTTP_OK) {
+                    // parse the json response
+                    final JSONObject json = this.parseJsonResponse(conn.getInputStream());
+                    storeAttributes(json);
+
+                    // return that attributes were loaded
+                    return true;
+                } else if (conn.getResponseCode() == HTTP_UNAUTHORIZED) {
+                    // parse the Authenticate header
+                    String scheme = null;
+                    NameValuePair[] params = new NameValuePair[0];
+                    String auth = conn.getHeaderField("WWW-Authenticate");
+                    if (auth != null) {
+                        auth = auth.trim();
+                        int i = auth.indexOf(" ");
+                        if (i == -1) {
+                            scheme = auth;
+                        } else {
+                            scheme = auth.substring(0, i);
+                            auth = auth.substring(i).trim();
+                            params = BasicHeaderValueParser.parseParameters(auth, BasicHeaderValueParser.DEFAULT);
+                        }
+
+                        scheme = scheme.toUpperCase(Locale.US);
+                    }
+
+                    // OAuth Bearer auth
+                    if ("BEARER".equals(scheme)) {
+                        // extract the error encountered
+                        String error = null;
+                        for(final NameValuePair param : params) {
+                            if (param != null && "error".equals(param.getName())) {
+                                error = param.getValue();
+                            }
+                        }
+
+                        if ("insufficient_scope".equals(error)) {
+                            this.removeAttributes();
+                            return false;
+                        } else if ("invalid_token".equals(error)) {
+                            this.removeAccessToken(credentials.first);
+                            continue;
+                        }
+                    }
+                }
+            } catch (final MalformedURLException e) {
+                throw new RuntimeException("malformed CAS URL", e);
+            } catch (final IOException e) {
+                throw new TheKeySocketException("connect error", e);
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            }
+
+            // the access token didn't work, remove it and restart processing
+            this.removeAccessToken(credentials.first);
+        }
+
+        return false;
+    }
+
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    private void storeAttributes(final JSONObject json) {
+        final Editor prefs = this.getPrefs().edit();
+
+        prefs.putLong(PREF_ATTR_LOAD_TIME, System.currentTimeMillis());
+        prefs.putString(PREF_ATTR_GUID, json.optString(OAUTH_PARAM_ATTR_GUID, null));
+        prefs.putString(PREF_ATTR_EMAIL, json.optString(OAUTH_PARAM_ATTR_EMAIL, null));
+        prefs.putString(PREF_ATTR_FIRST_NAME, json.optString(OAUTH_PARAM_ATTR_FIRST_NAME, null));
+        prefs.putString(PREF_ATTR_LAST_NAME, json.optString(OAUTH_PARAM_ATTR_LAST_NAME, null));
+
+        // we synchronize this to prevent race conditions with getAttributes
+        synchronized (this.lock_attrs) {
+            // store updates
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                prefs.apply();
+            } else {
+                prefs.commit();
+            }
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    private void removeAttributes() {
+        final Editor prefs = this.getPrefs().edit();
+        prefs.remove(PREF_ATTR_GUID);
+        prefs.remove(PREF_ATTR_EMAIL);
+        prefs.remove(PREF_ATTR_FIRST_NAME);
+        prefs.remove(PREF_ATTR_LAST_NAME);
+        prefs.remove(PREF_ATTR_LOAD_TIME);
+
+        // we synchronize this to prevent race conditions with getAttributes
+        synchronized (this.lock_attrs) {
+            // store updates
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                prefs.apply();
+            } else {
+                prefs.commit();
+            }
+        }
+    }
+
+    @Override
+    public Attributes getAttributes() {
+        synchronized (this.lock_attrs) {
+            // return the attributes for the current OAuth session
+            return new AttributesImpl(this.getPrefs().getAll());
+        }
     }
 
     /**
@@ -178,19 +317,20 @@ public final class TheKeyImpl implements TheKey {
     }
 
     private Pair<String, Attributes> getAccessTokenAndAttributes() {
-        // we use getAll to access the preferences to reduce the chance of a
-        // race condition
-        final Map<String, ?> attrs = new HashMap<String, Object>(this.getPrefs().getAll());
         final long currentTime = System.currentTimeMillis();
-        final long expireTime;
-        {
-            final Long v = (Long) attrs.get(PREF_EXPIRE_TIME);
-            expireTime = v != null ? v : currentTime;
-        }
-        final String accessToken = expireTime >= currentTime ? (String) attrs.get(PREF_ACCESS_TOKEN) : null;
 
-        // return the access_token, attributes pair if we have an access_token
-        return accessToken != null ? Pair.create(accessToken, (Attributes) new AttributesImpl(attrs)) : null;
+        synchronized (this.lock_attrs) {
+            final Map<String, ?> attrs = this.getPrefs().getAll();
+            final long expireTime;
+            {
+                final Long v = (Long) attrs.get(PREF_EXPIRE_TIME);
+                expireTime = v != null ? v : currentTime;
+            }
+            final String accessToken = expireTime >= currentTime ? (String) attrs.get(PREF_ACCESS_TOKEN) : null;
+
+            // return a pair only if we have an access_token
+            return accessToken != null ? Pair.create(accessToken, (Attributes) new AttributesImpl(attrs)) : null;
+        }
     }
 
     private String getRefreshToken() {
@@ -415,13 +555,48 @@ public final class TheKeyImpl implements TheKey {
 
     private static final class AttributesImpl implements Attributes {
         private final Map<String, ?> attrs;
+        private final boolean valid;
 
         private AttributesImpl(final Map<String, ?> prefsMap) {
             this.attrs = new HashMap<String, Object>(prefsMap);
+            this.attrs.remove(PREF_ACCESS_TOKEN);
+            this.attrs.remove(PREF_REFRESH_TOKEN);
+            this.attrs.remove(PREF_EXPIRE_TIME);
+
+            // determine if the attributes are valid
+            final String guid = (String) this.attrs.get(PREF_GUID);
+            this.valid = this.attrs.containsKey(PREF_ATTR_LOAD_TIME) && guid != null
+                    && guid.equals(this.attrs.get(PREF_ATTR_GUID));
         }
 
         public String getGuid() {
             return (String) this.attrs.get(PREF_GUID);
+        }
+
+        @Override
+        public boolean areValid() {
+            return this.valid;
+        }
+
+        @Override
+        public Date getLoadedTime() {
+            final Long time = this.valid ? (Long) this.attrs.get(PREF_ATTR_LOAD_TIME) : null;
+            return new Date(time != null ? time : 0);
+        }
+
+        @Override
+        public String getEmail() {
+            return this.valid ? (String) this.attrs.get(PREF_ATTR_EMAIL) : null;
+        }
+
+        @Override
+        public String getFirstName() {
+            return this.valid ? (String) this.attrs.get(PREF_ATTR_FIRST_NAME) : null;
+        }
+
+        @Override
+        public String getLastName() {
+            return this.valid ? (String) this.attrs.get(PREF_ATTR_LAST_NAME) : null;
         }
     }
 }

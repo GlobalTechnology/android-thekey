@@ -17,6 +17,12 @@ public final class Constant {
     public static final String OAUTH_PARAM_STATE = "state";
     public static final String OAUTH_PARAM_THEKEY_GUID = "thekey_guid";
 
+    // OAuth attribute params
+    public static final String OAUTH_PARAM_ATTR_GUID = "ssoGuid";
+    public static final String OAUTH_PARAM_ATTR_EMAIL = "email";
+    public static final String OAUTH_PARAM_ATTR_FIRST_NAME = "firstName";
+    public static final String OAUTH_PARAM_ATTR_LAST_NAME = "lastName";
+
     // OAuth grant types
     public static final String OAUTH_GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code";
     public static final String OAUTH_GRANT_TYPE_REFRESH_TOKEN = "refresh_token";

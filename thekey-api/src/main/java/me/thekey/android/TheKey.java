@@ -1,13 +1,44 @@
 package me.thekey.android;
 
+import java.util.Date;
+
 import android.util.Pair;
 
 public interface TheKey {
     interface Attributes {
         String getGuid();
+
+        Date getLoadedTime();
+
+        boolean areValid();
+
+        String getEmail();
+
+        String getFirstName();
+
+        String getLastName();
     }
 
     String getGuid();
+
+    /**
+     * This method will load the attributes for the current OAuth session from
+     * The Key. This method is a blocking method and should never be called
+     * directly on the UI thread.
+     * 
+     * @return whether or not attributes were loaded
+     */
+    boolean loadAttributes() throws TheKeySocketException;
+
+    /**
+     * This method will return the most recently loaded attributes for the
+     * current OAuth session. This method does not attempt to load the
+     * attributes if they haven't been loaded yet, to load the attributes see
+     * {@link TheKey#loadAttributes()}.
+     * 
+     * @return The attributes for the current OAuth session
+     */
+    Attributes getAttributes();
 
     /**
      * This method returns a ticket for the specified service. This method is a
