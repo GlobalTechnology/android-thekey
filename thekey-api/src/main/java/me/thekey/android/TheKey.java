@@ -24,6 +24,11 @@ public interface TheKey {
         String getLastName();
     }
 
+    /**
+     * This method will return the guid of the current OAuth session
+     * 
+     * @return the user's guid
+     */
     String getGuid();
 
     /**
