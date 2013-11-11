@@ -9,6 +9,7 @@ public interface TheKey {
     public static final String ACTION_LOGOUT = TheKey.class.getName() + ".ACTION_LOGOUT";
     public static final String ACTION_ATTRIBUTES_LOADED = TheKey.class.getName() + ".ACTION_ATTRIBUTES_LOADED";
     public static final String EXTRA_GUID = "guid";
+    public static final String EXTRA_CHANGING_USER = "changing_user";
 
     interface Attributes {
         String getGuid();
@@ -65,7 +66,8 @@ public interface TheKey {
      * called directly on the UI thread.
      * 
      * @param service
-     * @return The ticket & attributes
+     * @return The ticket & attributes for the current session, or null if no
+     *         ticket could be retrieved
      */
     Pair<String, Attributes> getTicketAndAttributes(String service) throws TheKeySocketException;
 }

@@ -418,7 +418,7 @@ public final class TheKeyImpl implements TheKey {
 
             // broadcast a logout action if we had a guid
             if (guid != null) {
-                BroadcastUtils.broadcastLogout(context, guid);
+                BroadcastUtils.broadcastLogout(context, guid, false);
             }
         }
     }
@@ -528,7 +528,7 @@ public final class TheKeyImpl implements TheKey {
 
                 // trigger logout/login broadcasts based on guid changes
                 if (oldGuid != null && !oldGuid.equals(newGuid)) {
-                    BroadcastUtils.broadcastLogout(context, oldGuid);
+                    BroadcastUtils.broadcastLogout(context, oldGuid, newGuid != null);
                 }
                 if (newGuid != null && !newGuid.equals(oldGuid)) {
                     BroadcastUtils.broadcastLogin(context, newGuid);
