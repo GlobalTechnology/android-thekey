@@ -117,11 +117,11 @@ public final class TheKeyImpl implements TheKey {
         return this.getPrefs().getString(PREF_GUID, null);
     }
 
-    protected Uri getAuthorizeUri() {
+    public Uri getAuthorizeUri() {
         return this.getAuthorizeUri(null);
     }
 
-    protected Uri getAuthorizeUri(final String state) {
+    public Uri getAuthorizeUri(final String state) {
         // build oauth authorize url
         final Builder uri = this.getCasUri("oauth", "authorize").buildUpon()
                 .appendQueryParameter(OAUTH_PARAM_CLIENT_ID, this.getClientId().toString())

@@ -3,9 +3,9 @@ package me.thekey.android.lib.activity;
 import static me.thekey.android.TheKey.INVALID_CLIENT_ID;
 import static me.thekey.android.lib.Builder.OPT_CLIENT_ID;
 import static me.thekey.android.lib.activity.ActivityBuilder.EXTRA_ARGS;
+import me.thekey.android.lib.util.DisplayUtil;
 
 import org.ccci.gto.android.thekey.CodeGrantAsyncTask;
-import org.ccci.gto.android.thekey.DisplayUtil;
 import org.ccci.gto.android.thekey.LoginWebViewClient;
 import org.ccci.gto.android.thekey.R;
 import org.ccci.gto.android.thekey.TheKeyImpl;
@@ -20,9 +20,9 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 public class LoginActivity extends Activity {
-    public final static String EXTRA_CLIENTID = "org.ccci.gto.android.thekey.CLIENT_ID";
     public final static String EXTRA_RESPONSE_GUID = "org.ccci.gto.android.thekey.response.GUID";
 
+    private Bundle mArgs;
     private TheKeyImpl mTheKey;
 
     // login WebView
@@ -42,8 +42,8 @@ public class LoginActivity extends Activity {
 
         // create TheKey object
         final Intent intent = getIntent();
-        final Bundle args = intent.getBundleExtra(EXTRA_ARGS);
-        mTheKey = TheKeyImpl.getInstance(this, args.getLong(OPT_CLIENT_ID, INVALID_CLIENT_ID));
+        mArgs = intent.getBundleExtra(EXTRA_ARGS);
+        mTheKey = TheKeyImpl.getInstance(this, mArgs.getLong(OPT_CLIENT_ID, INVALID_CLIENT_ID));
 
         // init the Login WebView
         this.attachLoginView();
@@ -69,7 +69,7 @@ public class LoginActivity extends Activity {
 
         // create a loginView if it doesn't exist already
         if (this.loginView == null) {
-            this.loginView = DisplayUtil.createLoginWebView(this, mTheKey, new ActivityLoginWebViewClient(this));
+            this.loginView = DisplayUtil.createLoginWebView(this, new ActivityLoginWebViewClient(this), mArgs);
         }
 
         // attach the login view to the current frame

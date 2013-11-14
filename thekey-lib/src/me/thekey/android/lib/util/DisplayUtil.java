@@ -1,9 +1,16 @@
-package org.ccci.gto.android.thekey;
+package me.thekey.android.lib.util;
+
+import static me.thekey.android.TheKey.INVALID_CLIENT_ID;
+import static me.thekey.android.lib.Builder.OPT_CLIENT_ID;
+
+import org.ccci.gto.android.thekey.LoginWebViewClient;
+import org.ccci.gto.android.thekey.TheKeyImpl;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +21,9 @@ import android.webkit.WebView;
 public final class DisplayUtil {
     @SuppressLint("SetJavaScriptEnabled")
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public static WebView createLoginWebView(final Context context, final TheKeyImpl thekey,
-                                             final LoginWebViewClient webViewClient) {
+    public static WebView createLoginWebView(final Context context, final LoginWebViewClient client, final Bundle args) {
+        final TheKeyImpl thekey = TheKeyImpl.getInstance(context, args.getLong(OPT_CLIENT_ID, INVALID_CLIENT_ID));
+
         final WebView webView = new WebView(context);
         webView.setVisibility(View.GONE);
         webView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -23,9 +31,9 @@ public final class DisplayUtil {
         webView.setScrollbarFadingEnabled(true);
 
         final WebSettings settings = webView.getSettings();
+
+        // security related settings
         settings.setSavePassword(false);
-        settings.setJavaScriptEnabled(true);
-        settings.setLoadsImagesAutomatically(true);
         settings.setAllowFileAccess(false);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             settings.setAllowContentAccess(false);
@@ -35,7 +43,11 @@ public final class DisplayUtil {
             }
         }
 
-        webView.setWebViewClient(webViewClient);
+        // display related settings
+        settings.setJavaScriptEnabled(true);
+        settings.setLoadsImagesAutomatically(true);
+
+        webView.setWebViewClient(client);
         webView.loadUrl(thekey.getAuthorizeUri().toString());
 
         // apply any hacks to work around various bugs in previous versions of android

@@ -4,8 +4,8 @@ import static me.thekey.android.TheKey.INVALID_CLIENT_ID;
 import static me.thekey.android.lib.Builder.OPT_CLIENT_ID;
 import me.thekey.android.lib.Builder;
 import me.thekey.android.lib.fragment.FragmentBuilder;
+import me.thekey.android.lib.util.DisplayUtil;
 
-import org.ccci.gto.android.thekey.DisplayUtil;
 import org.ccci.gto.android.thekey.R;
 import org.ccci.gto.android.thekey.TheKeyImpl;
 
@@ -41,7 +41,6 @@ public class LoginDialogFragment extends DialogFragment implements org.ccci.gto.
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         this.setRetainInstance(true);
 
         // load arguments
@@ -79,8 +78,8 @@ public class LoginDialogFragment extends DialogFragment implements org.ccci.gto.
 
         // create a loginView if it doesn't exist already
         if (this.loginView == null) {
-            this.loginView = DisplayUtil.createLoginWebView(getActivity(), mTheKey, new LoginDialogWebViewClient(this,
-                    mTheKey));
+            this.loginView = DisplayUtil.createLoginWebView(getActivity(), new LoginDialogWebViewClient(this, mTheKey),
+                    getArguments());
         }
 
         // attach the login view to the current frame
