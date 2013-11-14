@@ -72,8 +72,7 @@ public final class TheKeyImpl implements TheKey {
     private static final String PREF_ATTR_FIRST_NAME = "attr_firstName";
     private static final String PREF_ATTR_LAST_NAME = "attr_lastName";
 
-    private static final Object LOCK_INSTANCE = new Object();
-    private static final LongSparseArray<TheKeyImpl> instances = new LongSparseArray<TheKeyImpl>();
+    private static final LongSparseArray<TheKeyImpl> INSTANCES = new LongSparseArray<TheKeyImpl>();
 
     private final Context context;
     private final Uri casServer;
@@ -89,15 +88,13 @@ public final class TheKeyImpl implements TheKey {
     }
 
     public static TheKeyImpl getInstance(final Context context, final long clientId) {
-        if (instances.get(clientId) == null) {
-            synchronized (LOCK_INSTANCE) {
-                if (instances.get(clientId) == null) {
-                    instances.put(clientId, new TheKeyImpl(context.getApplicationContext(), clientId, CAS_SERVER));
-                }
+        synchronized (INSTANCES) {
+            if (INSTANCES.get(clientId) == null) {
+                INSTANCES.put(clientId, new TheKeyImpl(context.getApplicationContext(), clientId, CAS_SERVER));
             }
         }
 
-        return instances.get(clientId);
+        return INSTANCES.get(clientId);
     }
 
     protected Uri getCasUri() {
