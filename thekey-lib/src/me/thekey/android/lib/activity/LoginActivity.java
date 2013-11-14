@@ -69,7 +69,7 @@ public class LoginActivity extends Activity {
 
         // create a loginView if it doesn't exist already
         if (this.loginView == null) {
-            this.loginView = DisplayUtil.createLoginWebView(this, new ActivityLoginWebViewClient(this), mArgs);
+            this.loginView = DisplayUtil.createLoginWebView(this, new ActivityLoginWebViewClient(), mArgs);
         }
 
         // attach the login view to the current frame
@@ -86,8 +86,8 @@ public class LoginActivity extends Activity {
     }
 
     private class ActivityLoginWebViewClient extends LoginWebViewClient {
-        public ActivityLoginWebViewClient(final Context context) {
-            super(context, mTheKey);
+        public ActivityLoginWebViewClient() {
+            super(LoginActivity.this, mArgs);
         }
 
         @Override

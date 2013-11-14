@@ -78,8 +78,9 @@ public class LoginDialogFragment extends DialogFragment implements me.thekey.and
 
         // create a loginView if it doesn't exist already
         if (this.loginView == null) {
-            this.loginView = DisplayUtil.createLoginWebView(getActivity(), new LoginDialogWebViewClient(this, mTheKey),
-                    getArguments());
+            final Bundle args = getArguments();
+            this.loginView = DisplayUtil.createLoginWebView(getActivity(), new LoginDialogWebViewClient(this, args),
+                    args);
         }
 
         // attach the login view to the current frame

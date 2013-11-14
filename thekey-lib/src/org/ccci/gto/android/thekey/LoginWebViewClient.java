@@ -1,5 +1,7 @@
 package org.ccci.gto.android.thekey;
 
+import static me.thekey.android.TheKey.INVALID_CLIENT_ID;
+import static me.thekey.android.lib.Builder.OPT_CLIENT_ID;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_CODE;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ERROR;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_STATE;
@@ -7,25 +9,26 @@ import static org.ccci.gto.android.thekey.Constant.REDIRECT_URI;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewParent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public abstract class LoginWebViewClient extends WebViewClient {
-    private final Context context;
-    protected final TheKeyImpl thekey;
+    private final Context mContext;
+    protected final TheKeyImpl mTheKey;
     private final Uri oauthUri;
     private final String state;
 
-    public LoginWebViewClient(final Context context, final TheKeyImpl thekey) {
-        this(context, thekey, null);
+    protected LoginWebViewClient(final Context context, final Bundle args) {
+        this(context, args, null);
     }
 
-    public LoginWebViewClient(final Context context, final TheKeyImpl thekey, final String state) {
-        this.context = context;
-        this.thekey = thekey;
-        this.oauthUri = this.thekey.getAuthorizeUri().buildUpon().query("").build();
+    private LoginWebViewClient(final Context context, final Bundle args, final String state) {
+        mContext = context;
+        mTheKey = TheKeyImpl.getInstance(context, args.getLong(OPT_CLIENT_ID, INVALID_CLIENT_ID));
+        this.oauthUri = mTheKey.getAuthorizeUri().buildUpon().query("").build();
         this.state = state;
     }
 
@@ -48,7 +51,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
         }
         // external link, launch default Android activity
         else {
-            this.context.startActivity(new Intent(Intent.ACTION_VIEW, parsedUri));
+            mContext.startActivity(new Intent(Intent.ACTION_VIEW, parsedUri));
             return true;
         }
     }

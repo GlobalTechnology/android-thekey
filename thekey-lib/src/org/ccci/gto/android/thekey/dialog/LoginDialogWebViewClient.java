@@ -3,32 +3,32 @@ package org.ccci.gto.android.thekey.dialog;
 import me.thekey.android.lib.fragment.DialogFragment;
 
 import org.ccci.gto.android.thekey.LoginWebViewClient;
-import org.ccci.gto.android.thekey.TheKeyImpl;
 
 import android.app.Activity;
 import android.net.Uri;
+import android.os.Bundle;
 
 public class LoginDialogWebViewClient extends LoginWebViewClient {
-    final DialogFragment dialog;
+    private final DialogFragment mDialog;
 
-    public LoginDialogWebViewClient(final DialogFragment dialog, final TheKeyImpl thekey) {
-        super(dialog.getActivity(), thekey);
-        this.dialog = dialog;
+    public LoginDialogWebViewClient(final DialogFragment dialog, final Bundle args) {
+        super(dialog.getActivity(), args);
+        mDialog = dialog;
     }
 
     @Override
     protected void onAuthorizeSuccess(final Uri uri, final String code) {
-        new LoginDialogCodeGrantAsyncTask(this.dialog, this.thekey).execute(code);
+        new LoginDialogCodeGrantAsyncTask(mDialog, mTheKey).execute(code);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
+    @SuppressWarnings("unchecked")
     protected void onAuthorizeError(final Uri uri, final String errorCode) {
-        final Activity activity = this.dialog.getActivity();
+        final Activity activity = mDialog.getActivity();
         if (activity instanceof LoginDialogListener) {
-            ((LoginDialogListener<DialogFragment>) activity).onLoginFailure(dialog);
+            ((LoginDialogListener<DialogFragment>) activity).onLoginFailure(mDialog);
         }
 
-        dialog.dismiss();
+        mDialog.dismiss();
     }
 }
