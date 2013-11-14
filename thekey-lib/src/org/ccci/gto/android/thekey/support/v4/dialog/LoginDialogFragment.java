@@ -8,18 +8,18 @@ import me.thekey.android.lib.support.v4.fragment.FragmentBuilder;
 import org.ccci.gto.android.thekey.DisplayUtil;
 import org.ccci.gto.android.thekey.R;
 import org.ccci.gto.android.thekey.TheKeyImpl;
-import org.ccci.gto.android.thekey.dialog.DialogFragment;
 import org.ccci.gto.android.thekey.dialog.LoginDialogListener;
 import org.ccci.gto.android.thekey.dialog.LoginDialogWebViewClient;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
-public class LoginDialogFragment extends android.support.v4.app.DialogFragment implements DialogFragment {
+public class LoginDialogFragment extends DialogFragment implements org.ccci.gto.android.thekey.dialog.DialogFragment {
     private TheKeyImpl thekey;
 
     // login WebView
@@ -34,6 +34,8 @@ public class LoginDialogFragment extends android.support.v4.app.DialogFragment i
     public static final LoginDialogFragment newInstance(final long clientId) {
         return builder().clientId(clientId).build();
     }
+
+    /** BEGIN lifecycle */
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -68,6 +70,8 @@ public class LoginDialogFragment extends android.support.v4.app.DialogFragment i
 
         super.onDestroyView();
     }
+
+    /** END lifecycle */
 
     private void attachLoginView(final FrameLayout frame) {
         this.detachLoginView();

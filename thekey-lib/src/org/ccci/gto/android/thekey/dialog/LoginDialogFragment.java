@@ -4,6 +4,7 @@ import org.ccci.gto.android.thekey.DisplayUtil;
 import org.ccci.gto.android.thekey.R;
 import org.ccci.gto.android.thekey.TheKeyImpl;
 
+import android.app.DialogFragment;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -14,7 +15,7 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class LoginDialogFragment extends android.app.DialogFragment implements DialogFragment {
+public class LoginDialogFragment extends DialogFragment implements org.ccci.gto.android.thekey.dialog.DialogFragment {
     public final static String ARG_CLIENTID = "org.ccci.gto.android.thekey.CLIENT_ID";
 
     private TheKeyImpl thekey;
