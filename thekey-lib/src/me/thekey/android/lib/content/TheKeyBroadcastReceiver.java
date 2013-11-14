@@ -1,4 +1,4 @@
-package me.thekey.android.content;
+package me.thekey.android.lib.content;
 
 import static me.thekey.android.TheKey.ACTION_ATTRIBUTES_LOADED;
 import static me.thekey.android.TheKey.ACTION_LOGIN;

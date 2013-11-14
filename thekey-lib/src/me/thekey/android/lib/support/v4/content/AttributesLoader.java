@@ -1,11 +1,11 @@
-package me.thekey.android.support.v4.content;
+package me.thekey.android.lib.support.v4.content;
 
 import java.util.Date;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKey.Attributes;
 import me.thekey.android.TheKeySocketException;
-import me.thekey.android.content.TheKeyBroadcastReceiver;
+import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;

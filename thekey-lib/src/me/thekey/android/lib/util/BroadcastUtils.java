@@ -1,4 +1,4 @@
-package me.thekey.android.util;
+package me.thekey.android.lib.util;
 
 import static me.thekey.android.TheKey.ACTION_ATTRIBUTES_LOADED;
 import static me.thekey.android.TheKey.ACTION_LOGIN;

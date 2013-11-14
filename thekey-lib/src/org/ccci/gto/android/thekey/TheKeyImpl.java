@@ -39,7 +39,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeySocketException;
-import me.thekey.android.util.BroadcastUtils;
+import me.thekey.android.lib.util.BroadcastUtils;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicHeaderValueParser;
