@@ -19,7 +19,10 @@ public final class FragmentBuilder<T extends Fragment> extends AbstractBuilder<T
             final T fragment = clazz.newInstance();
             fragment.setArguments(mArgs);
             return fragment;
-        } catch (final ReflectiveOperationException e) {
+        } catch (final InstantiationException e) {
+            // propagate exception as a RuntimeException
+            throw new RuntimeException(e);
+        } catch (final IllegalAccessException e) {
             // propagate exception as a RuntimeException
             throw new RuntimeException(e);
         }
