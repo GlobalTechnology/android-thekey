@@ -20,7 +20,7 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class LoginDialogFragment extends DialogFragment implements org.ccci.gto.android.thekey.dialog.DialogFragment {
+public class LoginDialogFragment extends DialogFragment implements me.thekey.android.lib.fragment.DialogFragment {
     private TheKeyImpl mTheKey;
 
     // login WebView

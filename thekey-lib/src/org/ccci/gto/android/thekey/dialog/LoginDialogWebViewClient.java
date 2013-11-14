@@ -1,5 +1,7 @@
 package org.ccci.gto.android.thekey.dialog;
 
+import me.thekey.android.lib.fragment.DialogFragment;
+
 import org.ccci.gto.android.thekey.LoginWebViewClient;
 import org.ccci.gto.android.thekey.TheKeyImpl;
 
