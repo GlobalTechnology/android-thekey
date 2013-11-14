@@ -1,5 +1,10 @@
 package org.ccci.gto.android.thekey.support.v4.dialog;
 
+import static me.thekey.android.TheKey.INVALID_CLIENT_ID;
+import static me.thekey.android.lib.Builder.OPT_CLIENT_ID;
+import me.thekey.android.lib.Builder;
+import me.thekey.android.lib.support.v4.fragment.FragmentBuilder;
+
 import org.ccci.gto.android.thekey.DisplayUtil;
 import org.ccci.gto.android.thekey.R;
 import org.ccci.gto.android.thekey.TheKeyImpl;
@@ -15,34 +20,29 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 public class LoginDialogFragment extends android.support.v4.app.DialogFragment implements DialogFragment {
-    public final static String ARG_CLIENTID = "org.ccci.gto.android.thekey.CLIENT_ID";
-
     private TheKeyImpl thekey;
 
     // login WebView
     private FrameLayout frame = null;
     private WebView loginView = null;
 
+    public static final Builder<LoginDialogFragment> builder() {
+        return new FragmentBuilder<LoginDialogFragment>(LoginDialogFragment.class);
+    }
+
+    @Deprecated
     public static final LoginDialogFragment newInstance(final long clientId) {
-        final LoginDialogFragment fragment = new LoginDialogFragment();
-
-        // handle arguments
-        final Bundle args = new Bundle();
-        args.putLong(ARG_CLIENTID, clientId);
-        fragment.setArguments(args);
-
-        return fragment;
+        return builder().clientId(clientId).build();
     }
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         this.setRetainInstance(true);
 
         // load arguments
-        final long clientId = getArguments().getLong(ARG_CLIENTID, -1);
-        this.thekey = TheKeyImpl.getInstance(this.getActivity(), clientId);
+        this.thekey = TheKeyImpl.getInstance(this.getActivity(),
+                getArguments().getLong(OPT_CLIENT_ID, INVALID_CLIENT_ID));
     }
 
     @Override
