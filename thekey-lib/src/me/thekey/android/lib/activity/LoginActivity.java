@@ -1,4 +1,14 @@
-package org.ccci.gto.android.thekey;
+package me.thekey.android.lib.activity;
+
+import static me.thekey.android.TheKey.INVALID_CLIENT_ID;
+import static me.thekey.android.lib.Builder.OPT_CLIENT_ID;
+import static me.thekey.android.lib.activity.ActivityBuilder.EXTRA_ARGS;
+
+import org.ccci.gto.android.thekey.CodeGrantAsyncTask;
+import org.ccci.gto.android.thekey.DisplayUtil;
+import org.ccci.gto.android.thekey.LoginWebViewClient;
+import org.ccci.gto.android.thekey.R;
+import org.ccci.gto.android.thekey.TheKeyImpl;
 
 import android.app.Activity;
 import android.content.Context;
@@ -13,11 +23,17 @@ public class LoginActivity extends Activity {
     public final static String EXTRA_CLIENTID = "org.ccci.gto.android.thekey.CLIENT_ID";
     public final static String EXTRA_RESPONSE_GUID = "org.ccci.gto.android.thekey.response.GUID";
 
-    private TheKeyImpl thekey;
+    private TheKeyImpl mTheKey;
 
     // login WebView
     private FrameLayout frame = null;
     private WebView loginView = null;
+
+    public static final ActivityBuilder builder(final Context context) {
+        return new ActivityBuilder(context, LoginActivity.class);
+    }
+
+    /** BEGIN lifecycle */
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -26,8 +42,8 @@ public class LoginActivity extends Activity {
 
         // create TheKey object
         final Intent intent = getIntent();
-        final long clientId = intent.getLongExtra(EXTRA_CLIENTID, -1);
-        this.thekey = TheKeyImpl.getInstance(this, clientId);
+        final Bundle args = intent.getBundleExtra(EXTRA_ARGS);
+        mTheKey = TheKeyImpl.getInstance(this, args.getLong(OPT_CLIENT_ID, INVALID_CLIENT_ID));
 
         // init the Login WebView
         this.attachLoginView();
@@ -46,13 +62,14 @@ public class LoginActivity extends Activity {
         this.attachLoginView();
     }
 
+    /** END lifecycle */
+
     private void attachLoginView() {
         this.detachLoginView();
 
         // create a loginView if it doesn't exist already
         if (this.loginView == null) {
-            this.loginView = DisplayUtil.createLoginWebView(this, this.thekey, new ActivityLoginWebViewClient(this,
-                    this.thekey));
+            this.loginView = DisplayUtil.createLoginWebView(this, mTheKey, new ActivityLoginWebViewClient(this));
         }
 
         // attach the login view to the current frame
@@ -69,13 +86,13 @@ public class LoginActivity extends Activity {
     }
 
     private class ActivityLoginWebViewClient extends LoginWebViewClient {
-        public ActivityLoginWebViewClient(final Context context, final TheKeyImpl thekey) {
-            super(context, thekey);
+        public ActivityLoginWebViewClient(final Context context) {
+            super(context, mTheKey);
         }
 
         @Override
         protected void onAuthorizeSuccess(final Uri uri, final String code) {
-            new ActivityCodeGrantAsyncTask(this.thekey).execute(code);
+            new ActivityCodeGrantAsyncTask().execute(code);
         }
 
         @Override
@@ -86,8 +103,8 @@ public class LoginActivity extends Activity {
     }
 
     private class ActivityCodeGrantAsyncTask extends CodeGrantAsyncTask {
-        public ActivityCodeGrantAsyncTask(final TheKeyImpl thekey) {
-            super(thekey);
+        public ActivityCodeGrantAsyncTask() {
+            super(mTheKey);
         }
 
         @Override
@@ -96,7 +113,7 @@ public class LoginActivity extends Activity {
 
             if (result.booleanValue()) {
                 final Intent response = new Intent();
-                response.putExtra(EXTRA_RESPONSE_GUID, LoginActivity.this.thekey.getGuid());
+                response.putExtra(EXTRA_RESPONSE_GUID, mTheKey.getGuid());
                 LoginActivity.this.setResult(RESULT_OK, response);
             } else {
                 LoginActivity.this.setResult(RESULT_CANCELED);

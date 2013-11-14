@@ -1,9 +1,9 @@
 package me.thekey.android.lib.support.v4.fragment;
 
-import me.thekey.android.lib.AbstractFragmentBuilder;
+import me.thekey.android.lib.AbstractBuilder;
 import android.support.v4.app.Fragment;
 
-public final class FragmentBuilder<T extends Fragment> extends AbstractFragmentBuilder<T> {
+public final class FragmentBuilder<T extends Fragment> extends AbstractBuilder<T> {
     private final Class<T> clazz;
 
     public FragmentBuilder(final Class<T> clazz) {

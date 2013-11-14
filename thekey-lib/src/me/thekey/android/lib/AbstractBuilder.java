@@ -2,8 +2,11 @@ package me.thekey.android.lib;
 
 import static me.thekey.android.TheKey.INVALID_CLIENT_ID;
 import static org.ccci.gto.android.thekey.Constant.CAS_SERVER;
+import android.os.Bundle;
 
 public abstract class AbstractBuilder<T> implements Builder<T> {
+    protected final Bundle mArgs = new Bundle();
+
     public AbstractBuilder() {
         this.casServer(CAS_SERVER.toString());
         this.clientId(INVALID_CLIENT_ID);
@@ -11,15 +14,23 @@ public abstract class AbstractBuilder<T> implements Builder<T> {
 
     @Override
     public final Builder<T> casServer(final String server) {
-        return this.setString(OPT_CAS_SERVER, server);
+        mArgs.putString(OPT_CAS_SERVER, server);
+        return this;
     }
 
     @Override
     public final Builder<T> clientId(final long id) {
-        return this.setLong(OPT_CLIENT_ID, id);
+        mArgs.putLong(OPT_CLIENT_ID, id);
+        return this;
     }
 
-    protected abstract Builder<T> setLong(final String key, final long value);
+    @Override
+    public T build() {
+        throw new UnsupportedOperationException("Cannot call build() on this Builder");
+    }
 
-    protected abstract Builder<T> setString(final String key, final String value);
+    @Override
+    public void start() {
+        throw new UnsupportedOperationException("Cannot call start() on this Builder");
+    }
 }
