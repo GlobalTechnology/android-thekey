@@ -20,7 +20,7 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 public class LoginDialogFragment extends DialogFragment implements org.ccci.gto.android.thekey.dialog.DialogFragment {
-    private TheKeyImpl thekey;
+    private TheKeyImpl mTheKey;
 
     // login WebView
     private FrameLayout frame = null;
@@ -43,8 +43,7 @@ public class LoginDialogFragment extends DialogFragment implements org.ccci.gto.
         this.setRetainInstance(true);
 
         // load arguments
-        this.thekey = TheKeyImpl.getInstance(this.getActivity(),
-                getArguments().getLong(OPT_CLIENT_ID, INVALID_CLIENT_ID));
+        mTheKey = TheKeyImpl.getInstance(getActivity(), getArguments().getLong(OPT_CLIENT_ID, INVALID_CLIENT_ID));
     }
 
     @Override
@@ -78,8 +77,8 @@ public class LoginDialogFragment extends DialogFragment implements org.ccci.gto.
 
         // create a loginView if it doesn't exist already
         if (this.loginView == null) {
-            this.loginView = DisplayUtil.createLoginWebView(this.getActivity(), this.thekey,
-                    new LoginDialogWebViewClient(this, this.thekey));
+            this.loginView = DisplayUtil.createLoginWebView(getActivity(), mTheKey, new LoginDialogWebViewClient(this,
+                    mTheKey));
         }
 
         // attach the login view to the current frame

@@ -1,13 +1,18 @@
 package org.ccci.gto.android.thekey.dialog;
 
+import static me.thekey.android.TheKey.INVALID_CLIENT_ID;
+import static me.thekey.android.lib.Builder.OPT_CLIENT_ID;
+import me.thekey.android.lib.Builder;
+import me.thekey.android.lib.fragment.FragmentBuilder;
+
 import org.ccci.gto.android.thekey.DisplayUtil;
 import org.ccci.gto.android.thekey.R;
 import org.ccci.gto.android.thekey.TheKeyImpl;
 
-import android.app.DialogFragment;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,24 +21,22 @@ import android.widget.FrameLayout;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class LoginDialogFragment extends DialogFragment implements org.ccci.gto.android.thekey.dialog.DialogFragment {
-    public final static String ARG_CLIENTID = "org.ccci.gto.android.thekey.CLIENT_ID";
-
-    private TheKeyImpl thekey;
+    private TheKeyImpl mTheKey;
 
     // login WebView
     private FrameLayout frame = null;
     private WebView loginView = null;
 
-    public static final LoginDialogFragment newInstance(final long clientId) {
-        final LoginDialogFragment fragment = new LoginDialogFragment();
-
-        // handle arguments
-        final Bundle args = new Bundle();
-        args.putLong(ARG_CLIENTID, clientId);
-        fragment.setArguments(args);
-
-        return fragment;
+    public static final Builder<LoginDialogFragment> builder() {
+        return new FragmentBuilder<LoginDialogFragment>(LoginDialogFragment.class);
     }
+
+    @Deprecated
+    public static final LoginDialogFragment newInstance(final long clientId) {
+        return builder().clientId(clientId).build();
+    }
+
+    /** BEGIN lifecycle */
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -42,8 +45,7 @@ public class LoginDialogFragment extends DialogFragment implements org.ccci.gto.
         this.setRetainInstance(true);
 
         // load arguments
-        final long clientId = getArguments().getLong(ARG_CLIENTID, -1);
-        this.thekey = TheKeyImpl.getInstance(getActivity(), clientId);
+        mTheKey = TheKeyImpl.getInstance(getActivity(), getArguments().getLong(OPT_CLIENT_ID, INVALID_CLIENT_ID));
     }
 
     @Override
@@ -70,13 +72,15 @@ public class LoginDialogFragment extends DialogFragment implements org.ccci.gto.
         super.onDestroyView();
     }
 
+    /** END lifecycle */
+
     private void attachLoginView(final FrameLayout frame) {
         this.detachLoginView();
 
         // create a loginView if it doesn't exist already
         if (this.loginView == null) {
-            this.loginView = DisplayUtil.createLoginWebView(this.getActivity(), this.thekey,
-                    new LoginDialogWebViewClient(this, this.thekey));
+            this.loginView = DisplayUtil.createLoginWebView(getActivity(), mTheKey, new LoginDialogWebViewClient(this,
+                    mTheKey));
         }
 
         // attach the login view to the current frame
