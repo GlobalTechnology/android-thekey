@@ -2,6 +2,8 @@ package me.thekey.android.lib;
 
 import static me.thekey.android.TheKey.INVALID_CLIENT_ID;
 import static org.ccci.gto.android.thekey.Constant.CAS_SERVER;
+import static org.ccci.gto.android.thekey.Constant.ARG_CAS_SERVER;
+import static org.ccci.gto.android.thekey.Constant.ARG_CLIENT_ID;
 import android.os.Bundle;
 
 public abstract class AbstractBuilder<T> implements Builder<T> {
@@ -14,13 +16,13 @@ public abstract class AbstractBuilder<T> implements Builder<T> {
 
     @Override
     public final Builder<T> casServer(final String server) {
-        mArgs.putString(OPT_CAS_SERVER, server);
+        mArgs.putString(ARG_CAS_SERVER, server);
         return this;
     }
 
     @Override
     public final Builder<T> clientId(final long id) {
-        mArgs.putLong(OPT_CLIENT_ID, id);
+        mArgs.putLong(ARG_CLIENT_ID, id);
         return this;
     }
 

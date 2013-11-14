@@ -1,7 +1,5 @@
 package org.ccci.gto.android.thekey;
 
-import static me.thekey.android.TheKey.INVALID_CLIENT_ID;
-import static me.thekey.android.lib.Builder.OPT_CLIENT_ID;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_CODE;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ERROR;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_STATE;
@@ -27,7 +25,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
 
     private LoginWebViewClient(final Context context, final Bundle args, final String state) {
         mContext = context;
-        mTheKey = TheKeyImpl.getInstance(context, args.getLong(OPT_CLIENT_ID, INVALID_CLIENT_ID));
+        mTheKey = TheKeyImpl.getInstance(context, args);
         this.oauthUri = mTheKey.getAuthorizeUri().buildUpon().query("").build();
         this.state = state;
     }

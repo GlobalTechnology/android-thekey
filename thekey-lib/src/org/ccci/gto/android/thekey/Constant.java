@@ -31,4 +31,8 @@ public final class Constant {
     // The Key API params
     public static final String THEKEY_PARAM_SERVICE = "service";
     public static final String THEKEY_PARAM_TICKET = "ticket";
+
+    // configuration arguments
+    public static final String ARG_CAS_SERVER = "cas_server";
+    public static final String ARG_CLIENT_ID = "client_id";
 }

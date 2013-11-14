@@ -1,13 +1,10 @@
 package org.ccci.gto.android.thekey.dialog;
 
-import static me.thekey.android.TheKey.INVALID_CLIENT_ID;
-import static me.thekey.android.lib.Builder.OPT_CLIENT_ID;
 import me.thekey.android.lib.Builder;
 import me.thekey.android.lib.fragment.FragmentBuilder;
 import me.thekey.android.lib.util.DisplayUtil;
 
 import org.ccci.gto.android.thekey.R;
-import org.ccci.gto.android.thekey.TheKeyImpl;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -21,8 +18,6 @@ import android.widget.FrameLayout;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class LoginDialogFragment extends DialogFragment implements me.thekey.android.lib.fragment.DialogFragment {
-    private TheKeyImpl mTheKey;
-
     // login WebView
     private FrameLayout frame = null;
     private WebView loginView = null;
@@ -42,9 +37,6 @@ public class LoginDialogFragment extends DialogFragment implements me.thekey.and
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setRetainInstance(true);
-
-        // load arguments
-        mTheKey = TheKeyImpl.getInstance(getActivity(), getArguments().getLong(OPT_CLIENT_ID, INVALID_CLIENT_ID));
     }
 
     @Override

@@ -2,6 +2,8 @@ package org.ccci.gto.android.thekey;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static org.ccci.gto.android.thekey.Constant.ARG_CAS_SERVER;
+import static org.ccci.gto.android.thekey.Constant.ARG_CLIENT_ID;
 import static org.ccci.gto.android.thekey.Constant.CAS_SERVER;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_GRANT_TYPE_AUTHORIZATION_CODE;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_GRANT_TYPE_REFRESH_TOKEN;
@@ -53,7 +55,7 @@ import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Build;
-import android.support.v4.util.LongSparseArray;
+import android.os.Bundle;
 import android.util.Pair;
 
 /**
@@ -72,7 +74,7 @@ public final class TheKeyImpl implements TheKey {
     private static final String PREF_ATTR_FIRST_NAME = "attr_firstName";
     private static final String PREF_ATTR_LAST_NAME = "attr_lastName";
 
-    private static final LongSparseArray<TheKeyImpl> INSTANCES = new LongSparseArray<TheKeyImpl>();
+    private static final Map<InstanceKey, TheKeyImpl> INSTANCES = new HashMap<InstanceKey, TheKeyImpl>();
 
     private final Context context;
     private final Uri casServer;
@@ -87,14 +89,35 @@ public final class TheKeyImpl implements TheKey {
         this.casServer = casServer;
     }
 
+    public static TheKeyImpl getInstance(final Context context, final Bundle args) {
+        final long id = args.getLong(ARG_CLIENT_ID, INVALID_CLIENT_ID);
+        final String server = args.getString(ARG_CAS_SERVER);
+        if (server != null) {
+            return getInstance(context, server, id);
+        } else {
+            return getInstance(context, CAS_SERVER, id);
+        }
+    }
+
     public static TheKeyImpl getInstance(final Context context, final long clientId) {
+        return getInstance(context, CAS_SERVER, clientId);
+    }
+
+    public static TheKeyImpl getInstance(final Context context, final String server, final long clientId) {
+        return getInstance(context, Uri.parse(server), clientId);
+    }
+
+    public static TheKeyImpl getInstance(final Context context, final Uri server, final long clientId) {
+        final InstanceKey key = new InstanceKey(server, clientId);
+        TheKeyImpl thekey;
         synchronized (INSTANCES) {
-            if (INSTANCES.get(clientId) == null) {
-                INSTANCES.put(clientId, new TheKeyImpl(context.getApplicationContext(), clientId, CAS_SERVER));
+            thekey = INSTANCES.get(key);
+            if (thekey == null) {
+                thekey = new TheKeyImpl(context.getApplicationContext(), clientId, server);
+                INSTANCES.put(key, thekey);
             }
         }
-
-        return INSTANCES.get(clientId);
+        return thekey;
     }
 
     protected Uri getCasUri() {
@@ -563,6 +586,37 @@ public final class TheKeyImpl implements TheKey {
         } catch (final Exception e) {
             // return an empty object on error
             return new JSONObject();
+        }
+    }
+
+    private static final class InstanceKey {
+        private final Uri mServer;
+        private final long mId;
+
+        private InstanceKey(final Uri server, final long clientId) {
+            mServer = server;
+            mId = clientId;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (!(o instanceof InstanceKey)) {
+                return false;
+            }
+            final InstanceKey key = (InstanceKey) o;
+            return this.mId == key.mId
+                    && ((this.mServer == key.mServer) || (this.mServer != null && this.mServer.equals(key.mServer)));
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = super.hashCode();
+            hash = hash * 31 + Long.valueOf(mId).hashCode();
+            hash = hash * 31 + (mServer != null ? mServer.hashCode() : 0);
+            return hash;
         }
     }
 

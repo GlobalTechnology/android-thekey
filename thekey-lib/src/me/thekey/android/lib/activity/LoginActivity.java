@@ -1,7 +1,5 @@
 package me.thekey.android.lib.activity;
 
-import static me.thekey.android.TheKey.INVALID_CLIENT_ID;
-import static me.thekey.android.lib.Builder.OPT_CLIENT_ID;
 import static me.thekey.android.lib.activity.ActivityBuilder.EXTRA_ARGS;
 import me.thekey.android.lib.util.DisplayUtil;
 
@@ -43,7 +41,7 @@ public class LoginActivity extends Activity {
         // create TheKey object
         final Intent intent = getIntent();
         mArgs = intent.getBundleExtra(EXTRA_ARGS);
-        mTheKey = TheKeyImpl.getInstance(this, mArgs.getLong(OPT_CLIENT_ID, INVALID_CLIENT_ID));
+        mTheKey = TheKeyImpl.getInstance(this, mArgs);
 
         // init the Login WebView
         this.attachLoginView();

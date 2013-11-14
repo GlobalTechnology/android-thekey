@@ -1,8 +1,5 @@
 package me.thekey.android.lib.util;
 
-import static me.thekey.android.TheKey.INVALID_CLIENT_ID;
-import static me.thekey.android.lib.Builder.OPT_CLIENT_ID;
-
 import org.ccci.gto.android.thekey.LoginWebViewClient;
 import org.ccci.gto.android.thekey.TheKeyImpl;
 
@@ -22,7 +19,7 @@ public final class DisplayUtil {
     @SuppressLint("SetJavaScriptEnabled")
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public static WebView createLoginWebView(final Context context, final LoginWebViewClient client, final Bundle args) {
-        final TheKeyImpl thekey = TheKeyImpl.getInstance(context, args.getLong(OPT_CLIENT_ID, INVALID_CLIENT_ID));
+        final TheKeyImpl thekey = TheKeyImpl.getInstance(context, args);
 
         final WebView webView = new WebView(context);
         webView.setVisibility(View.GONE);
