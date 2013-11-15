@@ -107,7 +107,8 @@ public final class TheKeyImpl implements TheKey {
     }
 
     public static TheKeyImpl getInstance(final Context context, final String server, final long clientId) {
-        return getInstance(context, Uri.parse(server), clientId);
+        final Uri serverUri = server != null ? Uri.parse(server + (server.endsWith("/") ? "" : "/")) : CAS_SERVER;
+        return getInstance(context, serverUri, clientId);
     }
 
     public static TheKeyImpl getInstance(final Context context, final Uri server, final long clientId) {
