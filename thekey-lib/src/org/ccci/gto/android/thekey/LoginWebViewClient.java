@@ -1,5 +1,6 @@
 package org.ccci.gto.android.thekey;
 
+import static org.ccci.gto.android.thekey.Constant.ARG_SELF_SERVICE;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_CODE;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ERROR;
 import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_STATE;
@@ -15,9 +16,13 @@ import android.webkit.WebViewClient;
 
 public abstract class LoginWebViewClient extends WebViewClient {
     private final Context mContext;
+    private final Bundle mArgs;
     protected final TheKeyImpl mTheKey;
-    private final Uri oauthUri;
     private final String state;
+
+    /* various Uris used internally */
+    private final Uri oauthUri;
+    private final Uri selfServiceUri;
 
     protected LoginWebViewClient(final Context context, final Bundle args) {
         this(context, args, null);
@@ -25,8 +30,10 @@ public abstract class LoginWebViewClient extends WebViewClient {
 
     private LoginWebViewClient(final Context context, final Bundle args, final String state) {
         mContext = context;
+        mArgs = args;
         mTheKey = TheKeyImpl.getInstance(context, args);
         this.oauthUri = mTheKey.getAuthorizeUri().buildUpon().query("").build();
+        this.selfServiceUri = mTheKey.getCasUri("service", "selfservice");
         this.state = state;
     }
 
@@ -45,6 +52,10 @@ public abstract class LoginWebViewClient extends WebViewClient {
         }
         // CAS OAuth url
         else if (this.isOAuthUri(parsedUri)) {
+            return false;
+        }
+        // CAS self service
+        else if (mArgs.getBoolean(ARG_SELF_SERVICE, false) && this.isSelfServiceUri(parsedUri)) {
             return false;
         }
         // external link, launch default Android activity
@@ -105,6 +116,11 @@ public abstract class LoginWebViewClient extends WebViewClient {
                 && REDIRECT_URI.getPath().equals(uri.getPath())
                 && (this.state == null ? uri.getQueryParameter(OAUTH_PARAM_STATE) == null : this.state.equals(uri
                         .getQueryParameter(OAUTH_PARAM_STATE)));
+    }
+
+    private boolean isSelfServiceUri(final Uri uri) {
+        return uri.getScheme().equals(this.selfServiceUri.getScheme())
+                && uri.getSchemeSpecificPart().startsWith(this.selfServiceUri.getSchemeSpecificPart());
     }
 
     protected abstract void onAuthorizeSuccess(final Uri uri, final String code);

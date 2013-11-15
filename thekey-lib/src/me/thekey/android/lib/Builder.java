@@ -5,6 +5,8 @@ public interface Builder<T> {
 
     Builder<T> clientId(long id);
 
+    Builder<T> selfService(boolean enable);
+
     T build();
 
     void start();

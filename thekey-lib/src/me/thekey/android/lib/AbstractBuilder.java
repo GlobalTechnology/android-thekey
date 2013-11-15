@@ -1,17 +1,20 @@
 package me.thekey.android.lib;
 
 import static me.thekey.android.TheKey.INVALID_CLIENT_ID;
-import static org.ccci.gto.android.thekey.Constant.CAS_SERVER;
 import static org.ccci.gto.android.thekey.Constant.ARG_CAS_SERVER;
 import static org.ccci.gto.android.thekey.Constant.ARG_CLIENT_ID;
+import static org.ccci.gto.android.thekey.Constant.ARG_SELF_SERVICE;
+import static org.ccci.gto.android.thekey.Constant.CAS_SERVER;
 import android.os.Bundle;
 
 public abstract class AbstractBuilder<T> implements Builder<T> {
     protected final Bundle mArgs = new Bundle();
 
     public AbstractBuilder() {
+        // set default configuration
         this.casServer(CAS_SERVER.toString());
         this.clientId(INVALID_CLIENT_ID);
+        this.selfService(false);
     }
 
     @Override
@@ -23,6 +26,12 @@ public abstract class AbstractBuilder<T> implements Builder<T> {
     @Override
     public final Builder<T> clientId(final long id) {
         mArgs.putLong(ARG_CLIENT_ID, id);
+        return this;
+    }
+
+    @Override
+    public Builder<T> selfService(final boolean enable) {
+        mArgs.putBoolean(ARG_SELF_SERVICE, enable);
         return this;
     }
 

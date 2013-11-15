@@ -123,7 +123,7 @@ public final class TheKeyImpl implements TheKey {
         return thekey;
     }
 
-    private Uri getCasUri(final String... segments) {
+    Uri getCasUri(final String... segments) {
         final Builder uri = this.casServer.buildUpon();
         for (final String segment : segments) {
             uri.appendPath(segment);
