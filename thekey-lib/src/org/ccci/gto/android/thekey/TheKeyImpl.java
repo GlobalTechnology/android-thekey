@@ -89,6 +89,9 @@ public final class TheKeyImpl implements TheKey {
         this.casServer = casServer;
     }
 
+    /**
+     * @hide
+     */
     public static TheKeyImpl getInstance(final Context context, final Bundle args) {
         final long id = args.getLong(ARG_CLIENT_ID, INVALID_CLIENT_ID);
         final String server = args.getString(ARG_CAS_SERVER);
@@ -120,11 +123,7 @@ public final class TheKeyImpl implements TheKey {
         return thekey;
     }
 
-    protected Uri getCasUri() {
-        return this.casServer;
-    }
-
-    protected Uri getCasUri(final String... segments) {
+    private Uri getCasUri(final String... segments) {
         final Builder uri = this.casServer.buildUpon();
         for (final String segment : segments) {
             uri.appendPath(segment);
@@ -132,7 +131,7 @@ public final class TheKeyImpl implements TheKey {
         return uri.build();
     }
 
-    protected Long getClientId() {
+    private Long getClientId() {
         return this.clientId;
     }
 
@@ -140,11 +139,14 @@ public final class TheKeyImpl implements TheKey {
         return this.getPrefs().getString(PREF_GUID, null);
     }
 
+    /**
+     * @hide
+     */
     public Uri getAuthorizeUri() {
         return this.getAuthorizeUri(null);
     }
 
-    public Uri getAuthorizeUri(final String state) {
+    private Uri getAuthorizeUri(final String state) {
         // build oauth authorize url
         final Builder uri = this.getCasUri("oauth", "authorize").buildUpon()
                 .appendQueryParameter(OAUTH_PARAM_CLIENT_ID, this.getClientId().toString())
@@ -443,7 +445,7 @@ public final class TheKeyImpl implements TheKey {
         }
     }
 
-    protected boolean processCodeGrant(final String code, final Uri redirectUri) throws TheKeySocketException {
+    boolean processCodeGrant(final String code, final Uri redirectUri) throws TheKeySocketException {
         final Uri tokenUri = this.getCasUri("api", "oauth", "token");
         HttpsURLConnection conn = null;
         try {
