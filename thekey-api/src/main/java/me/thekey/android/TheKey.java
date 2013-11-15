@@ -29,7 +29,8 @@ public interface TheKey {
     }
 
     /**
-     * This method will return the guid of the current OAuth session
+     * This method will return the guid of the current OAuth session. This is a
+     * non-blocking method and may be called on the UI thread.
      * 
      * @return the user's guid
      */
@@ -48,7 +49,8 @@ public interface TheKey {
      * This method will return the most recently loaded attributes for the
      * current OAuth session. This method does not attempt to load the
      * attributes if they haven't been loaded yet, to load the attributes see
-     * {@link TheKey#loadAttributes()}.
+     * {@link TheKey#loadAttributes()}. This is a non-blocking method and may be
+     * called on the UI thread.
      * 
      * @return The attributes for the current OAuth session
      */
