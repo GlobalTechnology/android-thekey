@@ -76,12 +76,12 @@ public final class TheKeyImpl implements TheKey {
 
     private static final Map<InstanceKey, TheKeyImpl> INSTANCES = new HashMap<InstanceKey, TheKeyImpl>();
 
+    private final Object lock_auth = new Object();
+    private final Object lock_attrs = new Object();
+
     private final Context context;
     private final Uri casServer;
     private final Long clientId;
-
-    private final Object lock_auth = new Object();
-    private final Object lock_attrs = new Object();
 
     private TheKeyImpl(final Context context, final long clientId, final Uri casServer) {
         this.context = context;
@@ -394,6 +394,18 @@ public final class TheKeyImpl implements TheKey {
         }
 
         return null;
+    }
+
+    @Override
+    public void logout() {
+        // clearAuthState() may block on synchronization, so process the call on
+        // a background thread
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                clearAuthState();
+            }
+        }).start();
     }
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)

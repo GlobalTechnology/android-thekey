@@ -75,4 +75,10 @@ public interface TheKey {
      *         ticket could be retrieved
      */
     Pair<String, Attributes> getTicketAndAttributes(String service) throws TheKeySocketException;
+
+    /**
+     * This method will logout the current user. This is a non-blocking method
+     * and may be called on the UI thread.
+     */
+    void logout();
 }
