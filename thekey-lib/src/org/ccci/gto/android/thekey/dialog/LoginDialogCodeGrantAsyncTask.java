@@ -30,7 +30,9 @@ public final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
             }
         }
 
-        // close the dialog
-        dialog.dismiss();
+        // close the dialog if it is still active (added to the activity)
+        if (this.dialog.isAdded()) {
+            this.dialog.dismiss();
+        }
     }
 }

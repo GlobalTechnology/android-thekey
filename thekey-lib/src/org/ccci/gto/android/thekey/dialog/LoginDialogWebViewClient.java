@@ -29,6 +29,9 @@ public class LoginDialogWebViewClient extends LoginWebViewClient {
             ((LoginDialogListener<DialogFragment>) activity).onLoginFailure(mDialog);
         }
 
-        mDialog.dismiss();
+        // close the dialog if it is still active (added to the activity)
+        if (mDialog.isAdded()) {
+            mDialog.dismiss();
+        }
     }
 }

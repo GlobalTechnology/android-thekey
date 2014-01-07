@@ -6,4 +6,6 @@ public interface DialogFragment {
     void dismiss();
 
     Activity getActivity();
+
+    boolean isAdded();
 }
