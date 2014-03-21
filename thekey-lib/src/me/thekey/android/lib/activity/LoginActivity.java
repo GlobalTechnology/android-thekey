@@ -1,12 +1,6 @@
 package me.thekey.android.lib.activity;
 
 import static me.thekey.android.lib.activity.ActivityBuilder.EXTRA_ARGS;
-import me.thekey.android.lib.util.DisplayUtil;
-
-import org.ccci.gto.android.thekey.CodeGrantAsyncTask;
-import org.ccci.gto.android.thekey.LoginWebViewClient;
-import org.ccci.gto.android.thekey.R;
-import org.ccci.gto.android.thekey.TheKeyImpl;
 
 import android.app.Activity;
 import android.content.Context;
@@ -17,8 +11,15 @@ import android.os.Bundle;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
+import org.ccci.gto.android.thekey.CodeGrantAsyncTask;
+import org.ccci.gto.android.thekey.LoginWebViewClient;
+import org.ccci.gto.android.thekey.R;
+import org.ccci.gto.android.thekey.TheKeyImpl;
+
+import me.thekey.android.lib.util.DisplayUtil;
+
 public class LoginActivity extends Activity {
-    public final static String EXTRA_RESPONSE_GUID = "org.ccci.gto.android.thekey.response.GUID";
+    public final static String EXTRA_GUID = LoginActivity.class.getName() + ".EXTRA_GUID";
 
     private Bundle mArgs;
     private TheKeyImpl mTheKey;
@@ -27,7 +28,7 @@ public class LoginActivity extends Activity {
     private FrameLayout frame = null;
     private WebView loginView = null;
 
-    public static final ActivityBuilder builder(final Context context) {
+    public static ActivityBuilder builder(final Context context) {
         return new ActivityBuilder(context, LoginActivity.class);
     }
 
@@ -109,9 +110,9 @@ public class LoginActivity extends Activity {
         protected void onPostExecute(final Boolean result) {
             super.onPostExecute(result);
 
-            if (result.booleanValue()) {
+            if (result) {
                 final Intent response = new Intent();
-                response.putExtra(EXTRA_RESPONSE_GUID, mTheKey.getGuid());
+                response.putExtra(EXTRA_GUID, mTheKey.getGuid());
                 LoginActivity.this.setResult(RESULT_OK, response);
             } else {
                 LoginActivity.this.setResult(RESULT_CANCELED);
