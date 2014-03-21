@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.6.3'
+        classpath 'com.android.tools.build:gradle:0.9.1'
     }
 }
 
@@ -11,7 +11,7 @@ apply plugin: 'android-library'
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19"
+    buildToolsVersion "19.0.3"
 
     defaultConfig {
         minSdkVersion 8
@@ -33,6 +33,7 @@ android {
 
 dependencies {
     compile project(':thekey-api')
-    compile group: 'com.android.support', name: 'support-v4', version: '19.0.0', ext: 'jar'
-    compile group: 'org.slf4j', name: 'slf4j-android', version: '1.6.1-RC1', ext: 'jar'
+    compile group: 'com.android.support', name: 'support-v4',    version: '19.0.0', ext: 'jar'
+    compile group: 'org.slf4j',           name: 'slf4j-android', version: '1.7.6',  ext: 'jar'
+    compile group: 'org.slf4j',           name: 'slf4j-api',     version: '1.7.6',  ext: 'jar'
 }
