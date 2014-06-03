@@ -1,10 +1,10 @@
-package org.ccci.gto.android.thekey;
+package me.thekey.android.lib;
 
-import static org.ccci.gto.android.thekey.Constant.ARG_SELF_SERVICE;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_CODE;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ERROR;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_STATE;
-import static org.ccci.gto.android.thekey.Constant.REDIRECT_URI;
+import static me.thekey.android.lib.Constant.ARG_SELF_SERVICE;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_CODE;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ERROR;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_STATE;
+import static me.thekey.android.lib.Constant.REDIRECT_URI;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewParent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import org.ccci.gto.android.thekey.R;
 
 public abstract class LoginWebViewClient extends WebViewClient {
     private final Context mContext;

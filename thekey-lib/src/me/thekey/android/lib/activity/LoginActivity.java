@@ -11,10 +11,10 @@ import android.os.Bundle;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
-import org.ccci.gto.android.thekey.CodeGrantAsyncTask;
-import org.ccci.gto.android.thekey.LoginWebViewClient;
+import me.thekey.android.lib.CodeGrantAsyncTask;
+import me.thekey.android.lib.LoginWebViewClient;
 import org.ccci.gto.android.thekey.R;
-import org.ccci.gto.android.thekey.TheKeyImpl;
+import me.thekey.android.lib.TheKeyImpl;
 
 import me.thekey.android.lib.util.DisplayUtil;
 

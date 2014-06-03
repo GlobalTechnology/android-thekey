@@ -1,4 +1,4 @@
-package org.ccci.gto.android.thekey;
+package me.thekey.android.lib;
 
 import android.net.Uri;
 

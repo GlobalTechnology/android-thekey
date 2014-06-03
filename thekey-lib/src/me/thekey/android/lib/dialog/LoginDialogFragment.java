@@ -1,21 +1,22 @@
-package org.ccci.gto.android.thekey.support.v4.dialog;
+package me.thekey.android.lib.dialog;
 
 import me.thekey.android.lib.Builder;
-import me.thekey.android.lib.support.v4.fragment.FragmentBuilder;
+import me.thekey.android.lib.fragment.FragmentBuilder;
 import me.thekey.android.lib.util.DisplayUtil;
 
 import org.ccci.gto.android.thekey.R;
-import org.ccci.gto.android.thekey.dialog.LoginDialogListener;
-import org.ccci.gto.android.thekey.dialog.LoginDialogWebViewClient;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class LoginDialogFragment extends DialogFragment implements me.thekey.android.lib.fragment.DialogFragment {
     // login WebView
     private FrameLayout frame = null;

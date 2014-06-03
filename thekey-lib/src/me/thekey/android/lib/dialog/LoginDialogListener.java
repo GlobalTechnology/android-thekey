@@ -1,4 +1,4 @@
-package org.ccci.gto.android.thekey.dialog;
+package me.thekey.android.lib.dialog;
 
 import me.thekey.android.lib.fragment.DialogFragment;
 

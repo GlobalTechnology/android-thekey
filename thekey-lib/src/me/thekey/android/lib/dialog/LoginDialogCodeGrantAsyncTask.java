@@ -1,9 +1,9 @@
-package org.ccci.gto.android.thekey.dialog;
+package me.thekey.android.lib.dialog;
 
 import me.thekey.android.lib.fragment.DialogFragment;
 
-import org.ccci.gto.android.thekey.CodeGrantAsyncTask;
-import org.ccci.gto.android.thekey.TheKeyImpl;
+import me.thekey.android.lib.CodeGrantAsyncTask;
+import me.thekey.android.lib.TheKeyImpl;
 
 import android.app.Activity;
 

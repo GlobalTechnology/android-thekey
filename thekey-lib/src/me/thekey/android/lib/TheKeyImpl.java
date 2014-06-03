@@ -1,28 +1,43 @@
-package org.ccci.gto.android.thekey;
+package me.thekey.android.lib;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static org.ccci.gto.android.thekey.Constant.ARG_CAS_SERVER;
-import static org.ccci.gto.android.thekey.Constant.ARG_CLIENT_ID;
-import static org.ccci.gto.android.thekey.Constant.CAS_SERVER;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_GRANT_TYPE_AUTHORIZATION_CODE;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_GRANT_TYPE_REFRESH_TOKEN;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ACCESS_TOKEN;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ATTR_EMAIL;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ATTR_FIRST_NAME;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ATTR_GUID;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_ATTR_LAST_NAME;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_CLIENT_ID;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_CODE;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_EXPIRES_IN;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_GRANT_TYPE;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_REDIRECT_URI;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_REFRESH_TOKEN;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_STATE;
-import static org.ccci.gto.android.thekey.Constant.OAUTH_PARAM_THEKEY_GUID;
-import static org.ccci.gto.android.thekey.Constant.REDIRECT_URI;
-import static org.ccci.gto.android.thekey.Constant.THEKEY_PARAM_SERVICE;
-import static org.ccci.gto.android.thekey.Constant.THEKEY_PARAM_TICKET;
+import static me.thekey.android.lib.Constant.ARG_CAS_SERVER;
+import static me.thekey.android.lib.Constant.ARG_CLIENT_ID;
+import static me.thekey.android.lib.Constant.CAS_SERVER;
+import static me.thekey.android.lib.Constant.OAUTH_GRANT_TYPE_AUTHORIZATION_CODE;
+import static me.thekey.android.lib.Constant.OAUTH_GRANT_TYPE_REFRESH_TOKEN;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ACCESS_TOKEN;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_EMAIL;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_FIRST_NAME;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_GUID;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_LAST_NAME;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_CLIENT_ID;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_CODE;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_EXPIRES_IN;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_GRANT_TYPE;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_REDIRECT_URI;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_STATE;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
+import static me.thekey.android.lib.Constant.REDIRECT_URI;
+import static me.thekey.android.lib.Constant.THEKEY_PARAM_SERVICE;
+import static me.thekey.android.lib.Constant.THEKEY_PARAM_TICKET;
+
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.net.Uri;
+import android.net.Uri.Builder;
+import android.os.Build;
+import android.os.Bundle;
+import android.util.Pair;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicHeaderValueParser;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,21 +57,6 @@ import javax.net.ssl.HttpsURLConnection;
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.util.BroadcastUtils;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicHeaderValueParser;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.net.Uri;
-import android.net.Uri.Builder;
-import android.os.Build;
-import android.os.Bundle;
-import android.util.Pair;
 
 /**
  * The Key interaction library, handles all interactions with The Key OAuth API

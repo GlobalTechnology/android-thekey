@@ -1,7 +1,7 @@
 package me.thekey.android.lib.util;
 
-import org.ccci.gto.android.thekey.LoginWebViewClient;
-import org.ccci.gto.android.thekey.TheKeyImpl;
+import me.thekey.android.lib.LoginWebViewClient;
+import me.thekey.android.lib.TheKeyImpl;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;

@@ -1,6 +1,6 @@
-package org.ccci.gto.android.thekey;
+package me.thekey.android.lib;
 
-import static org.ccci.gto.android.thekey.Constant.REDIRECT_URI;
+import static me.thekey.android.lib.Constant.REDIRECT_URI;
 import me.thekey.android.TheKeySocketException;
 import android.annotation.TargetApi;
 import android.os.AsyncTask;
