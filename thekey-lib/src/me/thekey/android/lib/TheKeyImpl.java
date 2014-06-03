@@ -330,9 +330,11 @@ public final class TheKeyImpl implements TheKey {
                     .appendQueryParameter(THEKEY_PARAM_SERVICE, service).build();
             conn = (HttpsURLConnection) new URL(ticketUri.toString()).openConnection();
 
-            // parse the json response
-            final JSONObject json = this.parseJsonResponse(conn.getInputStream());
-            return json.optString(THEKEY_PARAM_TICKET, null);
+            // parse the json response if we have a valid response
+            if (conn.getResponseCode() == 200) {
+                final JSONObject json = this.parseJsonResponse(conn.getInputStream());
+                return json.optString(THEKEY_PARAM_TICKET, null);
+            }
         } catch (final MalformedURLException e) {
             throw new RuntimeException("malformed CAS URL", e);
         } catch (final IOException e) {
@@ -342,6 +344,8 @@ public final class TheKeyImpl implements TheKey {
                 conn.disconnect();
             }
         }
+
+        return null;
     }
 
     private Pair<String, Attributes> getAccessTokenAndAttributes() {
