@@ -24,11 +24,6 @@ public class LoginDialogFragment extends DialogFragment implements me.thekey.and
         return new FragmentBuilder<LoginDialogFragment>(LoginDialogFragment.class);
     }
 
-    @Deprecated
-    public static final LoginDialogFragment newInstance(final long clientId) {
-        return builder().clientId(clientId).build();
-    }
-
     /** BEGIN lifecycle */
 
     @Override
