@@ -13,9 +13,8 @@ import android.widget.FrameLayout;
 
 import me.thekey.android.lib.CodeGrantAsyncTask;
 import me.thekey.android.lib.LoginWebViewClient;
-import org.ccci.gto.android.thekey.R;
+import me.thekey.android.lib.R;
 import me.thekey.android.lib.TheKeyImpl;
-
 import me.thekey.android.lib.util.DisplayUtil;
 
 public class LoginActivity extends Activity {

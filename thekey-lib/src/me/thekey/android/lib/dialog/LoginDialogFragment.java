@@ -1,11 +1,5 @@
 package me.thekey.android.lib.dialog;
 
-import me.thekey.android.lib.Builder;
-import me.thekey.android.lib.fragment.FragmentBuilder;
-import me.thekey.android.lib.util.DisplayUtil;
-
-import org.ccci.gto.android.thekey.R;
-
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -16,13 +10,18 @@ import android.view.LayoutInflater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
+import me.thekey.android.lib.R;
+import me.thekey.android.lib.Builder;
+import me.thekey.android.lib.fragment.FragmentBuilder;
+import me.thekey.android.lib.util.DisplayUtil;
+
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class LoginDialogFragment extends DialogFragment implements me.thekey.android.lib.fragment.DialogFragment {
     // login WebView
     private FrameLayout frame = null;
     private WebView loginView = null;
 
-    public static final Builder<LoginDialogFragment> builder() {
+    public static Builder<LoginDialogFragment> builder() {
         return new FragmentBuilder<LoginDialogFragment>(LoginDialogFragment.class);
     }
 

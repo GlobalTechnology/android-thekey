@@ -5,6 +5,7 @@ import static me.thekey.android.lib.Constant.OAUTH_PARAM_CODE;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_ERROR;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_STATE;
 import static me.thekey.android.lib.Constant.REDIRECT_URI;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -13,8 +14,6 @@ import android.view.View;
 import android.view.ViewParent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
-import org.ccci.gto.android.thekey.R;
 
 public abstract class LoginWebViewClient extends WebViewClient {
     private final Context mContext;
@@ -114,10 +113,10 @@ public abstract class LoginWebViewClient extends WebViewClient {
     }
 
     private boolean isRedirectUri(final Uri uri) {
-        return REDIRECT_URI.getScheme().equals(uri.getScheme())
-                && REDIRECT_URI.getPath().equals(uri.getPath())
-                && (this.state == null ? uri.getQueryParameter(OAUTH_PARAM_STATE) == null : this.state.equals(uri
-                        .getQueryParameter(OAUTH_PARAM_STATE)));
+        return REDIRECT_URI.getScheme().equals(uri.getScheme()) && REDIRECT_URI.getPath().equals(uri.getPath()) &&
+                (this.state == null ? uri.getQueryParameter(OAUTH_PARAM_STATE) == null :
+                        this.state.equals(uri.getQueryParameter(
+                                OAUTH_PARAM_STATE)));
     }
 
     private boolean isSelfServiceUri(final Uri uri) {
