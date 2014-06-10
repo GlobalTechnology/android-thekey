@@ -58,9 +58,9 @@
       <plugin>
         <groupId>org.fortasoft</groupId>
         <artifactId>gradle-maven-plugin</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.5</version>
         <configuration>
-          <gradleVersion>1.11</gradleVersion>
+          <gradleVersion>1.12</gradleVersion>
         </configuration>
         <executions>
           <execution>
