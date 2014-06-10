@@ -103,7 +103,7 @@
             <configuration>
               <artifacts>
                 <artifact>
-                  <file>${basedir}/build/libs/${project.artifactId}-${project.version}.aar</file>
+                  <file>${basedir}/build/outputs/aar/${project.artifactId}-${project.version}.aar</file>
                   <type>aar</type>
                 </artifact>
               </artifacts>
