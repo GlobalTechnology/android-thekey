@@ -50,8 +50,9 @@ public class LoginDialogFragment extends DialogFragment implements me.thekey.and
         // Work around bug:
         // http://code.google.com/p/android/issues/detail?id=17423
         final Dialog dialog = this.getDialog();
-        if ((dialog != null) && this.getRetainInstance())
+        if ((dialog != null) && this.getRetainInstance()) {
             dialog.setDismissMessage(null);
+        }
 
         super.onDestroyView();
     }
