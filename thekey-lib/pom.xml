@@ -13,6 +13,11 @@
 
   <name>The Key Android client library</name>
 
+  <properties>
+    <android.manifestFile>${project.basedir}/src/main/AndroidManifest.xml</android.manifestFile>
+    <source.manifestFile>${project.basedir}/src/main/AndroidManifest.xml</source.manifestFile>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>me.thekey.android</groupId>
@@ -40,7 +45,17 @@
   </pluginRepositories>
 
   <build>
-    <sourceDirectory>src</sourceDirectory>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+          <artifactId>android-maven-plugin</artifactId>
+          <configuration>
+            <resourceDirectory>${project.basedir}/src/main/res</resourceDirectory>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <!-- disable the jarsigner plugin -->
       <plugin>

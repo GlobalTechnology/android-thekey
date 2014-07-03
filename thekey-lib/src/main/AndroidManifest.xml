@@ -4,7 +4,7 @@
 <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="19"/>
 
     <application>
-        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/thekey_title_activity_login" android:name="me.thekey.android.lib.activity.LoginActivity"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/thekey_title_activity_login" android:name=".activity.LoginActivity"/>
     </application>
 
 </manifest>
