@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="6001" android:versionName="0.6.1-SNAPSHOT" package="me.thekey.android.lib">
-
-<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="19"/>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="me.thekey.android.lib">
 
     <application>
-        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/thekey_title_activity_login" android:name=".activity.LoginActivity"/>
+        <activity
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:label="@string/thekey_title_activity_login"
+            android:name="me.thekey.android.lib.activity.LoginActivity"/>
     </application>
 
 </manifest>
