@@ -4,6 +4,7 @@ gen/
 # gradle project ignores
 .gradle/
 build/
+local.properties
 
 # maven project ignores
 target/
