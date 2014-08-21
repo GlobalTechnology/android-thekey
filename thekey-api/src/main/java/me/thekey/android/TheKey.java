@@ -40,7 +40,7 @@ public interface TheKey {
     /**
      * This method will return the guid of the current OAuth session. This is a
      * non-blocking method and may be called on the UI thread.
-     * 
+     *
      * @return the user's guid
      */
     String getGuid();
@@ -49,7 +49,7 @@ public interface TheKey {
      * This method will load the attributes for the current OAuth session from
      * The Key. This method is a blocking method and should never be called
      * directly on the UI thread.
-     * 
+     *
      * @return whether or not attributes were loaded
      */
     boolean loadAttributes() throws TheKeySocketException;
@@ -60,7 +60,7 @@ public interface TheKey {
      * attributes if they haven't been loaded yet, to load the attributes see
      * {@link TheKey#loadAttributes()}. This is a non-blocking method and may be
      * called on the UI thread.
-     * 
+     *
      * @return The attributes for the current OAuth session
      */
     Attributes getAttributes();
@@ -68,7 +68,7 @@ public interface TheKey {
     /**
      * This method returns a ticket for the specified service. This method is a
      * blocking method and should never be called directly on the UI thread.
-     * 
+     *
      * @param service
      * @return The ticket
      */
@@ -78,10 +78,9 @@ public interface TheKey {
      * This method returns a ticket for the specified service and attributes the
      * ticket was issued for. This is a blocking method and should never be
      * called directly on the UI thread.
-     * 
+     *
      * @param service
-     * @return The ticket & attributes for the current session, or null if no
-     *         ticket could be retrieved
+     * @return The ticket & attributes for the current session, or null if no ticket could be retrieved
      */
     TicketAttributesPair getTicketAndAttributes(String service) throws TheKeySocketException;
 

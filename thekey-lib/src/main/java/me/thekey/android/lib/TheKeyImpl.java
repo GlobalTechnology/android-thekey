@@ -204,7 +204,7 @@ public final class TheKeyImpl implements TheKey {
                     if ("BEARER".equals(scheme)) {
                         // extract the error encountered
                         String error = null;
-                        for(final NameValuePair param : params) {
+                        for (final NameValuePair param : params) {
                             if (param != null && "error".equals(param.getName())) {
                                 error = param.getValue();
                             }
