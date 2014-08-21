@@ -2,8 +2,6 @@ package me.thekey.android;
 
 import java.util.Date;
 
-import android.util.Pair;
-
 public interface TheKey {
     public static final String ACTION_LOGIN = TheKey.class.getName() + ".ACTION_LOGIN";
     public static final String ACTION_LOGOUT = TheKey.class.getName() + ".ACTION_LOGOUT";
@@ -26,6 +24,17 @@ public interface TheKey {
         String getFirstName();
 
         String getLastName();
+    }
+
+    public final class TicketAttributesPair {
+        public final String ticket;
+
+        public final Attributes attributes;
+
+        public TicketAttributesPair(final String ticket, final Attributes attributes) {
+            this.ticket = ticket;
+            this.attributes = attributes;
+        }
     }
 
     /**
@@ -74,7 +83,7 @@ public interface TheKey {
      * @return The ticket & attributes for the current session, or null if no
      *         ticket could be retrieved
      */
-    Pair<String, Attributes> getTicketAndAttributes(String service) throws TheKeySocketException;
+    TicketAttributesPair getTicketAndAttributes(String service) throws TheKeySocketException;
 
     /**
      * This method will logout the current user. This is a non-blocking method

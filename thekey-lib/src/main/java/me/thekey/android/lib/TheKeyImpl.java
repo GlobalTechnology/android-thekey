@@ -293,8 +293,8 @@ public final class TheKeyImpl implements TheKey {
      * @return The ticket
      */
     public String getTicket(final String service) throws TheKeySocketException {
-        final Pair<String, Attributes> ticketPair = this.getTicketAndAttributes(service);
-        return ticketPair != null ? ticketPair.first : null;
+        final TicketAttributesPair ticketPair = this.getTicketAndAttributes(service);
+        return ticketPair != null ? ticketPair.ticket : null;
     }
 
     /**
@@ -304,13 +304,13 @@ public final class TheKeyImpl implements TheKey {
      * @param service
      * @return The ticket & attributes
      */
-    public Pair<String, Attributes> getTicketAndAttributes(final String service) throws TheKeySocketException {
+    public TicketAttributesPair getTicketAndAttributes(final String service) throws TheKeySocketException {
         Pair<String, Attributes> credentials = null;
         while ((credentials = this.getValidAccessTokenAndAttributes(0)) != null) {
             // fetch a ticket
             final String ticket = this.getTicket(credentials.first, service);
             if (ticket != null) {
-                return Pair.create(ticket, credentials.second);
+                return new TicketAttributesPair(ticket, credentials.second);
             }
 
             // the access token didn't work, remove it and restart processing
