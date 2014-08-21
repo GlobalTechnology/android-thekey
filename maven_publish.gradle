@@ -14,21 +14,32 @@ uploadArchives {
 }
 
 afterEvaluate {
-    if (project.plugins.hasPlugin('com.android.library')) {
+    if (project.plugins.hasPlugin('java')) {
+        task artifactSourceJar(type: Jar) {
+            from sourceSets.main.allSource
+            classifier = 'sources'
+        }
+
+        task artifactJavadocsJar(type: Jar, dependsOn: 'javadoc') {
+            from javadoc.destinationDir
+            classifier = 'javadoc'
+        }
+    } else if (project.plugins.hasPlugin('com.android.library')) {
         apply plugin: 'android-maven'
 
-        task androidSourcesJar(type: Jar) {
+        task artifactSourceJar(type: Jar) {
             classifier = 'sources'
             from android.sourceSets.main.java.srcDirs
         }
-//
-//        task androidJavadocs(type: Javadoc) {
-//            source = android.sourceSets.main.allJava
-//        }
-//
-//        task androidJavadocsJar(type: Jar) {
-//            classifier = 'javadoc'
-//            from androidJavadocs.destinationDir
-//        }
+
+        task javadoc(type: Javadoc) {
+            source = android.sourceSets.main.java.srcDirs
+            classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+        }
+
+        task artifactJavadocsJar(type: Jar, dependsOn: 'javadoc') {
+            classifier = 'javadoc'
+            from javadoc.destinationDir
+        }
     }
 }
