@@ -10,7 +10,7 @@ buildscript {
 
 subprojects {
     group 'me.thekey.android'
-    version = '0.6.1-SNAPSHOT'
+    version = '0.7.0-SNAPSHOT'
 
     repositories {
         mavenLocal()
