@@ -28,8 +28,8 @@ subprojects {
     apply from: "$rootProject.projectDir/maven_publish.gradle"
     afterEvaluate { project ->
         artifacts {
-            archives artifactSourceJar
-            archives artifactJavadocsJar
+            archives artifactSourcesJar
+            archives artifactJavadocJar
         }
     }
 }

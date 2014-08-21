@@ -15,19 +15,19 @@ uploadArchives {
 
 afterEvaluate {
     if (project.plugins.hasPlugin('java')) {
-        task artifactSourceJar(type: Jar) {
+        task artifactSourcesJar(type: Jar) {
             from sourceSets.main.allSource
             classifier = 'sources'
         }
 
-        task artifactJavadocsJar(type: Jar, dependsOn: 'javadoc') {
+        task artifactJavadocJar(type: Jar, dependsOn: 'javadoc') {
             from javadoc.destinationDir
             classifier = 'javadoc'
         }
     } else if (project.plugins.hasPlugin('com.android.library')) {
         apply plugin: 'android-maven'
 
-        task artifactSourceJar(type: Jar) {
+        task artifactSourcesJar(type: Jar) {
             classifier = 'sources'
             from android.sourceSets.main.java.srcDirs
         }
@@ -37,7 +37,7 @@ afterEvaluate {
             classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
         }
 
-        task artifactJavadocsJar(type: Jar, dependsOn: 'javadoc') {
+        task artifactJavadocJar(type: Jar, dependsOn: 'javadoc') {
             classifier = 'javadoc'
             from javadoc.destinationDir
         }
