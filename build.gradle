@@ -1,3 +1,12 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.12.2'
+    }
+}
+
 subprojects {
     group 'me.thekey.android'
     version = '0.6.1-SNAPSHOT'
