@@ -4,6 +4,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:0.12.2'
+        classpath 'com.github.dcendents:android-maven-plugin:1.1'
     }
 }
 
@@ -23,4 +24,6 @@ subprojects {
             }
         }
     }
+
+    apply from: "$rootProject.projectDir/maven_publish.gradle"
 }

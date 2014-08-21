@@ -1,0 +1,34 @@
+apply plugin: 'maven'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "https://maven.gcx.org/") {
+                authentication(userName: gcxMavenRepositoryUsername, password: gcxMavenRepositoryPassword)
+            }
+            snapshotRepository(url: "https://maven.gcx.org/") {
+                authentication(userName: gcxMavenRepositoryUsername, password: gcxMavenRepositoryPassword)
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    if (project.plugins.hasPlugin('com.android.library')) {
+        apply plugin: 'android-maven'
+
+        task androidSourcesJar(type: Jar) {
+            classifier = 'sources'
+            from android.sourceSets.main.java.srcDirs
+        }
+//
+//        task androidJavadocs(type: Javadoc) {
+//            source = android.sourceSets.main.allJava
+//        }
+//
+//        task androidJavadocsJar(type: Jar) {
+//            classifier = 'javadoc'
+//            from androidJavadocs.destinationDir
+//        }
+    }
+}
