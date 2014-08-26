@@ -12,7 +12,6 @@ android {
 
 dependencies {
     compile project(':thekey-api')
-    compile 'com.android.support:support-v4:20.0.0@aar'
-    compile group: 'org.slf4j',           name: 'slf4j-android', version: '1.7.7',  ext: 'jar'
-    compile group: 'org.slf4j',           name: 'slf4j-api',     version: '1.7.7',  ext: 'jar'
+    compile 'com.android.support:support-v4:20.0.0'
+    compile 'org.slf4j:slf4j-api:1.7.7'
 }
