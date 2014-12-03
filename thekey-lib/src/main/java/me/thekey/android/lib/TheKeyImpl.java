@@ -302,7 +302,7 @@ public final class TheKeyImpl implements TheKey {
      * blocking method, this should never be called directly on the UI thread.
      *
      * @param service
-     * @return The ticket & attributes
+     * @return The ticket &amp; attributes
      */
     public TicketAttributesPair getTicketAndAttributes(final String service) throws TheKeySocketException {
         Pair<String, Attributes> credentials = null;

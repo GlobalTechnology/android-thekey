@@ -80,7 +80,7 @@ public interface TheKey {
      * called directly on the UI thread.
      *
      * @param service
-     * @return The ticket & attributes for the current session, or null if no ticket could be retrieved
+     * @return The ticket &amp; attributes for the current session, or null if no ticket could be retrieved
      */
     TicketAttributesPair getTicketAndAttributes(String service) throws TheKeySocketException;
 
