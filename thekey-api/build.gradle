@@ -10,5 +10,6 @@ configurations {
 }
 
 dependencies {
+    // XXX: I don't like using jsr305 for these annotations. But android-annotations isn't available for java projects
     provided 'com.google.code.findbugs:jsr305:3.0.0'
 }
