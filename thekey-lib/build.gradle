@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    buildToolsVersion "21.1.2"
 
     defaultConfig {
         minSdkVersion 8
@@ -12,6 +12,6 @@ android {
 
 dependencies {
     compile project(':thekey-api')
-    compile 'com.android.support:support-v4:21.0.2'
-    compile 'org.slf4j:slf4j-api:1.7.7'
+    compile 'com.android.support:support-v4:21.0.3'
+    compile 'org.slf4j:slf4j-api:1.7.10'
 }
