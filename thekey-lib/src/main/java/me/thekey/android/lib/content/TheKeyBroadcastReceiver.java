@@ -35,7 +35,7 @@ public abstract class TheKeyBroadcastReceiver extends BroadcastReceiver {
         if (ACTION_LOGIN.equals(action)) {
             this.onLogin(guid);
         } else if (ACTION_LOGOUT.equals(action)) {
-            this.onLogout(guid, extras.getBoolean(EXTRA_CHANGING_USER, false));
+            this.onLogout(guid, extras != null && extras.getBoolean(EXTRA_CHANGING_USER, false));
         } else if (ACTION_ATTRIBUTES_LOADED.equals(action)) {
             this.onAttributesLoaded(guid);
         }
