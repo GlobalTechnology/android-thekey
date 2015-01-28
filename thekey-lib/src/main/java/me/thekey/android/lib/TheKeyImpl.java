@@ -32,6 +32,8 @@ import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 import org.apache.http.NameValuePair;
@@ -79,11 +81,13 @@ public final class TheKeyImpl implements TheKey {
     private final Object lock_auth = new Object();
     private final Object lock_attrs = new Object();
 
+    @NonNull
     private final Context context;
+    @NonNull
     private final Uri casServer;
     private final Long clientId;
 
-    private TheKeyImpl(final Context context, final long clientId, final Uri casServer) {
+    private TheKeyImpl(@NonNull final Context context, final long clientId, @NonNull final Uri casServer) {
         this.context = context;
         this.clientId = clientId;
         this.casServer = casServer;
@@ -92,7 +96,8 @@ public final class TheKeyImpl implements TheKey {
     /**
      * @hide
      */
-    public static TheKeyImpl getInstance(final Context context, final Bundle args) {
+    @NonNull
+    public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Bundle args) {
         final long id = args.getLong(ARG_CLIENT_ID, INVALID_CLIENT_ID);
         final String server = args.getString(ARG_CAS_SERVER);
         if (server != null) {
@@ -102,16 +107,19 @@ public final class TheKeyImpl implements TheKey {
         }
     }
 
-    public static TheKeyImpl getInstance(final Context context, final long clientId) {
+    @NonNull
+    public static TheKeyImpl getInstance(@NonNull final Context context, final long clientId) {
         return getInstance(context, CAS_SERVER, clientId);
     }
 
-    public static TheKeyImpl getInstance(final Context context, final String server, final long clientId) {
+    @NonNull
+    public static TheKeyImpl getInstance(@NonNull final Context context, @Nullable final String server, final long clientId) {
         final Uri serverUri = server != null ? Uri.parse(server + (server.endsWith("/") ? "" : "/")) : CAS_SERVER;
         return getInstance(context, serverUri, clientId);
     }
 
-    public static TheKeyImpl getInstance(final Context context, final Uri server, final long clientId) {
+    @NonNull
+    public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Uri server, final long clientId) {
         final InstanceKey key = new InstanceKey(server, clientId);
         TheKeyImpl thekey;
         synchronized (INSTANCES) {
@@ -136,6 +144,7 @@ public final class TheKeyImpl implements TheKey {
         return this.clientId;
     }
 
+    @Nullable
     public String getGuid() {
         return this.getPrefs().getString(PREF_GUID, null);
     }
@@ -161,7 +170,7 @@ public final class TheKeyImpl implements TheKey {
 
     @Override
     public boolean loadAttributes() throws TheKeySocketException {
-        Pair<String, Attributes> credentials = null;
+        Pair<String, Attributes> credentials;
         while ((credentials = this.getValidAccessTokenAndAttributes(0)) != null) {
             // request the attributes from CAS
             HttpsURLConnection conn = null;
@@ -277,6 +286,7 @@ public final class TheKeyImpl implements TheKey {
         }
     }
 
+    @NonNull
     @Override
     public Attributes getAttributes() {
         synchronized (this.lock_attrs) {
@@ -292,7 +302,9 @@ public final class TheKeyImpl implements TheKey {
      * @param service
      * @return The ticket
      */
-    public String getTicket(final String service) throws TheKeySocketException {
+    @Nullable
+    @Override
+    public String getTicket(@NonNull final String service) throws TheKeySocketException {
         final TicketAttributesPair ticketPair = this.getTicketAndAttributes(service);
         return ticketPair != null ? ticketPair.ticket : null;
     }
@@ -304,8 +316,10 @@ public final class TheKeyImpl implements TheKey {
      * @param service
      * @return The ticket &amp; attributes
      */
-    public TicketAttributesPair getTicketAndAttributes(final String service) throws TheKeySocketException {
-        Pair<String, Attributes> credentials = null;
+    @Nullable
+    @Override
+    public TicketAttributesPair getTicketAndAttributes(@NonNull final String service) throws TheKeySocketException {
+        Pair<String, Attributes> credentials;
         while ((credentials = this.getValidAccessTokenAndAttributes(0)) != null) {
             // fetch a ticket
             final String ticket = this.getTicket(credentials.first, service);
@@ -402,8 +416,7 @@ public final class TheKeyImpl implements TheKey {
 
     @Override
     public void logout() {
-        // clearAuthState() may block on synchronization, so process the call on
-        // a background thread
+        // clearAuthState() may block on synchronization, so process the call on a background thread
         new Thread(new Runnable() {
             @Override
             public void run() {

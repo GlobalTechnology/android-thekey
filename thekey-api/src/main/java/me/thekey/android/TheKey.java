@@ -2,6 +2,9 @@ package me.thekey.android;
 
 import java.util.Date;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public interface TheKey {
     public static final String ACTION_LOGIN = TheKey.class.getName() + ".ACTION_LOGIN";
     public static final String ACTION_LOGOUT = TheKey.class.getName() + ".ACTION_LOGOUT";
@@ -13,25 +16,32 @@ public interface TheKey {
     public static final long INVALID_CLIENT_ID = -1;
 
     interface Attributes {
+        @Nullable
         String getGuid();
 
+        @Nullable
         Date getLoadedTime();
 
         boolean areValid();
 
+        @Nullable
         String getEmail();
 
+        @Nullable
         String getFirstName();
 
+        @Nullable
         String getLastName();
     }
 
     public final class TicketAttributesPair {
+        @Nonnull
         public final String ticket;
 
+        @Nonnull
         public final Attributes attributes;
 
-        public TicketAttributesPair(final String ticket, final Attributes attributes) {
+        public TicketAttributesPair(@Nonnull final String ticket, @Nonnull final Attributes attributes) {
             this.ticket = ticket;
             this.attributes = attributes;
         }
@@ -43,6 +53,7 @@ public interface TheKey {
      *
      * @return the user's guid
      */
+    @Nullable
     String getGuid();
 
     /**
@@ -63,6 +74,7 @@ public interface TheKey {
      *
      * @return The attributes for the current OAuth session
      */
+    @Nonnull
     Attributes getAttributes();
 
     /**
@@ -72,7 +84,8 @@ public interface TheKey {
      * @param service
      * @return The ticket
      */
-    String getTicket(String service) throws TheKeySocketException;
+    @Nullable
+    String getTicket(@Nonnull String service) throws TheKeySocketException;
 
     /**
      * This method returns a ticket for the specified service and attributes the
@@ -82,7 +95,8 @@ public interface TheKey {
      * @param service
      * @return The ticket &amp; attributes for the current session, or null if no ticket could be retrieved
      */
-    TicketAttributesPair getTicketAndAttributes(String service) throws TheKeySocketException;
+    @Nullable
+    TicketAttributesPair getTicketAndAttributes(@Nonnull String service) throws TheKeySocketException;
 
     /**
      * This method will logout the current user. This is a non-blocking method

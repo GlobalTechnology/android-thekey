@@ -1,14 +1,16 @@
 package me.thekey.android.lib.support.v4.content;
 
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.LocalBroadcastManager;
+
 import java.util.Date;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKey.Attributes;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
-import android.content.Context;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.LocalBroadcastManager;
 
 public final class AttributesLoader extends AsyncTaskLoader<Attributes> {
     private static final long DEFAULT_MAX_AGE = 24 * 60 * 60 * 1000; /* 1 day */
@@ -16,6 +18,7 @@ public final class AttributesLoader extends AsyncTaskLoader<Attributes> {
 
     private boolean refresh = false;
 
+    @NonNull
     private final TheKey mTheKey;
     private final TheKeyBroadcastReceiver mReceiver = new TheKeyBroadcastReceiver() {
         @Override
@@ -34,7 +37,7 @@ public final class AttributesLoader extends AsyncTaskLoader<Attributes> {
         }
     };
 
-    public AttributesLoader(final Context context, final TheKey thekey) {
+    public AttributesLoader(@NonNull final Context context, @NonNull final TheKey thekey) {
         super(context);
         mTheKey = thekey;
     }

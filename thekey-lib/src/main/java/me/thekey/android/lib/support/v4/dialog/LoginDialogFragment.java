@@ -21,7 +21,7 @@ public class LoginDialogFragment extends DialogFragment implements me.thekey.and
     private WebView loginView = null;
 
     public static Builder<LoginDialogFragment> builder() {
-        return new FragmentBuilder<LoginDialogFragment>(LoginDialogFragment.class);
+        return new FragmentBuilder<>(LoginDialogFragment.class);
     }
 
     /** BEGIN lifecycle */
