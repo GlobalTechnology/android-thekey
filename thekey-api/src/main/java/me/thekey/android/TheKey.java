@@ -19,7 +19,7 @@ public interface TheKey {
         @Nullable
         String getGuid();
 
-        @Nullable
+        @Nonnull
         Date getLoadedTime();
 
         boolean areValid();

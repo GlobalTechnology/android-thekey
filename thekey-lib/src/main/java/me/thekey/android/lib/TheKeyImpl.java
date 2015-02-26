@@ -113,13 +113,15 @@ public final class TheKeyImpl implements TheKey {
     }
 
     @NonNull
-    public static TheKeyImpl getInstance(@NonNull final Context context, @Nullable final String server, final long clientId) {
+    public static TheKeyImpl getInstance(@NonNull final Context context, @Nullable final String server,
+                                         final long clientId) {
         final Uri serverUri = server != null ? Uri.parse(server + (server.endsWith("/") ? "" : "/")) : CAS_SERVER;
         return getInstance(context, serverUri, clientId);
     }
 
     @NonNull
-    public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Uri server, final long clientId) {
+    public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Uri server,
+                                         final long clientId) {
         final InstanceKey key = new InstanceKey(server, clientId);
         TheKeyImpl thekey;
         synchronized (INSTANCES) {
@@ -668,6 +670,8 @@ public final class TheKeyImpl implements TheKey {
                     && guid.equals(this.attrs.get(PREF_ATTR_GUID));
         }
 
+        @Nullable
+        @Override
         public String getGuid() {
             return (String) this.attrs.get(PREF_GUID);
         }
@@ -677,22 +681,26 @@ public final class TheKeyImpl implements TheKey {
             return this.valid;
         }
 
+        @NonNull
         @Override
         public Date getLoadedTime() {
             final Long time = this.valid ? (Long) this.attrs.get(PREF_ATTR_LOAD_TIME) : null;
             return new Date(time != null ? time : 0);
         }
 
+        @Nullable
         @Override
         public String getEmail() {
             return this.valid ? (String) this.attrs.get(PREF_ATTR_EMAIL) : null;
         }
 
+        @Nullable
         @Override
         public String getFirstName() {
             return this.valid ? (String) this.attrs.get(PREF_ATTR_FIRST_NAME) : null;
         }
 
+        @Nullable
         @Override
         public String getLastName() {
             return this.valid ? (String) this.attrs.get(PREF_ATTR_LAST_NAME) : null;
