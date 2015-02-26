@@ -57,6 +57,7 @@ import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 
 import me.thekey.android.TheKey;
+import me.thekey.android.TheKeyContext;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.util.BroadcastUtils;
 
@@ -91,6 +92,23 @@ public final class TheKeyImpl implements TheKey {
         this.context = context;
         this.clientId = clientId;
         this.casServer = casServer;
+    }
+
+    @NonNull
+    public static TheKey getInstance(@NonNull Context context) {
+        while(true) {
+            // short-circuit if this context is a TheKeyContext
+            if (context instanceof TheKeyContext) {
+                return ((TheKeyContext) context).getTheKey();
+            }
+
+            // check the ApplicationContext (if we haven't already)
+            final Context old = context;
+            context = context.getApplicationContext();
+            if(context == old) {
+                throw new UnsupportedOperationException("The provided Context hierarchy doesn't implement TheKeyContext");
+            }
+        }
     }
 
     /**
