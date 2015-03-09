@@ -22,7 +22,7 @@ public final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
         final Activity activity = this.dialog.getActivity();
         if (activity instanceof LoginDialogListener) {
             // trigger the correct callback
-            if (result.booleanValue()) {
+            if (result) {
                 ((LoginDialogListener<DialogFragment>) activity).onLoginSuccess(dialog, this.thekey.getGuid());
             } else {
                 ((LoginDialogListener<DialogFragment>) activity).onLoginFailure(dialog);
