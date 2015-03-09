@@ -3,7 +3,7 @@ package me.thekey.android.lib.fragment;
 import android.app.Activity;
 
 public interface DialogFragment {
-    void dismiss();
+    void dismissAllowingStateLoss();
 
     Activity getActivity();
 

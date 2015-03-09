@@ -1,11 +1,10 @@
 package me.thekey.android.lib.dialog;
 
-import me.thekey.android.lib.fragment.DialogFragment;
+import android.app.Activity;
 
 import me.thekey.android.lib.CodeGrantAsyncTask;
 import me.thekey.android.lib.TheKeyImpl;
-
-import android.app.Activity;
+import me.thekey.android.lib.fragment.DialogFragment;
 
 public final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
     final DialogFragment dialog;
@@ -32,7 +31,7 @@ public final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
 
         // close the dialog if it is still active (added to the activity)
         if (this.dialog.isAdded()) {
-            this.dialog.dismiss();
+            this.dialog.dismissAllowingStateLoss();
         }
     }
 }

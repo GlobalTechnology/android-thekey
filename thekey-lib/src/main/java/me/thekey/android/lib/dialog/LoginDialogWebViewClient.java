@@ -1,12 +1,11 @@
 package me.thekey.android.lib.dialog;
 
-import me.thekey.android.lib.fragment.DialogFragment;
-
-import me.thekey.android.lib.LoginWebViewClient;
-
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
+
+import me.thekey.android.lib.LoginWebViewClient;
+import me.thekey.android.lib.fragment.DialogFragment;
 
 public class LoginDialogWebViewClient extends LoginWebViewClient {
     private final DialogFragment mDialog;
@@ -31,7 +30,7 @@ public class LoginDialogWebViewClient extends LoginWebViewClient {
 
         // close the dialog if it is still active (added to the activity)
         if (mDialog.isAdded()) {
-            mDialog.dismiss();
+            mDialog.dismissAllowingStateLoss();
         }
     }
 }
