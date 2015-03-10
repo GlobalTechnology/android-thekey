@@ -31,16 +31,20 @@ public class LoginActivity extends Activity {
         return new ActivityBuilder(context, LoginActivity.class);
     }
 
-    /** BEGIN lifecycle */
+    /* BEGIN lifecycle */
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.thekey_login);
 
+        // get the arguments necessary for creation of TheKey object
+        mArgs = getIntent().getBundleExtra(EXTRA_ARGS);
+        if (mArgs == null) {
+            finish();
+        }
+
         // create TheKey object
-        final Intent intent = getIntent();
-        mArgs = intent.getBundleExtra(EXTRA_ARGS);
         mTheKey = TheKeyImpl.getInstance(this, mArgs);
 
         // init the Login WebView
@@ -60,7 +64,7 @@ public class LoginActivity extends Activity {
         this.attachLoginView();
     }
 
-    /** END lifecycle */
+    /* END lifecycle */
 
     private void attachLoginView() {
         this.detachLoginView();
