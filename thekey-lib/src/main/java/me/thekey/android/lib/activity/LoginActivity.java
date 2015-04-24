@@ -42,6 +42,7 @@ public class LoginActivity extends Activity {
         mArgs = getIntent().getBundleExtra(EXTRA_ARGS);
         if (mArgs == null) {
             finish();
+            return;
         }
 
         // create TheKey object
