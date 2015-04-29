@@ -86,13 +86,13 @@ public final class TheKeyImpl implements TheKey {
     @NonNull
     private final Context mContext;
     @NonNull
-    private final Uri casServer;
+    private final Uri mServer;
     private final long mClientId;
 
-    private TheKeyImpl(@NonNull final Context context, final long clientId, @NonNull final Uri casServer) {
+    private TheKeyImpl(@NonNull final Context context, final long clientId, @NonNull final Uri server) {
         mContext = context;
         mClientId = clientId;
-        this.casServer = casServer;
+        mServer = server;
     }
 
     @NonNull
@@ -155,7 +155,7 @@ public final class TheKeyImpl implements TheKey {
     }
 
     Uri getCasUri(final String... segments) {
-        final Builder uri = this.casServer.buildUpon();
+        final Builder uri = mServer.buildUpon();
         for (final String segment : segments) {
             uri.appendPath(segment);
         }
