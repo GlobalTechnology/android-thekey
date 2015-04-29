@@ -6,14 +6,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface TheKey {
-    public static final String ACTION_LOGIN = TheKey.class.getName() + ".ACTION_LOGIN";
-    public static final String ACTION_LOGOUT = TheKey.class.getName() + ".ACTION_LOGOUT";
-    public static final String ACTION_ATTRIBUTES_LOADED = TheKey.class.getName() + ".ACTION_ATTRIBUTES_LOADED";
+    String ACTION_LOGIN = TheKey.class.getName() + ".ACTION_LOGIN";
+    String ACTION_LOGOUT = TheKey.class.getName() + ".ACTION_LOGOUT";
+    String ACTION_ATTRIBUTES_LOADED = TheKey.class.getName() + ".ACTION_ATTRIBUTES_LOADED";
 
-    public static final String EXTRA_GUID = "guid";
-    public static final String EXTRA_CHANGING_USER = "changing_user";
+    String EXTRA_GUID = "guid";
+    String EXTRA_CHANGING_USER = "changing_user";
 
-    public static final long INVALID_CLIENT_ID = -1;
+    long INVALID_CLIENT_ID = -1;
 
     interface Attributes {
         @Nullable
@@ -34,7 +34,7 @@ public interface TheKey {
         String getLastName();
     }
 
-    public final class TicketAttributesPair {
+    final class TicketAttributesPair {
         @Nonnull
         public final String ticket;
 
