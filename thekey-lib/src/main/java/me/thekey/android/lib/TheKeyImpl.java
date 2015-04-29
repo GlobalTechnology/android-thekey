@@ -87,17 +87,17 @@ public final class TheKeyImpl implements TheKey {
     private final Context context;
     @NonNull
     private final Uri casServer;
-    private final Long clientId;
+    private final long mClientId;
 
     private TheKeyImpl(@NonNull final Context context, final long clientId, @NonNull final Uri casServer) {
         this.context = context;
-        this.clientId = clientId;
+        mClientId = clientId;
         this.casServer = casServer;
     }
 
     @NonNull
     public static TheKey getInstance(@NonNull Context context) {
-        while(true) {
+        while (true) {
             // short-circuit if this context is a TheKeyContext
             if (context instanceof TheKeyContext) {
                 return ((TheKeyContext) context).getTheKey();
@@ -106,8 +106,9 @@ public final class TheKeyImpl implements TheKey {
             // check the ApplicationContext (if we haven't already)
             final Context old = context;
             context = context.getApplicationContext();
-            if(context == old) {
-                throw new UnsupportedOperationException("The provided Context hierarchy doesn't implement TheKeyContext");
+            if (context == old) {
+                throw new UnsupportedOperationException(
+                        "The provided Context hierarchy doesn't implement TheKeyContext");
             }
         }
     }
@@ -161,10 +162,6 @@ public final class TheKeyImpl implements TheKey {
         return uri.build();
     }
 
-    private Long getClientId() {
-        return this.clientId;
-    }
-
     @Nullable
     public String getGuid() {
         return this.getPrefs().getString(PREF_GUID, null);
@@ -180,7 +177,7 @@ public final class TheKeyImpl implements TheKey {
     private Uri getAuthorizeUri(final String state) {
         // build oauth authorize url
         final Builder uri = this.getCasUri("oauth", "authorize").buildUpon()
-                .appendQueryParameter(OAUTH_PARAM_CLIENT_ID, this.getClientId().toString())
+                .appendQueryParameter(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId))
                 .appendQueryParameter(OAUTH_PARAM_REDIRECT_URI, REDIRECT_URI.toString());
         if (state != null) {
             uri.appendQueryParameter(OAUTH_PARAM_STATE, state);
@@ -504,10 +501,10 @@ public final class TheKeyImpl implements TheKey {
             conn = (HttpsURLConnection) new URL(tokenUri.toString()).openConnection();
             conn.setDoOutput(true);
             conn.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            final byte[] data = (encodeParam(OAUTH_PARAM_GRANT_TYPE, OAUTH_GRANT_TYPE_AUTHORIZATION_CODE) + "&"
-                    + encodeParam(OAUTH_PARAM_CLIENT_ID, this.clientId.toString()) + "&"
-                    + encodeParam(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString()) + "&" + encodeParam(
-                    OAUTH_PARAM_CODE, code)).getBytes("UTF-8");
+            final byte[] data = (encodeParam(OAUTH_PARAM_GRANT_TYPE, OAUTH_GRANT_TYPE_AUTHORIZATION_CODE) + "&" +
+                    encodeParam(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId)) + "&" +
+                    encodeParam(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString()) + "&" +
+                    encodeParam(OAUTH_PARAM_CODE, code)).getBytes("UTF-8");
             conn.setFixedLengthStreamingMode(data.length);
             conn.getOutputStream().write(data);
 
@@ -538,9 +535,9 @@ public final class TheKeyImpl implements TheKey {
             conn = (HttpsURLConnection) new URL(tokenUri.toString()).openConnection();
             conn.setDoOutput(true);
             conn.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            final byte[] data = (encodeParam(OAUTH_PARAM_GRANT_TYPE, OAUTH_GRANT_TYPE_REFRESH_TOKEN) + "&"
-                    + encodeParam(OAUTH_PARAM_CLIENT_ID, this.clientId.toString()) + "&" + encodeParam(
-                    OAUTH_PARAM_REFRESH_TOKEN, refreshToken)).getBytes("UTF-8");
+            final byte[] data = (encodeParam(OAUTH_PARAM_GRANT_TYPE, OAUTH_GRANT_TYPE_REFRESH_TOKEN) + "&" +
+                    encodeParam(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId)) + "&" +
+                    encodeParam(OAUTH_PARAM_REFRESH_TOKEN, refreshToken)).getBytes("UTF-8");
             conn.setFixedLengthStreamingMode(data.length);
             conn.getOutputStream().write(data);
 
