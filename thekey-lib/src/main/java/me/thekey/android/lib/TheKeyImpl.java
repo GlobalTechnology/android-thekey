@@ -49,6 +49,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -642,16 +643,17 @@ public final class TheKeyImpl implements TheKey {
     }
 
     private static final class InstanceKey {
+        @NonNull
         private final Uri mServer;
         private final long mId;
 
-        private InstanceKey(final Uri server, final long clientId) {
+        private InstanceKey(@NonNull final Uri server, final long clientId) {
             mServer = server;
             mId = clientId;
         }
 
         @Override
-        public boolean equals(final Object o) {
+        public boolean equals(@Nullable final Object o) {
             if (o == this) {
                 return true;
             }
@@ -659,16 +661,12 @@ public final class TheKeyImpl implements TheKey {
                 return false;
             }
             final InstanceKey key = (InstanceKey) o;
-            return this.mId == key.mId
-                    && ((this.mServer == key.mServer) || (this.mServer != null && this.mServer.equals(key.mServer)));
+            return this.mId == key.mId && this.mServer.equals(key.mServer);
         }
 
         @Override
         public int hashCode() {
-            int hash = super.hashCode();
-            hash = hash * 31 + Long.valueOf(mId).hashCode();
-            hash = hash * 31 + (mServer != null ? mServer.hashCode() : 0);
-            return hash;
+            return Arrays.hashCode(new Object[] {mServer, mId});
         }
     }
 
