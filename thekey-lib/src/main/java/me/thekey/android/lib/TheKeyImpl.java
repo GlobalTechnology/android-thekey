@@ -84,13 +84,13 @@ public final class TheKeyImpl implements TheKey {
     private final Object lock_attrs = new Object();
 
     @NonNull
-    private final Context context;
+    private final Context mContext;
     @NonNull
     private final Uri casServer;
     private final long mClientId;
 
     private TheKeyImpl(@NonNull final Context context, final long clientId, @NonNull final Uri casServer) {
-        this.context = context;
+        mContext = context;
         mClientId = clientId;
         this.casServer = casServer;
     }
@@ -204,7 +204,7 @@ public final class TheKeyImpl implements TheKey {
                     storeAttributes(json);
 
                     // broadcast that we just loaded the attributes
-                    BroadcastUtils.broadcastAttributesLoaded(context, json.optString(OAUTH_PARAM_ATTR_GUID, null));
+                    BroadcastUtils.broadcastAttributesLoaded(mContext, json.optString(OAUTH_PARAM_ATTR_GUID, null));
 
                     // return that attributes were loaded
                     return true;
@@ -488,7 +488,7 @@ public final class TheKeyImpl implements TheKey {
 
             // broadcast a logout action if we had a guid
             if (guid != null) {
-                BroadcastUtils.broadcastLogout(context, guid, false);
+                BroadcastUtils.broadcastLogout(mContext, guid, false);
             }
         }
     }
@@ -598,10 +598,10 @@ public final class TheKeyImpl implements TheKey {
 
                 // trigger logout/login broadcasts based on guid changes
                 if (oldGuid != null && !oldGuid.equals(newGuid)) {
-                    BroadcastUtils.broadcastLogout(context, oldGuid, newGuid != null);
+                    BroadcastUtils.broadcastLogout(mContext, oldGuid, newGuid != null);
                 }
                 if (newGuid != null && !newGuid.equals(oldGuid)) {
-                    BroadcastUtils.broadcastLogin(context, newGuid);
+                    BroadcastUtils.broadcastLogin(mContext, newGuid);
                 }
             }
         } catch (final JSONException e) {
@@ -610,7 +610,7 @@ public final class TheKeyImpl implements TheKey {
     }
 
     private SharedPreferences getPrefs() {
-        return this.context.getSharedPreferences(PREFFILE_THEKEY, Context.MODE_PRIVATE);
+        return mContext.getSharedPreferences(PREFFILE_THEKEY, Context.MODE_PRIVATE);
     }
 
     @SuppressWarnings("deprecation")
