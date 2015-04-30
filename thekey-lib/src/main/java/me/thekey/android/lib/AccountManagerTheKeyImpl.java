@@ -24,10 +24,9 @@ import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.lib.util.BroadcastUtils;
 
 public final class AccountManagerTheKeyImpl extends TheKeyImpl {
-    private static final String DATA_GUID = "sso_guid";
+    private static final String DATA_GUID = "thekey_guid";
 
     private static final String DATA_ATTR_LOAD_TIME = "attr_load_time";
-    private static final String DATA_ATTR_GUID = "attr_guid";
     private static final String DATA_ATTR_EMAIL = "attr_email";
     private static final String DATA_ATTR_FIRST_NAME = "attr_first_name";
     private static final String DATA_ATTR_LAST_NAME = "attr_last_name";
@@ -42,7 +41,7 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
     private final String mAccountType;
 
     @Nullable
-    private Account mActiveAccount;
+    private String mDefaultGuid;
 
     AccountManagerTheKeyImpl(@NonNull final Context context, @NonNull final Uri server,
                              final long clientId, @NonNull final String accountType) {
@@ -53,8 +52,8 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
 
     @Override
     public void setDefaultSession(@NonNull final String guid) throws TheKeyInvalidSessionException {
-        mActiveAccount = findAccount(guid);
-        if (mActiveAccount == null) {
+        mDefaultGuid = guid;
+        if (findAccount(mDefaultGuid) == null) {
             throw new TheKeyInvalidSessionException();
         }
     }
@@ -62,8 +61,13 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
     @Nullable
     @Override
     public String getDefaultSessionGuid() {
-        loadDefaultAccount();
-        return getGuid(mActiveAccount);
+        // check for a default guid if we don't currently have one set
+        if (mDefaultGuid == null) {
+            final Account[] accounts = mAccountManager.getAccountsByType(mAccountType);
+            mDefaultGuid = accounts.length > 0 ? getGuid(accounts[0]) : null;
+        }
+
+        return mDefaultGuid;
     }
 
     @Nullable
@@ -76,13 +80,6 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
         return guid != null && findAccount(guid) != null;
     }
 
-    private void loadDefaultAccount() {
-        if (mActiveAccount == null) {
-            final Account[] accounts = mAccountManager.getAccountsByType(mAccountType);
-            mActiveAccount = accounts.length > 0 ? accounts[0] : null;
-        }
-    }
-
     @Nullable
     private Account findAccount(@NonNull final String guid) {
         final Account[] accounts = mAccountManager.getAccountsByType(mAccountType);
@@ -90,6 +87,11 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
             if (guid.equals(getGuid(account))) {
                 return account;
             }
+        }
+
+        // let's reset the default guid if it matches the guid that wasn't found
+        if (TextUtils.equals(guid, mDefaultGuid)) {
+            mDefaultGuid = null;
         }
 
         return null;
@@ -100,9 +102,8 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
         final Account account = findAccount(guid);
         if (account != null) {
             mAccountManager.removeAccountExplicitly(account);
-            if (account.equals(mActiveAccount)) {
-                mActiveAccount = null;
-                loadDefaultAccount();
+            if (TextUtils.equals(guid, mDefaultGuid)) {
+                mDefaultGuid = null;
             }
 
             // broadcast a logout action since we had an account
