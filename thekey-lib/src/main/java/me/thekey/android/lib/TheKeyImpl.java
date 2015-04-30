@@ -56,6 +56,8 @@ import me.thekey.android.lib.util.BroadcastUtils;
  */
 public abstract class TheKeyImpl implements TheKey {
     private static final Object INSTANCE_LOCK = new Object();
+    @Nullable
+    private static Configuration INSTANCE_CONFIG = null;
     private static TheKeyImpl INSTANCE = null;
 
     final Object mLockAuth = new Object();
@@ -78,29 +80,30 @@ public abstract class TheKeyImpl implements TheKey {
         }
     }
 
-    @NonNull
-    public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Configuration config) {
+    public static void configure(@NonNull final Configuration config) {
         synchronized (INSTANCE_LOCK) {
             if (INSTANCE == null) {
-                if (TextUtils.isEmpty(config.mAccountType)) {
-                    INSTANCE = new PreferenceTheKeyImpl(context.getApplicationContext(), config);
-                } else {
-                    INSTANCE = new AccountManagerTheKeyImpl(context.getApplicationContext(), config);
-                }
+                INSTANCE_CONFIG = config;
+            } else if (INSTANCE_CONFIG == null) {
+                throw new IllegalStateException("Strange, we have an INSTANCE, but no INSTANCE_CONFIG");
+            } else if (!INSTANCE_CONFIG.equals(config)) {
+                throw new IllegalArgumentException("Configuration cannot be changed after TheKeyImpl is initialized");
             }
         }
-
-        // do we support reconfiguring TheKey?
-        if (!INSTANCE.mConfig.equals(config)) {
-            throw new IllegalArgumentException("Configuration cannot be changed after TheKeyImpl is initialized");
-        }
-
-        return INSTANCE;
     }
 
     @NonNull
-    public static TheKey getInstance(@NonNull Context context) {
+    public static TheKeyImpl getInstance(@NonNull Context context) {
         synchronized (INSTANCE_LOCK) {
+            // initialize the instance if we haven't already and we have configuration
+            if (INSTANCE == null && INSTANCE_CONFIG != null) {
+                if (TextUtils.isEmpty(INSTANCE_CONFIG.mAccountType)) {
+                    INSTANCE = new PreferenceTheKeyImpl(context.getApplicationContext(), INSTANCE_CONFIG);
+                } else {
+                    INSTANCE = new AccountManagerTheKeyImpl(context.getApplicationContext(), INSTANCE_CONFIG);
+                }
+            }
+
             if (INSTANCE != null) {
                 return INSTANCE;
             }
@@ -111,7 +114,7 @@ public abstract class TheKeyImpl implements TheKey {
         while (true) {
             // short-circuit if this context is a TheKeyContext
             if (context instanceof TheKeyContext) {
-                return ((TheKeyContext) context).getTheKey();
+                return (TheKeyImpl) ((TheKeyContext) context).getTheKey();
             }
 
             // check the ApplicationContext (if we haven't already)
@@ -122,7 +125,7 @@ public abstract class TheKeyImpl implements TheKey {
             }
         }
 
-        throw new IllegalStateException("TheKeyImpl has not been initialized yet!");
+        throw new IllegalStateException("TheKeyImpl has not been configured yet!");
     }
 
     /**
@@ -131,28 +134,32 @@ public abstract class TheKeyImpl implements TheKey {
     @NonNull
     @Deprecated
     public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Bundle args) {
-        return getInstance(context, Configuration.base().clientId(args.getLong(ARG_CLIENT_ID, INVALID_CLIENT_ID))
-                .server(args.getString(ARG_CAS_SERVER)));
+        configure(Configuration.base().clientId(args.getLong(ARG_CLIENT_ID, INVALID_CLIENT_ID))
+                          .server(args.getString(ARG_CAS_SERVER)));
+        return getInstance(context);
     }
 
     @NonNull
     @Deprecated
     public static TheKeyImpl getInstance(@NonNull final Context context, final long clientId) {
-        return getInstance(context, Configuration.base().clientId(clientId));
+        configure(Configuration.base().clientId(clientId));
+        return getInstance(context);
     }
 
     @NonNull
     @Deprecated
     public static TheKeyImpl getInstance(@NonNull final Context context, @Nullable final String server,
                                          final long clientId) {
-        return getInstance(context, Configuration.base().server(server).clientId(clientId));
+        configure(Configuration.base().server(server).clientId(clientId));
+        return getInstance(context);
     }
 
     @NonNull
     @Deprecated
     public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Uri server,
                                          final long clientId) {
-        return getInstance(context, Configuration.base().server(server).clientId(clientId));
+        configure(Configuration.base().server(server).clientId(clientId));
+        return getInstance(context);
     }
 
     @Nullable
