@@ -47,8 +47,8 @@ public class LoginActivity extends Activity {
             return;
         }
 
-        // create TheKey object
-        mTheKey = TheKeyImpl.getInstance(this, mArgs);
+        // get TheKey object
+        mTheKey = TheKeyImpl.getInstance(this);
 
         // init the Login WebView
         this.attachLoginView();
@@ -74,7 +74,7 @@ public class LoginActivity extends Activity {
 
         // create a loginView if it doesn't exist already
         if (this.loginView == null) {
-            this.loginView = DisplayUtil.createLoginWebView(this, new ActivityLoginWebViewClient(), mArgs);
+            this.loginView = DisplayUtil.createLoginWebView(this, new ActivityLoginWebViewClient());
         }
 
         // attach the login view to the current frame

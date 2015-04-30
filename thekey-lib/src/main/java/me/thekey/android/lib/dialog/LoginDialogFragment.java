@@ -10,8 +10,8 @@ import android.view.LayoutInflater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
-import me.thekey.android.lib.R;
 import me.thekey.android.lib.Builder;
+import me.thekey.android.lib.R;
 import me.thekey.android.lib.fragment.FragmentBuilder;
 import me.thekey.android.lib.util.DisplayUtil;
 
@@ -22,10 +22,10 @@ public class LoginDialogFragment extends DialogFragment implements me.thekey.and
     private WebView loginView = null;
 
     public static Builder<LoginDialogFragment> builder() {
-        return new FragmentBuilder<LoginDialogFragment>(LoginDialogFragment.class);
+        return new FragmentBuilder<>(LoginDialogFragment.class);
     }
 
-    /** BEGIN lifecycle */
+    /* BEGIN lifecycle */
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -38,8 +38,8 @@ public class LoginDialogFragment extends DialogFragment implements me.thekey.and
         final AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
 
         // build dialog
-        final FrameLayout frame = (FrameLayout) LayoutInflater.from(this.getActivity()).inflate(R.layout.thekey_login,
-                null);
+        final FrameLayout frame =
+                (FrameLayout) LayoutInflater.from(this.getActivity()).inflate(R.layout.thekey_login, null);
         this.attachLoginView(frame);
         builder.setView(frame);
 
@@ -51,13 +51,14 @@ public class LoginDialogFragment extends DialogFragment implements me.thekey.and
         // Work around bug:
         // http://code.google.com/p/android/issues/detail?id=17423
         final Dialog dialog = this.getDialog();
-        if ((dialog != null) && this.getRetainInstance())
+        if ((dialog != null) && this.getRetainInstance()) {
             dialog.setDismissMessage(null);
+        }
 
         super.onDestroyView();
     }
 
-    /** END lifecycle */
+    /* END lifecycle */
 
     private void attachLoginView(final FrameLayout frame) {
         this.detachLoginView();
@@ -65,8 +66,7 @@ public class LoginDialogFragment extends DialogFragment implements me.thekey.and
         // create a loginView if it doesn't exist already
         if (this.loginView == null) {
             final Bundle args = getArguments();
-            this.loginView = DisplayUtil.createLoginWebView(getActivity(), new LoginDialogWebViewClient(this, args),
-                    args);
+            this.loginView = DisplayUtil.createLoginWebView(getActivity(), new LoginDialogWebViewClient(this, args));
         }
 
         // attach the login view to the current frame

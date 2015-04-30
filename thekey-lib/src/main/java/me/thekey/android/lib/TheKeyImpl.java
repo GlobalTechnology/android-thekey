@@ -2,8 +2,6 @@ package me.thekey.android.lib;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static me.thekey.android.lib.Constant.ARG_CAS_SERVER;
-import static me.thekey.android.lib.Constant.ARG_CLIENT_ID;
 import static me.thekey.android.lib.Constant.CAS_SERVER;
 import static me.thekey.android.lib.Constant.OAUTH_GRANT_TYPE_AUTHORIZATION_CODE;
 import static me.thekey.android.lib.Constant.OAUTH_GRANT_TYPE_REFRESH_TOKEN;
@@ -22,7 +20,6 @@ import static me.thekey.android.lib.Constant.THEKEY_PARAM_TICKET;
 import android.content.Context;
 import android.net.Uri;
 import android.net.Uri.Builder;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -131,17 +128,6 @@ public abstract class TheKeyImpl implements TheKey {
     @NonNull
     public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Configuration config) {
         configure(config);
-        return getInstance(context);
-    }
-
-    /**
-     * @hide
-     */
-    @NonNull
-    @Deprecated
-    public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Bundle args) {
-        configure(Configuration.base().clientId(args.getLong(ARG_CLIENT_ID, INVALID_CLIENT_ID))
-                          .server(args.getString(ARG_CAS_SERVER)));
         return getInstance(context);
     }
 

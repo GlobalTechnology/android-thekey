@@ -34,7 +34,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
     private LoginWebViewClient(final Context context, final Bundle args, final String state) {
         mContext = context;
         mArgs = args;
-        mTheKey = TheKeyImpl.getInstance(context, args);
+        mTheKey = TheKeyImpl.getInstance(context);
         this.oauthUri = mTheKey.getAuthorizeUri().buildUpon().query("").build();
         this.selfServiceUri = mTheKey.getCasUri("service", "selfservice");
         this.state = state;

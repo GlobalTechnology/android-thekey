@@ -1,13 +1,9 @@
 package me.thekey.android.lib.util;
 
-import me.thekey.android.lib.LoginWebViewClient;
-import me.thekey.android.lib.TheKeyImpl;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +11,14 @@ import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import me.thekey.android.lib.LoginWebViewClient;
+import me.thekey.android.lib.TheKeyImpl;
+
 public final class DisplayUtil {
     @SuppressLint("SetJavaScriptEnabled")
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public static WebView createLoginWebView(final Context context, final LoginWebViewClient client, final Bundle args) {
-        final TheKeyImpl thekey = TheKeyImpl.getInstance(context, args);
+    public static WebView createLoginWebView(final Context context, final LoginWebViewClient client) {
+        final TheKeyImpl thekey = TheKeyImpl.getInstance(context);
 
         final WebView webView = new WebView(context);
         webView.setVisibility(View.GONE);
@@ -61,9 +60,9 @@ public final class DisplayUtil {
 
     /**
      * This listener is only used on SDK levels 8-10
-     *
+     * <p/>
      * This will work around a focus bug affecting WebViews
-     *
+     * <p/>
      * see http://stackoverflow.com/questions/3460915
      */
     private final static class SDK8TouchListener implements View.OnTouchListener {
