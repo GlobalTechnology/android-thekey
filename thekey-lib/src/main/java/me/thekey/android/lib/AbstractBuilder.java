@@ -1,7 +1,6 @@
 package me.thekey.android.lib;
 
 import static me.thekey.android.TheKey.INVALID_CLIENT_ID;
-import static me.thekey.android.lib.Constant.ARG_ACCOUNT_TYPE;
 import static me.thekey.android.lib.Constant.ARG_CAS_SERVER;
 import static me.thekey.android.lib.Constant.ARG_CLIENT_ID;
 import static me.thekey.android.lib.Constant.ARG_SELF_SERVICE;
@@ -19,13 +18,6 @@ public abstract class AbstractBuilder<T> implements Builder<T> {
         this.casServer(CAS_SERVER.toString());
         this.clientId(INVALID_CLIENT_ID);
         this.selfService(false);
-    }
-
-    @NonNull
-    @Override
-    public final Builder<T> accountType(@Nullable final String type) {
-        mArgs.putString(ARG_ACCOUNT_TYPE, type);
-        return this;
     }
 
     @NonNull

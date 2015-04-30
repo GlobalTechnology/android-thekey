@@ -12,7 +12,6 @@ import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -41,8 +40,8 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
 
     private final Object mLockAttrs = new Object();
 
-    PreferenceTheKeyImpl(@NonNull final Context context, @NonNull final Uri server, final long clientId) {
-        super(context, server, clientId);
+    PreferenceTheKeyImpl(@NonNull final Context context, @NonNull final Configuration config) {
+        super(context, config);
     }
 
     @Nullable

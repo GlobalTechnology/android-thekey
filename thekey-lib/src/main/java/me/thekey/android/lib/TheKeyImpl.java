@@ -2,7 +2,6 @@ package me.thekey.android.lib;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static me.thekey.android.lib.Constant.ARG_ACCOUNT_TYPE;
 import static me.thekey.android.lib.Constant.ARG_CAS_SERVER;
 import static me.thekey.android.lib.Constant.ARG_CLIENT_ID;
 import static me.thekey.android.lib.Constant.CAS_SERVER;
@@ -41,9 +40,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -58,29 +55,59 @@ import me.thekey.android.lib.util.BroadcastUtils;
  * endpoints and correctly stores/utilizes OAuth access_tokens locally
  */
 public abstract class TheKeyImpl implements TheKey {
-    private static final String ACCOUNT_TYPE_DEFAULT = null;
-
-    private static final Map<InstanceKey, TheKeyImpl> INSTANCES = new HashMap<>();
+    private static final Object INSTANCE_LOCK = new Object();
+    private static TheKeyImpl INSTANCE = null;
 
     final Object mLockAuth = new Object();
 
     @NonNull
     final Context mContext;
     @NonNull
+    final Configuration mConfig;
+    @NonNull
     private final Uri mServer;
     private final long mClientId;
 
-    TheKeyImpl(@NonNull final Context context, @NonNull final Uri server, final long clientId) {
+    TheKeyImpl(@NonNull final Context context, @NonNull final Configuration config) {
         mContext = context;
-        mServer = server;
-        mClientId = clientId;
+        mConfig = config;
+        mServer = mConfig.mServer;
+        mClientId = mConfig.mClientId;
         if (mClientId == INVALID_CLIENT_ID) {
-            throw new IllegalArgumentException("The Key client id is invalid or not provided");
+            throw new IllegalStateException("client_id is invalid or not provided");
         }
     }
 
     @NonNull
+    public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Configuration config) {
+        synchronized (INSTANCE_LOCK) {
+            if (INSTANCE == null) {
+                if (TextUtils.isEmpty(config.mAccountType)) {
+                    INSTANCE = new PreferenceTheKeyImpl(context.getApplicationContext(), config);
+                } else {
+                    INSTANCE = new AccountManagerTheKeyImpl(context.getApplicationContext(), config);
+                }
+            }
+        }
+
+        // do we support reconfiguring TheKey?
+        if (!INSTANCE.mConfig.equals(config)) {
+            throw new IllegalArgumentException("Configuration cannot be changed after TheKeyImpl is initialized");
+        }
+
+        return INSTANCE;
+    }
+
+    @NonNull
     public static TheKey getInstance(@NonNull Context context) {
+        synchronized (INSTANCE_LOCK) {
+            if (INSTANCE != null) {
+                return INSTANCE;
+            }
+        }
+
+        // support legacy lookup of TheKey object
+        // deprecated
         while (true) {
             // short-circuit if this context is a TheKeyContext
             if (context instanceof TheKeyContext) {
@@ -91,65 +118,41 @@ public abstract class TheKeyImpl implements TheKey {
             final Context old = context;
             context = context.getApplicationContext();
             if (context == old) {
-                throw new UnsupportedOperationException(
-                        "The provided Context hierarchy doesn't implement TheKeyContext");
+                break;
             }
         }
+
+        throw new IllegalStateException("TheKeyImpl has not been initialized yet!");
     }
 
     /**
      * @hide
      */
     @NonNull
+    @Deprecated
     public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Bundle args) {
-        final long id = args.getLong(ARG_CLIENT_ID, INVALID_CLIENT_ID);
-        final String server = args.getString(ARG_CAS_SERVER);
-        final String accountType = args.getString(ARG_ACCOUNT_TYPE);
-        return getInstance(context, server, id, accountType);
+        return getInstance(context, Configuration.base().clientId(args.getLong(ARG_CLIENT_ID, INVALID_CLIENT_ID))
+                .server(args.getString(ARG_CAS_SERVER)));
     }
 
     @NonNull
+    @Deprecated
     public static TheKeyImpl getInstance(@NonNull final Context context, final long clientId) {
-        return getInstance(context, CAS_SERVER, clientId);
+        return getInstance(context, Configuration.base().clientId(clientId));
     }
 
     @NonNull
+    @Deprecated
     public static TheKeyImpl getInstance(@NonNull final Context context, @Nullable final String server,
                                          final long clientId) {
-        return getInstance(context, server, clientId, ACCOUNT_TYPE_DEFAULT);
+        return getInstance(context, Configuration.base().server(server).clientId(clientId));
     }
 
     @NonNull
-    public static TheKeyImpl getInstance(@NonNull final Context context, @Nullable final String server,
-                                         final long clientId, @Nullable final String accountType) {
-        final Uri serverUri = server != null ? Uri.parse(server + (server.endsWith("/") ? "" : "/")) : CAS_SERVER;
-        return getInstance(context, serverUri, clientId, accountType);
-    }
-
-    @NonNull
+    @Deprecated
     public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Uri server,
                                          final long clientId) {
-        return getInstance(context, server, clientId, ACCOUNT_TYPE_DEFAULT);
-    }
-
-    @NonNull
-    public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Uri server,
-                                         final long clientId, @Nullable final String accountType) {
-        final InstanceKey key = new InstanceKey(server, clientId, accountType);
-        TheKeyImpl thekey;
-        synchronized (INSTANCES) {
-            thekey = INSTANCES.get(key);
-            if (thekey == null) {
-                if (accountType == null) {
-                    thekey = new PreferenceTheKeyImpl(context.getApplicationContext(), server, clientId);
-                } else {
-                    thekey = new AccountManagerTheKeyImpl(context.getApplicationContext(), server, clientId,
-                                                          accountType);
-                }
-                INSTANCES.put(key, thekey);
-            }
-        }
-        return thekey;
+        return getInstance(context, Configuration.base().server(server).clientId(clientId));
     }
 
     @Nullable
@@ -534,6 +537,59 @@ public abstract class TheKeyImpl implements TheKey {
         } catch (final Exception e) {
             // return an empty object on error
             return new JSONObject();
+        }
+    }
+
+    public static final class Configuration {
+        @NonNull
+        final Uri mServer;
+        final long mClientId;
+        @Nullable
+        final String mAccountType;
+
+        private Configuration(@Nullable final Uri server, final long id, @Nullable final String accountType) {
+            mServer = server != null ? server : CAS_SERVER;
+            mClientId = id;
+            mAccountType = accountType;
+        }
+
+        public static Configuration base() {
+            return new Configuration(null, INVALID_CLIENT_ID, null);
+        }
+
+        public Configuration server(@Nullable final String server) {
+            return new Configuration(server != null ? Uri.parse(server + (server.endsWith("/") ? "" : "/")) : null,
+                                     mClientId, mAccountType);
+        }
+
+        public Configuration server(@Nullable final Uri server) {
+            return new Configuration(server, mClientId, mAccountType);
+        }
+
+        public Configuration clientId(final long id) {
+            return new Configuration(mServer, id, mAccountType);
+        }
+
+        public Configuration accountType(@Nullable final String type) {
+            return new Configuration(mServer, mClientId, type);
+        }
+
+        @Override
+        public boolean equals(@Nullable final Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (!(o instanceof Configuration)) {
+                return false;
+            }
+            final Configuration that = (Configuration) o;
+            return mClientId == that.mClientId && mServer.equals(that.mServer) &&
+                    TextUtils.equals(mAccountType, that.mAccountType);
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(new Object[] {mServer, mClientId, mAccountType});
         }
     }
 

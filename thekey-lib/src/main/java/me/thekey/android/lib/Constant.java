@@ -36,5 +36,4 @@ public final class Constant {
     public static final String ARG_CAS_SERVER = "cas_server";
     public static final String ARG_CLIENT_ID = "client_id";
     public static final String ARG_SELF_SERVICE = "enable.self_service";
-    public static final String ARG_ACCOUNT_TYPE = "account_type";
 }

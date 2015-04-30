@@ -10,7 +10,6 @@ import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -43,11 +42,12 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
     @Nullable
     private String mDefaultGuid;
 
-    AccountManagerTheKeyImpl(@NonNull final Context context, @NonNull final Uri server,
-                             final long clientId, @NonNull final String accountType) {
-        super(context, server, clientId);
+    AccountManagerTheKeyImpl(@NonNull final Context context, @NonNull final Configuration config) {
+        super(context, config);
+        assert mConfig.mAccountType != null :
+                "This object should only be created when there is an account type in the config";
         mAccountManager = AccountManager.get(context);
-        mAccountType = accountType;
+        mAccountType = mConfig.mAccountType;
     }
 
     @Override

@@ -5,12 +5,11 @@ import android.support.annotation.Nullable;
 
 public interface Builder<T> {
     @NonNull
-    Builder<T> accountType(@Nullable String type);
-
-    @NonNull
+    @Deprecated
     Builder<T> casServer(@Nullable String server);
 
     @NonNull
+    @Deprecated
     Builder<T> clientId(long id);
 
     @NonNull
