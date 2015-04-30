@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
@@ -21,7 +22,8 @@ public class LoginActivity extends Activity {
     public final static String EXTRA_GUID = LoginActivity.class.getName() + ".EXTRA_GUID";
 
     private Bundle mArgs;
-    private TheKeyImpl mTheKey;
+    @NonNull
+    private /* final */ TheKeyImpl mTheKey;
 
     // login WebView
     private FrameLayout frame = null;
@@ -95,7 +97,7 @@ public class LoginActivity extends Activity {
 
         @Override
         protected void onAuthorizeSuccess(final Uri uri, final String code) {
-            new ActivityCodeGrantAsyncTask().execute(code);
+            new ActivityCodeGrantAsyncTask(mTheKey).execute(code);
         }
 
         @Override
@@ -106,8 +108,8 @@ public class LoginActivity extends Activity {
     }
 
     private class ActivityCodeGrantAsyncTask extends CodeGrantAsyncTask {
-        public ActivityCodeGrantAsyncTask() {
-            super(mTheKey);
+        ActivityCodeGrantAsyncTask(@NonNull final TheKeyImpl theKey) {
+            super(theKey);
         }
 
         @Override

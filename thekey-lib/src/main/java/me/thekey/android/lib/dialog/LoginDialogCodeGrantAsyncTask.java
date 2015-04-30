@@ -1,6 +1,7 @@
 package me.thekey.android.lib.dialog;
 
 import android.app.Activity;
+import android.support.annotation.NonNull;
 
 import me.thekey.android.lib.CodeGrantAsyncTask;
 import me.thekey.android.lib.TheKeyImpl;
@@ -9,7 +10,7 @@ import me.thekey.android.lib.fragment.DialogFragment;
 public final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
     final DialogFragment dialog;
 
-    public LoginDialogCodeGrantAsyncTask(final DialogFragment dialog, final TheKeyImpl thekey) {
+    public LoginDialogCodeGrantAsyncTask(final DialogFragment dialog, @NonNull final TheKeyImpl thekey) {
         super(thekey);
         this.dialog = dialog;
     }
@@ -23,7 +24,7 @@ public final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
         if (activity instanceof LoginDialogListener) {
             // trigger the correct callback
             if (result) {
-                ((LoginDialogListener<DialogFragment>) activity).onLoginSuccess(dialog, this.thekey.getGuid());
+                ((LoginDialogListener<DialogFragment>) activity).onLoginSuccess(dialog, mTheKey.getGuid());
             } else {
                 ((LoginDialogListener<DialogFragment>) activity).onLoginFailure(dialog);
             }

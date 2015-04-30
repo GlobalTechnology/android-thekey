@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewParent;
 import android.webkit.WebView;
@@ -18,6 +19,7 @@ import android.webkit.WebViewClient;
 public abstract class LoginWebViewClient extends WebViewClient {
     private final Context mContext;
     private final Bundle mArgs;
+    @NonNull
     protected final TheKeyImpl mTheKey;
     private final String state;
 
