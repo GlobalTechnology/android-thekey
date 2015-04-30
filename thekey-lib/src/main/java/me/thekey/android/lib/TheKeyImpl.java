@@ -128,6 +128,12 @@ public abstract class TheKeyImpl implements TheKey {
         throw new IllegalStateException("TheKeyImpl has not been configured yet!");
     }
 
+    @NonNull
+    public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Configuration config) {
+        configure(config);
+        return getInstance(context);
+    }
+
     /**
      * @hide
      */
