@@ -2,19 +2,15 @@ package me.thekey.android.lib;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static me.thekey.android.lib.Constant.ARG_ACCOUNT_TYPE;
 import static me.thekey.android.lib.Constant.ARG_CAS_SERVER;
 import static me.thekey.android.lib.Constant.ARG_CLIENT_ID;
 import static me.thekey.android.lib.Constant.CAS_SERVER;
 import static me.thekey.android.lib.Constant.OAUTH_GRANT_TYPE_AUTHORIZATION_CODE;
 import static me.thekey.android.lib.Constant.OAUTH_GRANT_TYPE_REFRESH_TOKEN;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_ACCESS_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_EMAIL;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_FIRST_NAME;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_GUID;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_LAST_NAME;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_CLIENT_ID;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_CODE;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_EXPIRES_IN;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_GRANT_TYPE;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_REDIRECT_URI;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
@@ -24,21 +20,16 @@ import static me.thekey.android.lib.Constant.REDIRECT_URI;
 import static me.thekey.android.lib.Constant.THEKEY_PARAM_SERVICE;
 import static me.thekey.android.lib.Constant.THEKEY_PARAM_TICKET;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.net.Uri.Builder;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Pair;
+import android.text.TextUtils;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicHeaderValueParser;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -50,7 +41,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -59,6 +49,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeyContext;
+import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.util.BroadcastUtils;
 
@@ -66,33 +57,26 @@ import me.thekey.android.lib.util.BroadcastUtils;
  * The Key interaction library, handles all interactions with The Key OAuth API
  * endpoints and correctly stores/utilizes OAuth access_tokens locally
  */
-public final class TheKeyImpl implements TheKey {
-    private static final String PREFFILE_THEKEY = "thekey";
-    private static final String PREF_ACCESS_TOKEN = "access_token";
-    private static final String PREF_EXPIRE_TIME = "expire_time";
-    private static final String PREF_GUID = "guid";
-    private static final String PREF_REFRESH_TOKEN = "refresh_token";
-    private static final String PREF_ATTR_LOAD_TIME = "attr_load_time";
-    private static final String PREF_ATTR_GUID = "attr_guid";
-    private static final String PREF_ATTR_EMAIL = "attr_email";
-    private static final String PREF_ATTR_FIRST_NAME = "attr_firstName";
-    private static final String PREF_ATTR_LAST_NAME = "attr_lastName";
+public abstract class TheKeyImpl implements TheKey {
+    private static final String ACCOUNT_TYPE_DEFAULT = null;
 
-    private static final Map<InstanceKey, TheKeyImpl> INSTANCES = new HashMap<InstanceKey, TheKeyImpl>();
+    private static final Map<InstanceKey, TheKeyImpl> INSTANCES = new HashMap<>();
 
-    private final Object lock_auth = new Object();
-    private final Object lock_attrs = new Object();
+    final Object mLockAuth = new Object();
 
     @NonNull
-    private final Context mContext;
+    final Context mContext;
     @NonNull
     private final Uri mServer;
     private final long mClientId;
 
-    private TheKeyImpl(@NonNull final Context context, final long clientId, @NonNull final Uri server) {
+    TheKeyImpl(@NonNull final Context context, @NonNull final Uri server, final long clientId) {
         mContext = context;
-        mClientId = clientId;
         mServer = server;
+        mClientId = clientId;
+        if (mClientId == INVALID_CLIENT_ID) {
+            throw new IllegalArgumentException("The Key client id is invalid or not provided");
+        }
     }
 
     @NonNull
@@ -120,11 +104,8 @@ public final class TheKeyImpl implements TheKey {
     public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Bundle args) {
         final long id = args.getLong(ARG_CLIENT_ID, INVALID_CLIENT_ID);
         final String server = args.getString(ARG_CAS_SERVER);
-        if (server != null) {
-            return getInstance(context, server, id);
-        } else {
-            return getInstance(context, CAS_SERVER, id);
-        }
+        final String accountType = args.getString(ARG_ACCOUNT_TYPE);
+        return getInstance(context, server, id, accountType);
     }
 
     @NonNull
@@ -135,23 +116,103 @@ public final class TheKeyImpl implements TheKey {
     @NonNull
     public static TheKeyImpl getInstance(@NonNull final Context context, @Nullable final String server,
                                          final long clientId) {
+        return getInstance(context, server, clientId, ACCOUNT_TYPE_DEFAULT);
+    }
+
+    @NonNull
+    public static TheKeyImpl getInstance(@NonNull final Context context, @Nullable final String server,
+                                         final long clientId, @Nullable final String accountType) {
         final Uri serverUri = server != null ? Uri.parse(server + (server.endsWith("/") ? "" : "/")) : CAS_SERVER;
-        return getInstance(context, serverUri, clientId);
+        return getInstance(context, serverUri, clientId, accountType);
     }
 
     @NonNull
     public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Uri server,
                                          final long clientId) {
-        final InstanceKey key = new InstanceKey(server, clientId);
+        return getInstance(context, server, clientId, ACCOUNT_TYPE_DEFAULT);
+    }
+
+    @NonNull
+    public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Uri server,
+                                         final long clientId, @Nullable final String accountType) {
+        final InstanceKey key = new InstanceKey(server, clientId, accountType);
         TheKeyImpl thekey;
         synchronized (INSTANCES) {
             thekey = INSTANCES.get(key);
             if (thekey == null) {
-                thekey = new TheKeyImpl(context.getApplicationContext(), clientId, server);
+                if (accountType == null) {
+                    thekey = new PreferenceTheKeyImpl(context.getApplicationContext(), server, clientId);
+                } else {
+                    thekey = new AccountManagerTheKeyImpl(context.getApplicationContext(), server, clientId,
+                                                          accountType);
+                }
                 INSTANCES.put(key, thekey);
             }
         }
         return thekey;
+    }
+
+    @Nullable
+    @Override
+    @Deprecated
+    public final String getGuid() {
+        return getDefaultSessionGuid();
+    }
+
+    @Override
+    public void setDefaultSession(@NonNull final String guid) throws TheKeyInvalidSessionException {
+        if (!guid.equals(getDefaultSessionGuid())) {
+            throw new TheKeyInvalidSessionException();
+        }
+    }
+
+    @Override
+    public boolean isValidSession(@Nullable final String guid) {
+        return guid != null && guid.equals(getDefaultSessionGuid());
+    }
+
+    @NonNull
+    @Override
+    public Attributes getAttributes() {
+        return getAttributes(getDefaultSessionGuid());
+    }
+
+    @Override
+    public boolean loadAttributes() throws TheKeySocketException {
+        return loadAttributes(getDefaultSessionGuid());
+    }
+
+    @Nullable
+    @Override
+    public String getTicket(@NonNull final String service) throws TheKeySocketException {
+        final String guid = getDefaultSessionGuid();
+        return guid != null ? getTicket(guid, service) : null;
+    }
+
+    @Nullable
+    @Override
+    @Deprecated
+    public TicketAttributesPair getTicketAndAttributes(@NonNull final String service) throws TheKeySocketException {
+        // short-circuit if there isn't a default session
+        final String guid = getDefaultSessionGuid();
+        if (guid == null) {
+            return null;
+        }
+
+        final String ticket = getTicket(guid, service);
+        if (ticket != null) {
+            return new TicketAttributesPair(ticket, getAttributes(guid));
+        }
+
+        return null;
+    }
+
+    @Override
+    public void logout() {
+        final String guid = getDefaultSessionGuid();
+        if (guid != null) {
+            logout(guid);
+        }
     }
 
     Uri getCasUri(final String... segments) {
@@ -160,11 +221,6 @@ public final class TheKeyImpl implements TheKey {
             uri.appendPath(segment);
         }
         return uri.build();
-    }
-
-    @Nullable
-    public String getGuid() {
-        return this.getPrefs().getString(PREF_GUID, null);
     }
 
     /**
@@ -187,24 +243,29 @@ public final class TheKeyImpl implements TheKey {
     }
 
     @Override
-    public boolean loadAttributes() throws TheKeySocketException {
-        Pair<String, Attributes> credentials;
-        while ((credentials = this.getValidAccessTokenAndAttributes(0)) != null) {
+    public boolean loadAttributes(@Nullable final String guid) throws TheKeySocketException {
+        if (guid == null) {
+            return false;
+        }
+
+        String accessToken;
+        while ((accessToken = getValidAccessToken(guid, 0)) != null) {
             // request the attributes from CAS
             HttpsURLConnection conn = null;
             try {
                 // generate & send request
                 final Uri attrsUri = this.getCasUri("api", "oauth", "attributes").buildUpon()
-                        .appendQueryParameter(OAUTH_PARAM_ACCESS_TOKEN, credentials.first).build();
+                        .appendQueryParameter(OAUTH_PARAM_ACCESS_TOKEN, accessToken).build();
                 conn = (HttpsURLConnection) new URL(attrsUri.toString()).openConnection();
 
                 if (conn.getResponseCode() == HTTP_OK) {
                     // parse the json response
                     final JSONObject json = this.parseJsonResponse(conn.getInputStream());
-                    storeAttributes(json);
+
+                    storeAttributes(guid, json);
 
                     // broadcast that we just loaded the attributes
-                    BroadcastUtils.broadcastAttributesLoaded(mContext, json.optString(OAUTH_PARAM_ATTR_GUID, null));
+                    BroadcastUtils.broadcastAttributesLoaded(mContext, guid);
 
                     // return that attributes were loaded
                     return true;
@@ -238,10 +299,10 @@ public final class TheKeyImpl implements TheKey {
                         }
 
                         if ("insufficient_scope".equals(error)) {
-                            this.removeAttributes();
+                            removeAttributes(guid);
                             return false;
                         } else if ("invalid_token".equals(error)) {
-                            this.removeAccessToken(credentials.first);
+                            removeAccessToken(guid, accessToken);
                             continue;
                         }
                     }
@@ -257,114 +318,49 @@ public final class TheKeyImpl implements TheKey {
             }
 
             // the access token didn't work, remove it and restart processing
-            this.removeAccessToken(credentials.first);
+            removeAccessToken(guid, accessToken);
         }
 
         return false;
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void storeAttributes(final JSONObject json) {
-        final Editor prefs = this.getPrefs().edit();
+    abstract void storeAttributes(@NonNull String guid, @NonNull JSONObject json);
 
-        prefs.putLong(PREF_ATTR_LOAD_TIME, System.currentTimeMillis());
-        prefs.putString(PREF_ATTR_GUID, json.optString(OAUTH_PARAM_ATTR_GUID, null));
-        prefs.putString(PREF_ATTR_EMAIL, json.optString(OAUTH_PARAM_ATTR_EMAIL, null));
-        prefs.putString(PREF_ATTR_FIRST_NAME, json.optString(OAUTH_PARAM_ATTR_FIRST_NAME, null));
-        prefs.putString(PREF_ATTR_LAST_NAME, json.optString(OAUTH_PARAM_ATTR_LAST_NAME, null));
+    abstract void removeAttributes(@NonNull String guid);
 
-        // we synchronize this to prevent race conditions with getAttributes
-        synchronized (this.lock_attrs) {
-            // store updates
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                prefs.apply();
-            } else {
-                prefs.commit();
-            }
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void removeAttributes() {
-        final Editor prefs = this.getPrefs().edit();
-        prefs.remove(PREF_ATTR_GUID);
-        prefs.remove(PREF_ATTR_EMAIL);
-        prefs.remove(PREF_ATTR_FIRST_NAME);
-        prefs.remove(PREF_ATTR_LAST_NAME);
-        prefs.remove(PREF_ATTR_LOAD_TIME);
-
-        // we synchronize this to prevent race conditions with getAttributes
-        synchronized (this.lock_attrs) {
-            // store updates
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                prefs.apply();
-            } else {
-                prefs.commit();
-            }
-        }
-    }
-
-    @NonNull
-    @Override
-    public Attributes getAttributes() {
-        synchronized (this.lock_attrs) {
-            // return the attributes for the current OAuth session
-            return new AttributesImpl(this.getPrefs().getAll());
-        }
-    }
-
-    /**
-     * This method returns a ticket for the specified service. This method is a
-     * blocking method, this should never be called directly on the UI thread.
-     *
-     * @param service
-     * @return The ticket
-     */
     @Nullable
     @Override
-    public String getTicket(@NonNull final String service) throws TheKeySocketException {
-        final TicketAttributesPair ticketPair = this.getTicketAndAttributes(service);
-        return ticketPair != null ? ticketPair.ticket : null;
-    }
-
-    /**
-     * This method returns a ticket for the specified service and attributes the ticket was issued for. This is a
-     * blocking method, this should never be called directly on the UI thread.
-     *
-     * @param service
-     * @return The ticket &amp; attributes
-     */
-    @Nullable
-    @Override
-    public TicketAttributesPair getTicketAndAttributes(@NonNull final String service) throws TheKeySocketException {
-        Pair<String, Attributes> credentials;
-        while ((credentials = this.getValidAccessTokenAndAttributes(0)) != null) {
+    public String getTicket(@NonNull final String guid, @NonNull final String service) throws TheKeySocketException {
+        String accessToken;
+        while ((accessToken = getValidAccessToken(guid, 0)) != null) {
             // fetch a ticket
-            final String ticket = this.getTicket(credentials.first, service);
+            final String ticket = getTicketWithAccessToken(accessToken, service);
             if (ticket != null) {
-                return new TicketAttributesPair(ticket, credentials.second);
+                return ticket;
             }
 
             // the access token didn't work, remove it and restart processing
-            this.removeAccessToken(credentials.first);
+            removeAccessToken(guid, accessToken);
         }
 
         // the user needs to authenticate before a ticket can be retrieved
         return null;
     }
 
-    private String getTicket(final String accessToken, final String service) throws TheKeySocketException {
+    @Nullable
+    private String getTicketWithAccessToken(@NonNull final String accessToken, @NonNull final String service)
+            throws TheKeySocketException {
         HttpsURLConnection conn = null;
         try {
             // generate & send request
-            final Uri ticketUri = this.getCasUri("api", "oauth", "ticket").buildUpon()
+            final Uri ticketUri = getCasUri("api", "oauth", "ticket").buildUpon()
                     .appendQueryParameter(OAUTH_PARAM_ACCESS_TOKEN, accessToken)
                     .appendQueryParameter(THEKEY_PARAM_SERVICE, service).build();
             conn = (HttpsURLConnection) new URL(ticketUri.toString()).openConnection();
 
             // parse the json response if we have a valid response
             if (conn.getResponseCode() == 200) {
-                final JSONObject json = this.parseJsonResponse(conn.getInputStream());
+                final JSONObject json = parseJsonResponse(conn.getInputStream());
                 return json.optString(THEKEY_PARAM_TICKET, null);
             }
         } catch (final MalformedURLException e) {
@@ -380,118 +376,61 @@ public final class TheKeyImpl implements TheKey {
         return null;
     }
 
-    private Pair<String, Attributes> getAccessTokenAndAttributes() {
-        final long currentTime = System.currentTimeMillis();
+    @Nullable
+    abstract String getAccessToken(@NonNull String guid);
 
-        synchronized (this.lock_attrs) {
-            final Map<String, ?> attrs = this.getPrefs().getAll();
-            final long expireTime;
-            {
-                final Long v = (Long) attrs.get(PREF_EXPIRE_TIME);
-                expireTime = v != null ? v : currentTime;
-            }
-            final String accessToken = expireTime >= currentTime ? (String) attrs.get(PREF_ACCESS_TOKEN) : null;
+    @Nullable
+    abstract String getRefreshToken(@NonNull String guid);
 
-            // return a pair only if we have an access_token
-            return accessToken != null ? Pair.create(accessToken, (Attributes) new AttributesImpl(attrs)) : null;
-        }
-    }
-
-    private String getRefreshToken() {
-        return this.getPrefs().getString(PREF_REFRESH_TOKEN, null);
-    }
-
-    private Pair<String, Attributes> getValidAccessTokenAndAttributes(final int depth) throws TheKeySocketException {
+    @Nullable
+    private String getValidAccessToken(@NonNull final String guid, final int depth)
+            throws TheKeySocketException {
         // prevent infinite recursion
         if (depth > 2) {
             return null;
         }
 
-        synchronized (this.lock_auth) {
+        synchronized (mLockAuth) {
             // check for an existing accessToken
-            final Pair<String, Attributes> credentials = this.getAccessTokenAndAttributes();
-            if (credentials != null && credentials.first != null) {
-                return credentials;
+            final String accessToken = getAccessToken(guid);
+            if (accessToken != null) {
+                return accessToken;
             }
 
             // try fetching a new access_token using a refresh_token
-            final String refreshToken = this.getRefreshToken();
+            final String refreshToken = getRefreshToken(guid);
             if (refreshToken != null) {
-                if (this.processRefreshTokenGrant(refreshToken)) {
-                    return this.getValidAccessTokenAndAttributes(depth + 1);
+                if (processRefreshTokenGrant(guid, refreshToken)) {
+                    return getValidAccessToken(guid, depth + 1);
                 }
 
                 // the refresh_token isn't valid anymore
-                this.removeRefreshToken();
+                removeRefreshToken(guid, refreshToken);
             }
 
             // no valid access_token was found, clear auth state
-            this.clearAuthState();
+            clearAuthState(guid);
         }
 
         return null;
     }
 
     @Override
-    public void logout() {
+    public void logout(@NonNull final String guid) {
         // clearAuthState() may block on synchronization, so process the call on a background thread
         new Thread(new Runnable() {
             @Override
             public void run() {
-                clearAuthState();
+                clearAuthState(guid);
             }
         }).start();
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void removeAccessToken(final String token) {
-        synchronized (this.lock_auth) {
-            if (token != null && token.equals(this.getPrefs().getString(PREF_ACCESS_TOKEN, null))) {
-                final Editor prefs = this.getPrefs().edit();
-                prefs.remove(PREF_ACCESS_TOKEN);
-                prefs.remove(PREF_EXPIRE_TIME);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                    prefs.apply();
-                } else {
-                    prefs.commit();
-                }
-            }
-        }
-    }
+    abstract void removeAccessToken(@NonNull String guid, @NonNull String token);
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void removeRefreshToken() {
-        final Editor prefs = this.getPrefs().edit();
-        prefs.remove(PREF_REFRESH_TOKEN);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            prefs.apply();
-        } else {
-            prefs.commit();
-        }
-    }
+    abstract void removeRefreshToken(@NonNull String guid, @NonNull String token);
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void clearAuthState() {
-        final Editor prefs = this.getPrefs().edit();
-        prefs.remove(PREF_ACCESS_TOKEN);
-        prefs.remove(PREF_REFRESH_TOKEN);
-        prefs.remove(PREF_EXPIRE_TIME);
-        prefs.remove(PREF_GUID);
-
-        synchronized (this.lock_auth) {
-            final String guid = this.getPrefs().getString(PREF_GUID, null);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                prefs.apply();
-            } else {
-                prefs.commit();
-            }
-
-            // broadcast a logout action if we had a guid
-            if (guid != null) {
-                BroadcastUtils.broadcastLogout(mContext, guid, false);
-            }
-        }
-    }
+    abstract void clearAuthState(@NonNull String guid);
 
     boolean processCodeGrant(final String code, final Uri redirectUri) throws TheKeySocketException {
         final Uri tokenUri = this.getCasUri("api", "oauth", "token");
@@ -508,12 +447,15 @@ public final class TheKeyImpl implements TheKey {
             conn.setFixedLengthStreamingMode(data.length);
             conn.getOutputStream().write(data);
 
-            // parse the json response
-            final JSONObject json = this.parseJsonResponse(conn.getInputStream());
-            this.storeGrants(json);
-
-            // return success
-            return true;
+            if (conn.getResponseCode() == HTTP_OK) {
+                // parse the json response
+                final JSONObject json = this.parseJsonResponse(conn.getInputStream());
+                final String guid = json.optString(OAUTH_PARAM_THEKEY_GUID, null);
+                if (guid != null) {
+                    storeGrants(guid, json);
+                    return true;
+                }
+            }
         } catch (final MalformedURLException e) {
             throw new RuntimeException("invalid CAS URL", e);
         } catch (final UnsupportedEncodingException e) {
@@ -525,9 +467,12 @@ public final class TheKeyImpl implements TheKey {
                 conn.disconnect();
             }
         }
+
+        return false;
     }
 
-    private boolean processRefreshTokenGrant(final String refreshToken) throws TheKeySocketException {
+    private boolean processRefreshTokenGrant(@NonNull final String guid, @NonNull final String refreshToken)
+            throws TheKeySocketException {
         final Uri tokenUri = this.getCasUri("api", "oauth", "token");
         HttpsURLConnection conn = null;
         try {
@@ -541,9 +486,12 @@ public final class TheKeyImpl implements TheKey {
             conn.setFixedLengthStreamingMode(data.length);
             conn.getOutputStream().write(data);
 
-            // parse the json response
-            final JSONObject json = this.parseJsonResponse(conn.getInputStream());
-            this.storeGrants(json);
+            // store the grants in the JSON response
+            if (conn.getResponseCode() == HTTP_OK) {
+                storeGrants(guid, parseJsonResponse(conn.getInputStream()));
+            } else {
+                return false;
+            }
 
             // return success
             return true;
@@ -560,58 +508,7 @@ public final class TheKeyImpl implements TheKey {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void storeGrants(final JSONObject json) {
-        try {
-            final Editor prefs = this.getPrefs().edit();
-
-            // store access_token
-            if (json.has(OAUTH_PARAM_ACCESS_TOKEN)) {
-                prefs.putString(PREF_ACCESS_TOKEN, json.getString(OAUTH_PARAM_ACCESS_TOKEN));
-                prefs.remove(PREF_EXPIRE_TIME);
-                if (json.has(OAUTH_PARAM_EXPIRES_IN)) {
-                    prefs.putLong(PREF_EXPIRE_TIME, System.currentTimeMillis() + json.getLong(OAUTH_PARAM_EXPIRES_IN)
-                            * 1000);
-                }
-                prefs.remove(PREF_GUID);
-                if (json.has(OAUTH_PARAM_THEKEY_GUID)) {
-                    prefs.putString(PREF_GUID, json.getString(OAUTH_PARAM_THEKEY_GUID));
-                }
-            }
-
-            // store refresh_token
-            if (json.has(OAUTH_PARAM_REFRESH_TOKEN)) {
-                prefs.putString(PREF_REFRESH_TOKEN, json.getString(OAUTH_PARAM_REFRESH_TOKEN));
-            }
-
-            // we synchronize update to prevent race conditions
-            synchronized (this.lock_auth) {
-                final String oldGuid = this.getPrefs().getString(PREF_GUID, null);
-                final String newGuid = json.optString(OAUTH_PARAM_THEKEY_GUID, null);
-
-                // store updates
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                    prefs.apply();
-                } else {
-                    prefs.commit();
-                }
-
-                // trigger logout/login broadcasts based on guid changes
-                if (oldGuid != null && !oldGuid.equals(newGuid)) {
-                    BroadcastUtils.broadcastLogout(mContext, oldGuid, newGuid != null);
-                }
-                if (newGuid != null && !newGuid.equals(oldGuid)) {
-                    BroadcastUtils.broadcastLogin(mContext, newGuid);
-                }
-            }
-        } catch (final JSONException e) {
-            this.clearAuthState();
-        }
-    }
-
-    private SharedPreferences getPrefs() {
-        return mContext.getSharedPreferences(PREFFILE_THEKEY, Context.MODE_PRIVATE);
-    }
+    abstract boolean storeGrants(@NonNull String guid, @NonNull JSONObject json);
 
     @SuppressWarnings("deprecation")
     private String encodeParam(final String name, final String value) {
@@ -624,6 +521,7 @@ public final class TheKeyImpl implements TheKey {
         }
     }
 
+    @NonNull
     private JSONObject parseJsonResponse(final InputStream in) {
         try {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
@@ -643,10 +541,13 @@ public final class TheKeyImpl implements TheKey {
         @NonNull
         private final Uri mServer;
         private final long mId;
+        @Nullable
+        private final String mAccountType;
 
-        private InstanceKey(@NonNull final Uri server, final long clientId) {
+        private InstanceKey(@NonNull final Uri server, final long clientId, @Nullable final String accountType) {
             mServer = server;
             mId = clientId;
+            mAccountType = accountType;
         }
 
         @Override
@@ -657,66 +558,14 @@ public final class TheKeyImpl implements TheKey {
             if (!(o instanceof InstanceKey)) {
                 return false;
             }
-            final InstanceKey key = (InstanceKey) o;
-            return this.mId == key.mId && this.mServer.equals(key.mServer);
+            final InstanceKey that = (InstanceKey) o;
+            return this.mId == that.mId && this.mServer.equals(that.mServer) &&
+                    TextUtils.equals(this.mAccountType, that.mAccountType);
         }
 
         @Override
         public int hashCode() {
-            return Arrays.hashCode(new Object[] {mServer, mId});
-        }
-    }
-
-    private static final class AttributesImpl implements Attributes {
-        private final Map<String, ?> attrs;
-        private final boolean valid;
-
-        private AttributesImpl(final Map<String, ?> prefsMap) {
-            this.attrs = new HashMap<String, Object>(prefsMap);
-            this.attrs.remove(PREF_ACCESS_TOKEN);
-            this.attrs.remove(PREF_REFRESH_TOKEN);
-            this.attrs.remove(PREF_EXPIRE_TIME);
-
-            // determine if the attributes are valid
-            final String guid = (String) this.attrs.get(PREF_GUID);
-            this.valid = this.attrs.containsKey(PREF_ATTR_LOAD_TIME) && guid != null
-                    && guid.equals(this.attrs.get(PREF_ATTR_GUID));
-        }
-
-        @Nullable
-        @Override
-        public String getGuid() {
-            return (String) this.attrs.get(PREF_GUID);
-        }
-
-        @Override
-        public boolean areValid() {
-            return this.valid;
-        }
-
-        @NonNull
-        @Override
-        public Date getLoadedTime() {
-            final Long time = this.valid ? (Long) this.attrs.get(PREF_ATTR_LOAD_TIME) : null;
-            return new Date(time != null ? time : 0);
-        }
-
-        @Nullable
-        @Override
-        public String getEmail() {
-            return this.valid ? (String) this.attrs.get(PREF_ATTR_EMAIL) : null;
-        }
-
-        @Nullable
-        @Override
-        public String getFirstName() {
-            return this.valid ? (String) this.attrs.get(PREF_ATTR_FIRST_NAME) : null;
-        }
-
-        @Nullable
-        @Override
-        public String getLastName() {
-            return this.valid ? (String) this.attrs.get(PREF_ATTR_LAST_NAME) : null;
+            return Arrays.hashCode(new Object[] {mServer, mId, mAccountType});
         }
     }
 }
