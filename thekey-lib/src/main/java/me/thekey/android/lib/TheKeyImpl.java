@@ -37,6 +37,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -66,6 +68,8 @@ public abstract class TheKeyImpl implements TheKey {
     @NonNull
     private final Uri mServer;
     private final long mClientId;
+    @Nullable
+    private TheKeyImpl mMigrationSource;
 
     TheKeyImpl(@NonNull final Context context, @NonNull final Configuration config) {
         mContext = context;
@@ -75,6 +79,24 @@ public abstract class TheKeyImpl implements TheKey {
         if (mClientId == INVALID_CLIENT_ID) {
             throw new IllegalStateException("client_id is invalid or not provided");
         }
+        if (mConfig.mMigrationSource != null) {
+            mMigrationSource = createInstance(mContext, mConfig.mMigrationSource);
+        }
+    }
+
+    @NonNull
+    private static TheKeyImpl createInstance(@NonNull final Context context, @NonNull final Configuration config) {
+        final TheKeyImpl instance;
+        if (TextUtils.isEmpty(config.mAccountType)) {
+            instance = new PreferenceTheKeyImpl(context.getApplicationContext(), config);
+        } else {
+            instance = new AccountManagerTheKeyImpl(context.getApplicationContext(), config);
+        }
+
+        // trigger account migration for this instance
+        instance.migrateAccounts();
+
+        return instance;
     }
 
     public static void configure(@NonNull final Configuration config) {
@@ -94,11 +116,7 @@ public abstract class TheKeyImpl implements TheKey {
         synchronized (INSTANCE_LOCK) {
             // initialize the instance if we haven't already and we have configuration
             if (INSTANCE == null && INSTANCE_CONFIG != null) {
-                if (TextUtils.isEmpty(INSTANCE_CONFIG.mAccountType)) {
-                    INSTANCE = new PreferenceTheKeyImpl(context.getApplicationContext(), INSTANCE_CONFIG);
-                } else {
-                    INSTANCE = new AccountManagerTheKeyImpl(context.getApplicationContext(), INSTANCE_CONFIG);
-                }
+                INSTANCE = createInstance(context.getApplicationContext(), INSTANCE_CONFIG);
             }
 
             if (INSTANCE != null) {
@@ -411,7 +429,7 @@ public abstract class TheKeyImpl implements TheKey {
             }
 
             // no valid access_token was found, clear auth state
-            clearAuthState(guid);
+            clearAuthState(guid, true);
         }
 
         return null;
@@ -423,7 +441,7 @@ public abstract class TheKeyImpl implements TheKey {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                clearAuthState(guid);
+                clearAuthState(guid, true);
             }
         }).start();
     }
@@ -432,7 +450,7 @@ public abstract class TheKeyImpl implements TheKey {
 
     abstract void removeRefreshToken(@NonNull String guid, @NonNull String token);
 
-    abstract void clearAuthState(@NonNull String guid);
+    abstract void clearAuthState(@NonNull String guid, final boolean sendBroadcast);
 
     boolean processCodeGrant(final String code, final Uri redirectUri) throws TheKeySocketException {
         final Uri tokenUri = this.getCasUri("api", "oauth", "token");
@@ -512,6 +530,45 @@ public abstract class TheKeyImpl implements TheKey {
 
     abstract boolean storeGrants(@NonNull String guid, @NonNull JSONObject json);
 
+    private void migrateAccounts() {
+        if (mMigrationSource != null) {
+            for (final MigratingAccount account : mMigrationSource.getMigratingAccounts()) {
+                if (!account.isValid() || createMigratingAccount(account)) {
+                    mMigrationSource.removeMigratingAccount(account);
+                }
+            }
+
+            mMigrationSource = null;
+        }
+    }
+
+    @NonNull
+    Collection<MigratingAccount> getMigratingAccounts() {
+        final String guid = getDefaultSessionGuid();
+        if (guid != null) {
+            return Collections.singleton(getMigratingAccount(guid));
+        }
+
+        return Collections.emptyList();
+    }
+
+    @NonNull
+    MigratingAccount getMigratingAccount(@NonNull final String guid) {
+        final MigratingAccount account = new MigratingAccount(guid);
+        account.accessToken = getAccessToken(guid);
+        account.refreshToken = getRefreshToken(guid);
+        account.attributes = getAttributes(guid);
+        return account;
+    }
+
+    boolean removeMigratingAccount(@NonNull final MigratingAccount account) {
+        removeAttributes(account.guid);
+        clearAuthState(account.guid, false);
+        return true;
+    }
+
+    abstract boolean createMigratingAccount(@NonNull MigratingAccount account);
+
     @SuppressWarnings("deprecation")
     private String encodeParam(final String name, final String value) {
         try {
@@ -539,38 +596,69 @@ public abstract class TheKeyImpl implements TheKey {
         }
     }
 
+    static final class MigratingAccount {
+        @NonNull
+        final String guid;
+        @Nullable
+        String accessToken;
+        @Nullable
+        String refreshToken;
+        @Nullable
+        Attributes attributes;
+
+        public MigratingAccount(@NonNull final String guid) {
+            this.guid = guid;
+        }
+
+        boolean isValid() {
+            return accessToken != null || refreshToken != null;
+        }
+    }
+
     public static final class Configuration {
         @NonNull
         final Uri mServer;
         final long mClientId;
         @Nullable
         final String mAccountType;
+        @Nullable
+        final Configuration mMigrationSource;
 
-        private Configuration(@Nullable final Uri server, final long id, @Nullable final String accountType) {
+        private Configuration(@Nullable final Uri server, final long id, @Nullable final String accountType,
+                              @Nullable final Configuration migrationSource) {
             mServer = server != null ? server : CAS_SERVER;
             mClientId = id;
             mAccountType = accountType;
+            mMigrationSource = migrationSource;
         }
 
         public static Configuration base() {
-            return new Configuration(null, INVALID_CLIENT_ID, null);
+            return new Configuration(null, INVALID_CLIENT_ID, null, null);
         }
 
         public Configuration server(@Nullable final String server) {
             return new Configuration(server != null ? Uri.parse(server + (server.endsWith("/") ? "" : "/")) : null,
-                                     mClientId, mAccountType);
+                                     mClientId, mAccountType, mMigrationSource);
         }
 
+        @NonNull
         public Configuration server(@Nullable final Uri server) {
-            return new Configuration(server, mClientId, mAccountType);
+            return new Configuration(server, mClientId, mAccountType, mMigrationSource);
         }
 
+        @NonNull
         public Configuration clientId(final long id) {
-            return new Configuration(mServer, id, mAccountType);
+            return new Configuration(mServer, id, mAccountType, mMigrationSource);
         }
 
+        @NonNull
         public Configuration accountType(@Nullable final String type) {
-            return new Configuration(mServer, mClientId, type);
+            return new Configuration(mServer, mClientId, type, mMigrationSource);
+        }
+
+        @NonNull
+        public Configuration migrationSource(@Nullable final Configuration source) {
+            return new Configuration(mServer, mClientId, mAccountType, source);
         }
 
         @Override
@@ -589,38 +677,6 @@ public abstract class TheKeyImpl implements TheKey {
         @Override
         public int hashCode() {
             return Arrays.hashCode(new Object[] {mServer, mClientId, mAccountType});
-        }
-    }
-
-    private static final class InstanceKey {
-        @NonNull
-        private final Uri mServer;
-        private final long mId;
-        @Nullable
-        private final String mAccountType;
-
-        private InstanceKey(@NonNull final Uri server, final long clientId, @Nullable final String accountType) {
-            mServer = server;
-            mId = clientId;
-            mAccountType = accountType;
-        }
-
-        @Override
-        public boolean equals(@Nullable final Object o) {
-            if (o == this) {
-                return true;
-            }
-            if (!(o instanceof InstanceKey)) {
-                return false;
-            }
-            final InstanceKey that = (InstanceKey) o;
-            return this.mId == that.mId && this.mServer.equals(that.mServer) &&
-                    TextUtils.equals(this.mAccountType, that.mAccountType);
-        }
-
-        @Override
-        public int hashCode() {
-            return Arrays.hashCode(new Object[] {mServer, mId, mAccountType});
         }
     }
 }

@@ -98,7 +98,7 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
     }
 
     @Override
-    void clearAuthState(@NonNull final String guid) {
+    void clearAuthState(@NonNull final String guid, final boolean sendBroadcast) {
         final Account account = findAccount(guid);
         if (account != null) {
             mAccountManager.removeAccountExplicitly(account);
@@ -106,8 +106,10 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
                 mDefaultGuid = null;
             }
 
-            // broadcast a logout action since we had an account
-            BroadcastUtils.broadcastLogout(mContext, guid, false);
+            if (sendBroadcast) {
+                // broadcast a logout action since we had an account
+                BroadcastUtils.broadcastLogout(mContext, guid, false);
+            }
         }
     }
 
@@ -156,6 +158,7 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
             account = new Account(guid, mAccountType);
             final Bundle data = new Bundle(1);
             data.putString(DATA_GUID, guid);
+            mAccountManager.removeAccountExplicitly(account);
             mAccountManager.addAccountExplicitly(account, null, data);
             broadcastLogin = true;
         }
@@ -224,6 +227,40 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
         if (account != null) {
             mAccountManager.invalidateAuthToken(mAccountType, token);
         }
+    }
+
+    @Override
+    boolean createMigratingAccount(@NonNull final MigratingAccount account) {
+        // remove any existing accounts that conflict with the migrating account
+        final Account existing = findAccount(account.guid);
+        if (existing != null) {
+            mAccountManager.removeAccountExplicitly(existing);
+        }
+
+        // create account
+        final Account newAccount = new Account(account.guid, mAccountType);
+        final Bundle data = new Bundle();
+        data.putString(DATA_GUID, account.guid);
+        mAccountManager.removeAccountExplicitly(newAccount);
+        mAccountManager.addAccountExplicitly(newAccount, null, data);
+
+        // set auth tokens for this account
+        mAccountManager.setAuthToken(newAccount, AUTH_TOKEN_ACCESS_TOKEN, account.accessToken);
+        mAccountManager.setAuthToken(newAccount, AUTH_TOKEN_REFRESH_TOKEN, account.refreshToken);
+
+        // set all attributes
+        if (account.attributes != null) {
+            mAccountManager.setUserData(newAccount, DATA_ATTR_LOAD_TIME,
+                                        Long.toString(account.attributes.getLoadedTime().getTime()));
+            mAccountManager.setUserData(newAccount, DATA_ATTR_EMAIL, account.attributes.getEmail());
+            mAccountManager.setUserData(newAccount, DATA_ATTR_FIRST_NAME, account.attributes.getFirstName());
+            mAccountManager.setUserData(newAccount, DATA_ATTR_LAST_NAME, account.attributes.getLastName());
+        } else {
+            removeAttributes(account.guid);
+        }
+
+        // return success
+        return true;
     }
 
     private static final class AttributesImpl implements Attributes {

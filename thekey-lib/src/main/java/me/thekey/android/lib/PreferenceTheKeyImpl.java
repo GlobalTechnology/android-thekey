@@ -112,7 +112,7 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
                 }
             }
         } catch (final JSONException e) {
-            clearAuthState(guid);
+            clearAuthState(guid, true);
         }
 
         return true;
@@ -213,7 +213,7 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
 
     @Override
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    void clearAuthState(@NonNull final String guid) {
+    void clearAuthState(@NonNull final String guid, final boolean sendBroadcast) {
         final SharedPreferences.Editor prefs = this.getPrefs().edit();
         prefs.remove(PREF_ACCESS_TOKEN);
         prefs.remove(PREF_REFRESH_TOKEN);
@@ -232,9 +232,40 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
                 prefs.commit();
             }
 
-            // broadcast a logout action if we had a guid
-            BroadcastUtils.broadcastLogout(mContext, guid, false);
+            if (sendBroadcast) {
+                // broadcast a logout action if we had a guid
+                BroadcastUtils.broadcastLogout(mContext, guid, false);
+            }
         }
+    }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    boolean createMigratingAccount(@NonNull final MigratingAccount account) {
+        if (account.isValid()) {
+            final SharedPreferences.Editor prefs = getPrefs().edit();
+            prefs.putString(PREF_GUID, account.guid);
+            prefs.putString(PREF_ACCESS_TOKEN, account.accessToken);
+            prefs.putString(PREF_REFRESH_TOKEN, account.refreshToken);
+            if (account.attributes != null) {
+                prefs.putLong(PREF_ATTR_LOAD_TIME, account.attributes.getLoadedTime().getTime());
+                prefs.putString(PREF_ATTR_GUID, account.guid);
+                prefs.putString(PREF_ATTR_EMAIL, account.attributes.getEmail());
+                prefs.putString(PREF_ATTR_FIRST_NAME, account.attributes.getFirstName());
+                prefs.putString(PREF_ATTR_LAST_NAME, account.attributes.getLastName());
+            } else {
+                removeAttributes(account.guid);
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                prefs.apply();
+            } else {
+                prefs.commit();
+            }
+
+            return true;
+        }
+        return false;
     }
 
     private static final class AttributesImpl implements Attributes {
