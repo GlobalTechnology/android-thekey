@@ -6,6 +6,7 @@ import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_FIRST_NAME;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_LAST_NAME;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
+import static me.thekey.android.lib.accounts.Constants.DATA_GUID;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -20,11 +21,10 @@ import org.json.JSONObject;
 import java.util.Date;
 
 import me.thekey.android.TheKeyInvalidSessionException;
+import me.thekey.android.lib.accounts.AccountUtils;
 import me.thekey.android.lib.util.BroadcastUtils;
 
 public final class AccountManagerTheKeyImpl extends TheKeyImpl {
-    private static final String DATA_GUID = "thekey_guid";
-
     private static final String DATA_ATTR_LOAD_TIME = "attr_load_time";
     private static final String DATA_ATTR_EMAIL = "attr_email";
     private static final String DATA_ATTR_FIRST_NAME = "attr_first_name";
@@ -72,7 +72,7 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
 
     @Nullable
     private String getGuid(@Nullable final Account account) {
-        return account != null ? mAccountManager.getUserData(account, DATA_GUID) : null;
+        return AccountUtils.getGuid(mAccountManager, account);
     }
 
     @Override
@@ -82,19 +82,14 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
 
     @Nullable
     private Account findAccount(@NonNull final String guid) {
-        final Account[] accounts = mAccountManager.getAccountsByType(mAccountType);
-        for (final Account account : accounts) {
-            if (guid.equals(getGuid(account))) {
-                return account;
-            }
-        }
+        final Account account = AccountUtils.getAccount(mAccountManager, mAccountType, guid);
 
         // let's reset the default guid if it matches the guid that wasn't found
-        if (TextUtils.equals(guid, mDefaultGuid)) {
+        if (account == null && TextUtils.equals(guid, mDefaultGuid)) {
             mDefaultGuid = null;
         }
 
-        return null;
+        return account;
     }
 
     @Override
