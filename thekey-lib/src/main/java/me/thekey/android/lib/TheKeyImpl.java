@@ -632,10 +632,12 @@ public abstract class TheKeyImpl implements TheKey {
             mMigrationSource = migrationSource;
         }
 
+        @NonNull
         public static Configuration base() {
             return new Configuration(null, INVALID_CLIENT_ID, null, null);
         }
 
+        @NonNull
         public Configuration server(@Nullable final String server) {
             return new Configuration(server != null ? Uri.parse(server + (server.endsWith("/") ? "" : "/")) : null,
                                      mClientId, mAccountType, mMigrationSource);
