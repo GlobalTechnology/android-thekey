@@ -31,6 +31,11 @@ public final class BroadcastUtils {
                         .putExtra(EXTRA_CHANGING_USER, changingUser));
     }
 
+    static void broadcastChangeDefaultSession(@NonNull final Context context, @NonNull final String guid) {
+        LocalBroadcastManager.getInstance(context).sendBroadcast(
+                new Intent(ACTION_CHANGE_DEFAULT_SESSION, theKeyUri(guid)).putExtra(EXTRA_GUID, guid));
+    }
+
     static void broadcastAttributesLoaded(@NonNull final Context context, @NonNull final String guid) {
         LocalBroadcastManager.getInstance(context).sendBroadcast(
                 new Intent(ACTION_ATTRIBUTES_LOADED, theKeyUri(guid)).putExtra(EXTRA_GUID, guid));

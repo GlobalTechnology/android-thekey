@@ -47,27 +47,31 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
     }
 
     @Nullable
-    public String getDefaultSessionGuid() {
+    private String getSessionGuid() {
         return getPrefs().getString(PREF_GUID, null);
     }
 
     @Override
-    public void setDefaultSession(@NonNull final String guid) throws TheKeyInvalidSessionException {
-        if (!guid.equals(getDefaultSessionGuid())) {
-            throw new TheKeyInvalidSessionException();
+    void initDefaultSession() {
+        final String guid = getSessionGuid();
+        if (guid != null) {
+            try {
+                setDefaultSession(getSessionGuid());
+            } catch (final TheKeyInvalidSessionException ignored) {
+            }
         }
     }
 
     @Override
     public boolean isValidSession(@Nullable final String guid) {
-        return guid != null && guid.equals(getDefaultSessionGuid());
+        return guid != null && guid.equals(getSessionGuid());
     }
 
     @NonNull
     @Override
     public Attributes getAttributes(@Nullable final String guid) {
         synchronized (mLockPrefs) {
-            if (TextUtils.equals(guid, getDefaultSessionGuid())) {
+            if (TextUtils.equals(guid, getSessionGuid())) {
                 // return the attributes for the current OAuth session
                 return new AttributesImpl(getPrefs().getAll());
             } else {
@@ -157,7 +161,7 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
 
         synchronized (mLockPrefs) {
             // short-circuit if the specified guid is different from the stored session
-            if (!TextUtils.equals(guid, getDefaultSessionGuid())) {
+            if (!TextUtils.equals(guid, getSessionGuid())) {
                 return;
             }
 
@@ -196,7 +200,7 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
 
         synchronized (mLockPrefs) {
             // short-circuit if the specified guid is different from the stored session
-            if (!TextUtils.equals(guid, getDefaultSessionGuid())) {
+            if (!TextUtils.equals(guid, getSessionGuid())) {
                 return;
             }
 
@@ -223,7 +227,7 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
         // we synchronize this to prevent race conditions with getAttributes
         synchronized (mLockPrefs) {
             // short-circuit if the specified guid is different from the stored session
-            if (!TextUtils.equals(guid, getDefaultSessionGuid())) {
+            if (!TextUtils.equals(guid, getSessionGuid())) {
                 return;
             }
 
@@ -249,7 +253,7 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
         // we synchronize this to prevent race conditions with getAttributes
         synchronized (mLockPrefs) {
             // short-circuit if the specified guid is different from the stored session
-            if (!TextUtils.equals(guid, getDefaultSessionGuid())) {
+            if (!TextUtils.equals(guid, getSessionGuid())) {
                 return;
             }
 
@@ -274,7 +278,7 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
 
         synchronized (mLockPrefs) {
             // short-circuit if the specified guid is different from the stored session
-            if (!TextUtils.equals(guid, getDefaultSessionGuid())) {
+            if (!TextUtils.equals(guid, getSessionGuid())) {
                 return;
             }
 

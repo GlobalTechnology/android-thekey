@@ -17,9 +17,12 @@ import static me.thekey.android.lib.Constant.REDIRECT_URI;
 import static me.thekey.android.lib.Constant.THEKEY_PARAM_SERVICE;
 import static me.thekey.android.lib.Constant.THEKEY_PARAM_TICKET;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.net.Uri.Builder;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.SimpleArrayMap;
@@ -46,6 +49,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeyContext;
+import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.TheKeySocketException;
 
 /**
@@ -53,6 +57,9 @@ import me.thekey.android.TheKeySocketException;
  * endpoints and correctly stores/utilizes OAuth access_tokens locally
  */
 public abstract class TheKeyImpl implements TheKey {
+    private static final String PREFFILE_THEKEY = "me.thekey";
+    private static final String PREF_DEFAULT_GUID = "default_guid";
+
     private static final Object INSTANCE_LOCK = new Object();
     @Nullable
     private static Configuration INSTANCE_CONFIG = null;
@@ -70,6 +77,9 @@ public abstract class TheKeyImpl implements TheKey {
     @Nullable
     private TheKeyImpl mMigrationSource;
 
+    @Nullable
+    private String mDefaultGuid;
+
     TheKeyImpl(@NonNull final Context context, @NonNull final Configuration config) {
         mContext = context;
         mConfig = config;
@@ -81,6 +91,7 @@ public abstract class TheKeyImpl implements TheKey {
         if (mConfig.mMigrationSource != null) {
             mMigrationSource = createInstance(mContext, mConfig.mMigrationSource);
         }
+        mDefaultGuid = getPrefs().getString(PREF_DEFAULT_GUID, null);
     }
 
     @NonNull
@@ -176,6 +187,67 @@ public abstract class TheKeyImpl implements TheKey {
     @Deprecated
     public final String getGuid() {
         return getDefaultSessionGuid();
+    }
+
+    @NonNull
+    private SharedPreferences getPrefs() {
+        return mContext.getSharedPreferences(PREFFILE_THEKEY, Context.MODE_PRIVATE);
+    }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    public final void setDefaultSession(@NonNull final String guid) throws TheKeyInvalidSessionException {
+        if (!isValidSession(guid)) {
+            throw new TheKeyInvalidSessionException();
+        }
+
+        final String oldGuid = mDefaultGuid;
+
+        // persist updated default guid
+        mDefaultGuid = guid;
+        final SharedPreferences.Editor prefs = getPrefs().edit().putString(PREF_DEFAULT_GUID, guid);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
+            prefs.commit();
+        } else {
+            prefs.apply();
+        }
+
+        // broadcast that the default session changed
+        if (!TextUtils.equals(oldGuid, mDefaultGuid)) {
+            BroadcastUtils.broadcastChangeDefaultSession(mContext, mDefaultGuid);
+        }
+    }
+
+    @Nullable
+    @Override
+    public final String getDefaultSessionGuid() {
+        // reset an invalid session
+        String guid = mDefaultGuid;
+        if (!isValidSession(guid)) {
+            resetDefaultSession(guid);
+        }
+
+        // return the default session
+        return mDefaultGuid;
+    }
+
+    void initDefaultSession() {
+    }
+
+    final void resetDefaultSession(@Nullable final String guid) {
+        if (TextUtils.equals(mDefaultGuid, guid)) {
+            // remove persisted default guid
+            mDefaultGuid = null;
+            final SharedPreferences.Editor prefs = getPrefs().edit().remove(PREF_DEFAULT_GUID);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
+                prefs.commit();
+            } else {
+                prefs.apply();
+            }
+
+            // reinitialize the default guid
+            initDefaultSession();
+        }
     }
 
     @NonNull

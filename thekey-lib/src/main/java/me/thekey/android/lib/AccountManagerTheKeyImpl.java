@@ -41,9 +41,6 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
     @NonNull
     private final String mAccountType;
 
-    @Nullable
-    private String mDefaultGuid;
-
     AccountManagerTheKeyImpl(@NonNull final Context context, @NonNull final Configuration config) {
         super(context, config);
         assert mConfig.mAccountType != null :
@@ -53,23 +50,17 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
     }
 
     @Override
-    public void setDefaultSession(@NonNull final String guid) throws TheKeyInvalidSessionException {
-        mDefaultGuid = guid;
-        if (findAccount(mDefaultGuid) == null) {
-            throw new TheKeyInvalidSessionException();
+    void initDefaultSession() {
+        for (final Account account : mAccountManager.getAccountsByType(mAccountType)) {
+            final String guid = getGuid(account);
+            if (guid != null) {
+                try {
+                    setDefaultSession(guid);
+                    return;
+                } catch (final TheKeyInvalidSessionException ignored) {
+                }
+            }
         }
-    }
-
-    @Nullable
-    @Override
-    public String getDefaultSessionGuid() {
-        // check for a default guid if we don't currently have one set
-        if (mDefaultGuid == null) {
-            final Account[] accounts = mAccountManager.getAccountsByType(mAccountType);
-            mDefaultGuid = accounts.length > 0 ? getGuid(accounts[0]) : null;
-        }
-
-        return mDefaultGuid;
     }
 
     @Nullable
@@ -86,9 +77,9 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
     private Account findAccount(@NonNull final String guid) {
         final Account account = AccountUtils.getAccount(mAccountManager, mAccountType, guid);
 
-        // let's reset the default guid if it matches the guid that wasn't found
-        if (account == null && TextUtils.equals(guid, mDefaultGuid)) {
-            mDefaultGuid = null;
+        // reset the default session if this was it
+        if (account == null) {
+            resetDefaultSession(guid);
         }
 
         return account;
@@ -169,13 +160,16 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
                 }
             } else {
                 // native rename is not supported, let's rely on migration framework to rename account
-                final String defaultGuid = mDefaultGuid;
+                final String defaultGuid = getDefaultSessionGuid();
                 final MigratingAccount migratingAccount = getMigratingAccount(guid);
                 migratingAccount.attributes = new UsernameWrappedAttributes(username, migratingAccount.attributes);
                 removeAccount(account, false);
                 createMigratingAccount(migratingAccount);
-                if (isValidSession(defaultGuid)) {
-                    mDefaultGuid = defaultGuid;
+                if (defaultGuid != null) {
+                    try {
+                        setDefaultSession(defaultGuid);
+                    } catch (final TheKeyInvalidSessionException ignored) {
+                    }
                 }
 
                 // update account object
@@ -296,9 +290,9 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
         } else {
             mAccountManager.removeAccountExplicitly(account);
         }
-        if (TextUtils.equals(guid, mDefaultGuid)) {
-            mDefaultGuid = null;
-        }
+
+        // reset the default session (if this was it)
+        resetDefaultSession(guid);
 
         if (broadcastLogout && guid != null) {
             BroadcastUtils.broadcastLogout(mContext, guid, false);
