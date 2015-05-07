@@ -21,12 +21,14 @@ import android.text.TextUtils;
 
 import org.json.JSONObject;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 
 import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.lib.accounts.AccountUtils;
 
-public final class AccountManagerTheKeyImpl extends TheKeyImpl {
+final class AccountManagerTheKeyImpl extends TheKeyImpl {
     private static final String DATA_ATTR_LOAD_TIME = "attr_load_time";
     private static final String DATA_ATTR_EMAIL = "attr_email";
     private static final String DATA_ATTR_FIRST_NAME = "attr_first_name";
@@ -49,18 +51,17 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
         mAccountType = mConfig.mAccountType;
     }
 
+    @NonNull
     @Override
-    void initDefaultSession() {
+    public Collection<String> getSessions() {
+        final Collection<String> sessions = new HashSet<>();
         for (final Account account : mAccountManager.getAccountsByType(mAccountType)) {
             final String guid = getGuid(account);
             if (guid != null) {
-                try {
-                    setDefaultSession(guid);
-                    return;
-                } catch (final TheKeyInvalidSessionException ignored) {
-                }
+                sessions.add(guid);
             }
         }
+        return sessions;
     }
 
     @Nullable

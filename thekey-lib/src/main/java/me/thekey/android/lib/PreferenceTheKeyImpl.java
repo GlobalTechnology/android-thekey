@@ -21,13 +21,13 @@ import android.text.TextUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.thekey.android.TheKeyInvalidSessionException;
-
-class PreferenceTheKeyImpl extends TheKeyImpl {
+final class PreferenceTheKeyImpl extends TheKeyImpl {
     private static final String PREFFILE_THEKEY = "thekey";
     private static final String PREF_ACCESS_TOKEN = "access_token";
     private static final String PREF_EXPIRE_TIME = "expire_time";
@@ -46,20 +46,16 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
         super(context, config);
     }
 
+    @NonNull
+    @Override
+    public Collection<String> getSessions() {
+        final String guid = getSessionGuid();
+        return guid != null ? Collections.singleton(guid) : Collections.<String>emptySet();
+    }
+
     @Nullable
     private String getSessionGuid() {
         return getPrefs().getString(PREF_GUID, null);
-    }
-
-    @Override
-    void initDefaultSession() {
-        final String guid = getSessionGuid();
-        if (guid != null) {
-            try {
-                setDefaultSession(getSessionGuid());
-            } catch (final TheKeyInvalidSessionException ignored) {
-            }
-        }
     }
 
     @Override

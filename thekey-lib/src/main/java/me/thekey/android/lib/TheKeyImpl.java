@@ -40,9 +40,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -231,7 +232,14 @@ public abstract class TheKeyImpl implements TheKey {
         return mDefaultGuid;
     }
 
-    void initDefaultSession() {
+    private void initDefaultSession() {
+        for (final String guid : getSessions()) {
+            try {
+                setDefaultSession(guid);
+                return;
+            } catch (final TheKeyInvalidSessionException ignored) {
+            }
+        }
     }
 
     final void resetDefaultSession(@Nullable final String guid) {
@@ -604,12 +612,11 @@ public abstract class TheKeyImpl implements TheKey {
 
     @NonNull
     private Collection<MigratingAccount> getMigratingAccounts() {
-        final String guid = getDefaultSessionGuid();
-        if (guid != null) {
-            return Collections.singleton(getMigratingAccount(guid));
+        final List<MigratingAccount> accounts = new ArrayList<>();
+        for (final String guid : getSessions()) {
+            accounts.add(getMigratingAccount(guid));
         }
-
-        return Collections.emptyList();
+        return accounts;
     }
 
     @NonNull

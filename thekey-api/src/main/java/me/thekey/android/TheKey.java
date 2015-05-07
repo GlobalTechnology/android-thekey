@@ -1,5 +1,6 @@
 package me.thekey.android;
 
+import java.util.Collection;
 import java.util.Date;
 
 import javax.annotation.Nonnull;
@@ -51,6 +52,15 @@ public interface TheKey {
             this.attributes = attributes;
         }
     }
+
+    /**
+     * This method will return a list of all current sessions. This is a non-blocking method and may be called on the UI
+     * thread.
+     *
+     * @return a {@link Collection} of currently active session guids
+     */
+    @Nonnull
+    Collection<String> getSessions();
 
     /**
      * This method will switch the current active OAuth session to use by default.
