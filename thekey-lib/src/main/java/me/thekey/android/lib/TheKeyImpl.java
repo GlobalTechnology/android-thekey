@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.net.Uri.Builder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.util.SimpleArrayMap;
 import android.text.TextUtils;
 
 import org.apache.http.NameValuePair;
@@ -45,7 +46,6 @@ import javax.net.ssl.HttpsURLConnection;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeyContext;
-import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.TheKeySocketException;
 
 /**
@@ -58,7 +58,7 @@ public abstract class TheKeyImpl implements TheKey {
     private static Configuration INSTANCE_CONFIG = null;
     private static TheKeyImpl INSTANCE = null;
 
-    final Object mLockAuth = new Object();
+    private final SimpleArrayMap<String, Object> mLockAuth = new SimpleArrayMap<>();
 
     @NonNull
     final Context mContext;
@@ -178,32 +178,20 @@ public abstract class TheKeyImpl implements TheKey {
         return getDefaultSessionGuid();
     }
 
-    @Override
-    public void setDefaultSession(@NonNull final String guid) throws TheKeyInvalidSessionException {
-        if (!guid.equals(getDefaultSessionGuid())) {
-            throw new TheKeyInvalidSessionException();
-        }
-    }
-
-    @Override
-    public boolean isValidSession(@Nullable final String guid) {
-        return guid != null && guid.equals(getDefaultSessionGuid());
-    }
-
     @NonNull
     @Override
-    public Attributes getAttributes() {
+    public final Attributes getAttributes() {
         return getAttributes(getDefaultSessionGuid());
     }
 
     @Override
-    public boolean loadAttributes() throws TheKeySocketException {
+    public final boolean loadAttributes() throws TheKeySocketException {
         return loadAttributes(getDefaultSessionGuid());
     }
 
     @Nullable
     @Override
-    public String getTicket(@NonNull final String service) throws TheKeySocketException {
+    public final String getTicket(@NonNull final String service) throws TheKeySocketException {
         final String guid = getDefaultSessionGuid();
         return guid != null ? getTicket(guid, service) : null;
     }
@@ -211,7 +199,8 @@ public abstract class TheKeyImpl implements TheKey {
     @Nullable
     @Override
     @Deprecated
-    public TicketAttributesPair getTicketAndAttributes(@NonNull final String service) throws TheKeySocketException {
+    public final TicketAttributesPair getTicketAndAttributes(@NonNull final String service)
+            throws TheKeySocketException {
         // short-circuit if there isn't a default session
         final String guid = getDefaultSessionGuid();
         if (guid == null) {
@@ -227,14 +216,14 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @Override
-    public void logout() {
+    public final void logout() {
         final String guid = getDefaultSessionGuid();
         if (guid != null) {
             logout(guid);
         }
     }
 
-    Uri getCasUri(final String... segments) {
+    final Uri getCasUri(final String... segments) {
         final Builder uri = mServer.buildUpon();
         for (final String segment : segments) {
             uri.appendPath(segment);
@@ -245,7 +234,7 @@ public abstract class TheKeyImpl implements TheKey {
     /**
      * @hide
      */
-    public Uri getAuthorizeUri() {
+    public final Uri getAuthorizeUri() {
         return this.getAuthorizeUri(null);
     }
 
@@ -262,7 +251,7 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @Override
-    public boolean loadAttributes(@Nullable final String guid) throws TheKeySocketException {
+    public final boolean loadAttributes(@Nullable final String guid) throws TheKeySocketException {
         if (guid == null) {
             return false;
         }
@@ -349,7 +338,8 @@ public abstract class TheKeyImpl implements TheKey {
 
     @Nullable
     @Override
-    public String getTicket(@NonNull final String guid, @NonNull final String service) throws TheKeySocketException {
+    public final String getTicket(@NonNull final String guid, @NonNull final String service)
+            throws TheKeySocketException {
         String accessToken;
         while ((accessToken = getValidAccessToken(guid, 0)) != null) {
             // fetch a ticket
@@ -409,7 +399,7 @@ public abstract class TheKeyImpl implements TheKey {
             return null;
         }
 
-        synchronized (mLockAuth) {
+        synchronized (getLock(mLockAuth, guid)) {
             // check for an existing accessToken
             final String accessToken = getAccessToken(guid);
             if (accessToken != null) {
@@ -435,7 +425,7 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @Override
-    public void logout(@NonNull final String guid) {
+    public final void logout(@NonNull final String guid) {
         // clearAuthState() may block on synchronization, so process the call on a background thread
         new Thread(new Runnable() {
             @Override
@@ -451,7 +441,7 @@ public abstract class TheKeyImpl implements TheKey {
 
     abstract void clearAuthState(@NonNull String guid, final boolean sendBroadcast);
 
-    boolean processCodeGrant(final String code, final Uri redirectUri) throws TheKeySocketException {
+    final boolean processCodeGrant(final String code, final Uri redirectUri) throws TheKeySocketException {
         final Uri tokenUri = this.getCasUri("api", "oauth", "token");
         HttpsURLConnection conn = null;
         try {
@@ -471,8 +461,7 @@ public abstract class TheKeyImpl implements TheKey {
                 final JSONObject json = this.parseJsonResponse(conn.getInputStream());
                 final String guid = json.optString(OAUTH_PARAM_THEKEY_GUID, null);
                 if (guid != null) {
-                    storeGrants(guid, json);
-                    return true;
+                    return storeGrants(guid, json);
                 }
             }
         } catch (final MalformedURLException e) {
@@ -542,7 +531,7 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @NonNull
-    Collection<MigratingAccount> getMigratingAccounts() {
+    private Collection<MigratingAccount> getMigratingAccounts() {
         final String guid = getDefaultSessionGuid();
         if (guid != null) {
             return Collections.singleton(getMigratingAccount(guid));
@@ -560,7 +549,7 @@ public abstract class TheKeyImpl implements TheKey {
         return account;
     }
 
-    boolean removeMigratingAccount(@NonNull final MigratingAccount account) {
+    private boolean removeMigratingAccount(@NonNull final MigratingAccount account) {
         removeAttributes(account.guid);
         clearAuthState(account.guid, false);
         return true;
@@ -592,6 +581,16 @@ public abstract class TheKeyImpl implements TheKey {
         } catch (final Exception e) {
             // return an empty object on error
             return new JSONObject();
+        }
+    }
+
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+    private static <K> Object getLock(@NonNull final SimpleArrayMap<K, Object> locks, @NonNull final K key) {
+        synchronized (locks) {
+            if (!locks.containsKey(key)) {
+                locks.put(key, new Object());
+            }
+            return locks.get(key);
         }
     }
 

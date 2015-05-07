@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.thekey.android.TheKeyInvalidSessionException;
+
 class PreferenceTheKeyImpl extends TheKeyImpl {
     private static final String PREFFILE_THEKEY = "thekey";
     private static final String PREF_ACCESS_TOKEN = "access_token";
@@ -38,7 +40,7 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
     private static final String PREF_ATTR_FIRST_NAME = "attr_firstName";
     private static final String PREF_ATTR_LAST_NAME = "attr_lastName";
 
-    private final Object mLockAttrs = new Object();
+    private final Object mLockPrefs = new Object();
 
     PreferenceTheKeyImpl(@NonNull final Context context, @NonNull final Configuration config) {
         super(context, config);
@@ -49,19 +51,33 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
         return getPrefs().getString(PREF_GUID, null);
     }
 
-    @NonNull
     @Override
-    public Attributes getAttributes(@Nullable final String guid) {
-        if (TextUtils.equals(guid, getDefaultSessionGuid())) {
-            synchronized (mLockAttrs) {
-                // return the attributes for the current OAuth session
-                return new AttributesImpl(this.getPrefs().getAll());
-            }
-        } else {
-            throw new UnsupportedOperationException("cannot get attributes for users other than the active session");
+    public void setDefaultSession(@NonNull final String guid) throws TheKeyInvalidSessionException {
+        if (!guid.equals(getDefaultSessionGuid())) {
+            throw new TheKeyInvalidSessionException();
         }
     }
 
+    @Override
+    public boolean isValidSession(@Nullable final String guid) {
+        return guid != null && guid.equals(getDefaultSessionGuid());
+    }
+
+    @NonNull
+    @Override
+    public Attributes getAttributes(@Nullable final String guid) {
+        synchronized (mLockPrefs) {
+            if (TextUtils.equals(guid, getDefaultSessionGuid())) {
+                // return the attributes for the current OAuth session
+                return new AttributesImpl(getPrefs().getAll());
+            } else {
+                throw new UnsupportedOperationException(
+                        "cannot get attributes for users other than the active session");
+            }
+        }
+    }
+
+    @NonNull
     private SharedPreferences getPrefs() {
         return mContext.getSharedPreferences(PREFFILE_THEKEY, Context.MODE_PRIVATE);
     }
@@ -95,10 +111,10 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
                 prefs.putString(PREF_REFRESH_TOKEN, json.getString(OAUTH_PARAM_REFRESH_TOKEN));
             }
 
-            // we synchronize update to prevent race conditions
-            synchronized (mLockAuth) {
-                final String oldGuid = this.getPrefs().getString(PREF_GUID, null);
-                final String newGuid = json.optString(OAUTH_PARAM_THEKEY_GUID, null);
+            // we synchronize actual update to prevent race conditions
+            final String oldGuid;
+            synchronized (mLockPrefs) {
+                oldGuid = getPrefs().getString(PREF_GUID, null);
 
                 // store updates
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
@@ -106,14 +122,15 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
                 } else {
                     prefs.commit();
                 }
+            }
 
-                // trigger logout/login broadcasts based on guid changes
-                if (oldGuid != null && !oldGuid.equals(newGuid)) {
-                    BroadcastUtils.broadcastLogout(mContext, oldGuid, newGuid != null);
-                }
-                if (newGuid != null && !newGuid.equals(oldGuid)) {
-                    BroadcastUtils.broadcastLogin(mContext, newGuid);
-                }
+            // trigger logout/login broadcasts based on guid changes
+            final String newGuid = json.optString(OAUTH_PARAM_THEKEY_GUID, null);
+            if (oldGuid != null && !oldGuid.equals(newGuid)) {
+                BroadcastUtils.broadcastLogout(mContext, oldGuid, newGuid != null);
+            }
+            if (newGuid != null && !newGuid.equals(oldGuid)) {
+                BroadcastUtils.broadcastLogin(mContext, newGuid);
             }
         } catch (final JSONException e) {
             clearAuthState(guid, true);
@@ -125,18 +142,32 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
     @Nullable
     @Override
     String getRefreshToken(@NonNull final String guid) {
-        return this.getPrefs().getString(PREF_REFRESH_TOKEN, null);
+        final Map<String, ?> attrs = getPrefs().getAll();
+        if (guid.equals(attrs.get(PREF_GUID))) {
+            return (String) attrs.get(PREF_REFRESH_TOKEN);
+        }
+        return null;
     }
 
     @Override
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     void removeRefreshToken(@NonNull final String guid, @NonNull final String token) {
-        final SharedPreferences.Editor prefs = this.getPrefs().edit();
+        final SharedPreferences.Editor prefs = getPrefs().edit();
         prefs.remove(PREF_REFRESH_TOKEN);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            prefs.apply();
-        } else {
-            prefs.commit();
+
+        synchronized (mLockPrefs) {
+            // short-circuit if the specified guid is different from the stored session
+            if (!TextUtils.equals(guid, getDefaultSessionGuid())) {
+                return;
+            }
+
+            if (token.equals(getPrefs().getString(PREF_REFRESH_TOKEN, null))) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                    prefs.apply();
+                } else {
+                    prefs.commit();
+                }
+            }
         }
     }
 
@@ -151,18 +182,25 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
             expireTime = v != null ? v : currentTime;
         }
 
-        // return access_token only if it hasn't expired
-        return expireTime >= currentTime ? (String) attrs.get(PREF_ACCESS_TOKEN) : null;
+        // return access_token only if it hasn't expired (and is for the requested user)
+        return expireTime >= currentTime && guid.equals(attrs.get(PREF_GUID)) ? (String) attrs.get(PREF_ACCESS_TOKEN) :
+                null;
     }
 
     @Override
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     void removeAccessToken(@NonNull final String guid, @NonNull final String token) {
-        synchronized (mLockAuth) {
+        final SharedPreferences.Editor prefs = getPrefs().edit();
+        prefs.remove(PREF_ACCESS_TOKEN);
+        prefs.remove(PREF_EXPIRE_TIME);
+
+        synchronized (mLockPrefs) {
+            // short-circuit if the specified guid is different from the stored session
+            if (!TextUtils.equals(guid, getDefaultSessionGuid())) {
+                return;
+            }
+
             if (token.equals(getPrefs().getString(PREF_ACCESS_TOKEN, null))) {
-                final SharedPreferences.Editor prefs = getPrefs().edit();
-                prefs.remove(PREF_ACCESS_TOKEN);
-                prefs.remove(PREF_EXPIRE_TIME);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
                     prefs.apply();
                 } else {
@@ -176,7 +214,6 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     void storeAttributes(@NonNull final String guid, @NonNull final JSONObject json) {
         final SharedPreferences.Editor prefs = getPrefs().edit();
-
         prefs.putLong(PREF_ATTR_LOAD_TIME, System.currentTimeMillis());
         prefs.putString(PREF_ATTR_GUID, json.optString(OAUTH_PARAM_ATTR_GUID, null));
         prefs.putString(PREF_ATTR_EMAIL, json.optString(OAUTH_PARAM_ATTR_EMAIL, null));
@@ -184,7 +221,12 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
         prefs.putString(PREF_ATTR_LAST_NAME, json.optString(OAUTH_PARAM_ATTR_LAST_NAME, null));
 
         // we synchronize this to prevent race conditions with getAttributes
-        synchronized (mLockAttrs) {
+        synchronized (mLockPrefs) {
+            // short-circuit if the specified guid is different from the stored session
+            if (!TextUtils.equals(guid, getDefaultSessionGuid())) {
+                return;
+            }
+
             // store updates
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
                 prefs.apply();
@@ -205,7 +247,12 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
         prefs.remove(PREF_ATTR_LOAD_TIME);
 
         // we synchronize this to prevent race conditions with getAttributes
-        synchronized (mLockAttrs) {
+        synchronized (mLockPrefs) {
+            // short-circuit if the specified guid is different from the stored session
+            if (!TextUtils.equals(guid, getDefaultSessionGuid())) {
+                return;
+            }
+
             // store updates
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
                 prefs.apply();
@@ -225,9 +272,9 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
         prefs.remove(PREF_GUID);
         prefs.remove(PREF_USERNAME);
 
-        synchronized (mLockAuth) {
+        synchronized (mLockPrefs) {
             // short-circuit if the specified guid is different from the stored session
-            if (!TextUtils.equals(guid, getPrefs().getString(PREF_GUID, null))) {
+            if (!TextUtils.equals(guid, getDefaultSessionGuid())) {
                 return;
             }
 
@@ -236,11 +283,11 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
             } else {
                 prefs.commit();
             }
+        }
 
-            if (sendBroadcast) {
-                // broadcast a logout action if we had a guid
-                BroadcastUtils.broadcastLogout(mContext, guid, false);
-            }
+        if (sendBroadcast) {
+            // broadcast a logout action if we had a guid
+            BroadcastUtils.broadcastLogout(mContext, guid, false);
         }
     }
 
@@ -268,6 +315,7 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
 
             return true;
         }
+
         return false;
     }
 
