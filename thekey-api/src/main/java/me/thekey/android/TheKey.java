@@ -17,6 +17,9 @@ public interface TheKey {
 
     interface Attributes {
         @Nullable
+        String getUsername();
+
+        @Nullable
         String getGuid();
 
         @Nonnull

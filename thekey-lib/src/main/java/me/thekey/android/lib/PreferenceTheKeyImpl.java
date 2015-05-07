@@ -8,6 +8,7 @@ import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_LAST_NAME;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_EXPIRES_IN;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_USERNAME;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -30,6 +31,7 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
     private static final String PREFFILE_THEKEY = "thekey";
     private static final String PREF_ACCESS_TOKEN = "access_token";
     private static final String PREF_EXPIRE_TIME = "expire_time";
+    private static final String PREF_USERNAME = "username";
     private static final String PREF_GUID = "guid";
     private static final String PREF_REFRESH_TOKEN = "refresh_token";
     private static final String PREF_ATTR_LOAD_TIME = "attr_load_time";
@@ -81,8 +83,12 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
                             * 1000);
                 }
                 prefs.remove(PREF_GUID);
+                prefs.remove(PREF_USERNAME);
                 if (json.has(OAUTH_PARAM_THEKEY_GUID)) {
                     prefs.putString(PREF_GUID, json.getString(OAUTH_PARAM_THEKEY_GUID));
+                }
+                if (json.has(OAUTH_PARAM_THEKEY_USERNAME)) {
+                    prefs.putString(PREF_USERNAME, json.getString(OAUTH_PARAM_THEKEY_USERNAME));
                 }
             }
 
@@ -219,6 +225,7 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
         prefs.remove(PREF_REFRESH_TOKEN);
         prefs.remove(PREF_EXPIRE_TIME);
         prefs.remove(PREF_GUID);
+        prefs.remove(PREF_USERNAME);
 
         synchronized (mLockAuth) {
             // short-circuit if the specified guid is different from the stored session
@@ -245,17 +252,15 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
         if (account.isValid()) {
             final SharedPreferences.Editor prefs = getPrefs().edit();
             prefs.putString(PREF_GUID, account.guid);
+            prefs.putString(PREF_USERNAME, account.attributes.getUsername());
             prefs.putString(PREF_ACCESS_TOKEN, account.accessToken);
             prefs.putString(PREF_REFRESH_TOKEN, account.refreshToken);
-            if (account.attributes != null) {
-                prefs.putLong(PREF_ATTR_LOAD_TIME, account.attributes.getLoadedTime().getTime());
-                prefs.putString(PREF_ATTR_GUID, account.guid);
-                prefs.putString(PREF_ATTR_EMAIL, account.attributes.getEmail());
-                prefs.putString(PREF_ATTR_FIRST_NAME, account.attributes.getFirstName());
-                prefs.putString(PREF_ATTR_LAST_NAME, account.attributes.getLastName());
-            } else {
-                removeAttributes(account.guid);
-            }
+
+            prefs.putLong(PREF_ATTR_LOAD_TIME, account.attributes.getLoadedTime().getTime());
+            prefs.putString(PREF_ATTR_GUID, account.guid);
+            prefs.putString(PREF_ATTR_EMAIL, account.attributes.getEmail());
+            prefs.putString(PREF_ATTR_FIRST_NAME, account.attributes.getFirstName());
+            prefs.putString(PREF_ATTR_LAST_NAME, account.attributes.getLastName());
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
                 prefs.apply();
@@ -282,6 +287,13 @@ class PreferenceTheKeyImpl extends TheKeyImpl {
             final String guid = (String) this.attrs.get(PREF_GUID);
             this.valid = this.attrs.containsKey(PREF_ATTR_LOAD_TIME) && guid != null
                     && guid.equals(this.attrs.get(PREF_ATTR_GUID));
+        }
+
+        @Nullable
+        @Override
+        public String getUsername() {
+            final Object username = this.attrs.get(PREF_USERNAME);
+            return username instanceof String ? (String) username : getEmail();
         }
 
         @Nullable

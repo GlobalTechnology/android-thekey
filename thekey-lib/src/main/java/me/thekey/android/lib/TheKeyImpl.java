@@ -553,7 +553,7 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @NonNull
-    MigratingAccount getMigratingAccount(@NonNull final String guid) {
+    final MigratingAccount getMigratingAccount(@NonNull final String guid) {
         final MigratingAccount account = new MigratingAccount(guid);
         account.accessToken = getAccessToken(guid);
         account.refreshToken = getRefreshToken(guid);
@@ -603,10 +603,10 @@ public abstract class TheKeyImpl implements TheKey {
         String accessToken;
         @Nullable
         String refreshToken;
-        @Nullable
+        @NonNull
         Attributes attributes;
 
-        public MigratingAccount(@NonNull final String guid) {
+        MigratingAccount(@NonNull final String guid) {
             this.guid = guid;
         }
 

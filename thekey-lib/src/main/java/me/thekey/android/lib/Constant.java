@@ -17,6 +17,7 @@ public final class Constant {
     public static final String OAUTH_PARAM_REFRESH_TOKEN = "refresh_token";
     public static final String OAUTH_PARAM_STATE = "state";
     public static final String OAUTH_PARAM_THEKEY_GUID = "thekey_guid";
+    public static final String OAUTH_PARAM_THEKEY_USERNAME = "thekey_username";
 
     // OAuth attribute params
     public static final String OAUTH_PARAM_ATTR_GUID = "ssoGuid";

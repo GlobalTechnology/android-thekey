@@ -6,11 +6,14 @@ import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_FIRST_NAME;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_LAST_NAME;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_USERNAME;
 import static me.thekey.android.lib.accounts.Constants.DATA_GUID;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -96,15 +99,7 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
     void clearAuthState(@NonNull final String guid, final boolean sendBroadcast) {
         final Account account = findAccount(guid);
         if (account != null) {
-            mAccountManager.removeAccountExplicitly(account);
-            if (TextUtils.equals(guid, mDefaultGuid)) {
-                mDefaultGuid = null;
-            }
-
-            if (sendBroadcast) {
-                // broadcast a logout action since we had an account
-                BroadcastUtils.broadcastLogout(mContext, guid, false);
-            }
+            removeAccount(account, true);
         }
     }
 
@@ -144,18 +139,53 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
             return false;
         }
 
+        // determine username
+        String username = json.optString(OAUTH_PARAM_THEKEY_USERNAME, null);
+        if (TextUtils.isEmpty(username)) {
+            username = guid;
+        }
+
         // create account if it doesn't already exist
         Account account = findAccount(guid);
         boolean broadcastLogin = false;
         if (account == null) {
             // create a new account
-            //TODO: use username for the account
-            account = new Account(guid, mAccountType);
+            account = new Account(username, mAccountType);
             final Bundle data = new Bundle(1);
             data.putString(DATA_GUID, guid);
-            mAccountManager.removeAccountExplicitly(account);
+            removeAccount(account, true);
             mAccountManager.addAccountExplicitly(account, null, data);
             broadcastLogin = true;
+        } else if (!username.equals(account.name)) {
+            // remove any potentially conflicting account before proceeding
+            removeAccount(new Account(username, account.type), true);
+
+            // username is different, rename account
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                try {
+                    // rename account
+                    account = mAccountManager.renameAccount(account, username, null, null).getResult();
+                } catch (final Exception ignored) {
+                    // suppress the error, this shouldn't be fatal
+                }
+            } else {
+                // native rename is not supported, let's rely on migration framework to rename account
+                final String defaultGuid = mDefaultGuid;
+                final MigratingAccount migratingAccount = getMigratingAccount(guid);
+                migratingAccount.attributes = new UsernameWrappedAttributes(username, migratingAccount.attributes);
+                removeAccount(account, false);
+                createMigratingAccount(migratingAccount);
+                if (isValidSession(defaultGuid)) {
+                    mDefaultGuid = defaultGuid;
+                }
+
+                // update account object
+                account = findAccount(guid);
+                if (account == null) {
+                    // this is strange, let's bail and let the user sort it out next time they try something
+                    return false;
+                }
+            }
         }
 
         // store access_token
@@ -229,14 +259,15 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
         // remove any existing accounts that conflict with the migrating account
         final Account existing = findAccount(account.guid);
         if (existing != null) {
-            mAccountManager.removeAccountExplicitly(existing);
+            removeAccount(existing, false);
         }
 
         // create account
-        final Account newAccount = new Account(account.guid, mAccountType);
+        final String username = account.attributes.getUsername();
+        final Account newAccount = new Account(TextUtils.isEmpty(username) ? account.guid : username, mAccountType);
         final Bundle data = new Bundle();
         data.putString(DATA_GUID, account.guid);
-        mAccountManager.removeAccountExplicitly(newAccount);
+        removeAccount(newAccount, false);
         mAccountManager.addAccountExplicitly(newAccount, null, data);
 
         // set auth tokens for this account
@@ -244,21 +275,40 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
         mAccountManager.setAuthToken(newAccount, AUTH_TOKEN_REFRESH_TOKEN, account.refreshToken);
 
         // set all attributes
-        if (account.attributes != null) {
-            mAccountManager.setUserData(newAccount, DATA_ATTR_LOAD_TIME,
-                                        Long.toString(account.attributes.getLoadedTime().getTime()));
-            mAccountManager.setUserData(newAccount, DATA_ATTR_EMAIL, account.attributes.getEmail());
-            mAccountManager.setUserData(newAccount, DATA_ATTR_FIRST_NAME, account.attributes.getFirstName());
-            mAccountManager.setUserData(newAccount, DATA_ATTR_LAST_NAME, account.attributes.getLastName());
-        } else {
-            removeAttributes(account.guid);
-        }
+        mAccountManager.setUserData(newAccount, DATA_ATTR_LOAD_TIME,
+                                    Long.toString(account.attributes.getLoadedTime().getTime()));
+        mAccountManager.setUserData(newAccount, DATA_ATTR_EMAIL, account.attributes.getEmail());
+        mAccountManager.setUserData(newAccount, DATA_ATTR_FIRST_NAME, account.attributes.getFirstName());
+        mAccountManager.setUserData(newAccount, DATA_ATTR_LAST_NAME, account.attributes.getLastName());
 
         // return success
         return true;
     }
 
+    @SuppressWarnings("deprecation")
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+    private void removeAccount(@NonNull final Account account, final boolean broadcastLogout) {
+        final String guid = getGuid(account);
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            try {
+                mAccountManager.removeAccount(account, null, null).getResult();
+            } catch (final Exception ignored) {
+            }
+        } else {
+            mAccountManager.removeAccountExplicitly(account);
+        }
+        if (TextUtils.equals(guid, mDefaultGuid)) {
+            mDefaultGuid = null;
+        }
+
+        if (broadcastLogout && guid != null) {
+            BroadcastUtils.broadcastLogout(mContext, guid, false);
+        }
+    }
+
     private static final class AttributesImpl implements Attributes {
+        @Nullable
+        private final String mUsername;
         @Nullable
         private final String mGuid;
         private final boolean mValid;
@@ -272,6 +322,7 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
         private final String mLastName;
 
         AttributesImpl(@NonNull final AccountManagerTheKeyImpl theKey, @Nullable final Account account) {
+            mUsername = account != null ? account.name : null;
             mGuid = theKey.getGuid(account);
             mValid = account != null;
             if (mValid) {
@@ -292,6 +343,12 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
                 mFirstName = null;
                 mLastName = null;
             }
+        }
+
+        @Nullable
+        @Override
+        public String getUsername() {
+            return mUsername;
         }
 
         @Nullable
@@ -327,6 +384,59 @@ public final class AccountManagerTheKeyImpl extends TheKeyImpl {
         @Override
         public String getLastName() {
             return mLastName;
+        }
+    }
+
+    private static final class UsernameWrappedAttributes implements Attributes {
+        @NonNull
+        private final String mUsername;
+        @NonNull
+        private final Attributes mAttributes;
+
+        UsernameWrappedAttributes(@NonNull final String username, @NonNull final Attributes attributes) {
+            mUsername = username;
+            mAttributes = attributes;
+        }
+
+        @Nullable
+        @Override
+        public String getUsername() {
+            return mUsername;
+        }
+
+        @Nullable
+        @Override
+        public String getGuid() {
+            return mAttributes.getGuid();
+        }
+
+        @NonNull
+        @Override
+        public Date getLoadedTime() {
+            return mAttributes.getLoadedTime();
+        }
+
+        @Override
+        public boolean areValid() {
+            return mAttributes.areValid();
+        }
+
+        @Nullable
+        @Override
+        public String getEmail() {
+            return mAttributes.getEmail();
+        }
+
+        @Nullable
+        @Override
+        public String getFirstName() {
+            return mAttributes.getFirstName();
+        }
+
+        @Nullable
+        @Override
+        public String getLastName() {
+            return mAttributes.getLastName();
         }
     }
 }
