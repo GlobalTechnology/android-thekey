@@ -2,6 +2,7 @@ package me.thekey.android.lib.support.v4.content;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -14,32 +15,26 @@ import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
 
 public final class AttributesLoader extends AsyncTaskLoader<Attributes> {
     private static final long DEFAULT_MAX_AGE = 24 * 60 * 60 * 1000; /* 1 day */
-    private final long maxAge = DEFAULT_MAX_AGE;
-
-    private boolean refresh = false;
 
     @NonNull
     private final TheKey mTheKey;
-    private final TheKeyBroadcastReceiver mReceiver = new TheKeyBroadcastReceiver() {
-        @Override
-        protected void onLogin(final String guid) {
-            onContentChanged();
-        }
+    @NonNull
+    private final TheKeyBroadcastReceiver mReceiver;
+    @Nullable
+    private final String mGuid;
+    private final long mMaxAge = DEFAULT_MAX_AGE;
+    private boolean mRefresh = false;
 
-        @Override
-        protected void onLogout(final String guid, final boolean changingUser) {
-            onContentChanged();
-        }
-
-        @Override
-        protected void onAttributesLoaded(final String guid) {
-            onContentChanged();
-        }
-    };
-
+    @Deprecated
     public AttributesLoader(@NonNull final Context context, @NonNull final TheKey thekey) {
+        this(context, thekey, null);
+    }
+
+    public AttributesLoader(@NonNull final Context context, @NonNull final TheKey thekey, @Nullable String guid) {
         super(context);
         mTheKey = thekey;
+        mReceiver = new MyTheKeyBroadcastReceiver(guid);
+        mGuid = guid;
     }
 
     /* BEGIN lifecycle */
@@ -50,7 +45,7 @@ public final class AttributesLoader extends AsyncTaskLoader<Attributes> {
         mReceiver.registerReceiver(LocalBroadcastManager.getInstance(getContext()));
 
         // deliver any cached attributes
-        final Attributes attrs = mTheKey.getAttributes();
+        final Attributes attrs = mTheKey.getAttributes(getGuid());
         deliverResult(attrs);
 
         // trigger a load if we need a refresh of the attributes
@@ -69,13 +64,14 @@ public final class AttributesLoader extends AsyncTaskLoader<Attributes> {
 
     @Override
     public Attributes loadInBackground() {
-        Attributes attrs = mTheKey.getAttributes();
+        final String guid = getGuid();
+        Attributes attrs = mTheKey.getAttributes(guid);
 
         // check to see if the current attributes are stale
         if (needRefresh(attrs)) {
             try {
-                mTheKey.loadAttributes();
-                attrs = mTheKey.getAttributes();
+                mTheKey.loadAttributes(guid);
+                attrs = mTheKey.getAttributes(guid);
             } catch (final TheKeySocketException ignored) {
             }
         }
@@ -84,8 +80,41 @@ public final class AttributesLoader extends AsyncTaskLoader<Attributes> {
         return attrs;
     }
 
-    private boolean needRefresh(final Attributes attrs) {
-        return this.refresh || attrs == null || !attrs.areValid()
-                || attrs.getLoadedTime().before(new Date(System.currentTimeMillis() - maxAge));
+    private boolean needRefresh(@NonNull final Attributes attrs) {
+        return mRefresh || !attrs.areValid() ||
+                attrs.getLoadedTime().before(new Date(System.currentTimeMillis() - mMaxAge));
+    }
+
+    @Nullable
+    private String getGuid() {
+        return mGuid != null ? mGuid : mTheKey.getDefaultSessionGuid();
+    }
+
+    private final class MyTheKeyBroadcastReceiver extends TheKeyBroadcastReceiver {
+        MyTheKeyBroadcastReceiver(@Nullable final String guid) {
+            super(guid);
+        }
+
+        @Override
+        protected void onLogin(@NonNull final String guid) {
+            onContentChanged();
+        }
+
+        @Override
+        protected void onLogout(@NonNull final String guid, final boolean changingUser) {
+            onContentChanged();
+        }
+
+        @Override
+        protected void onChangeDefaultSession(@NonNull final String newGuid) {
+            if (mGuid == null) {
+                onContentChanged();
+            }
+        }
+
+        @Override
+        protected void onAttributesLoaded(@NonNull final String guid) {
+            onContentChanged();
+        }
     }
 }

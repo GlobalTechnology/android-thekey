@@ -25,8 +25,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.thekey.android.lib.util.BroadcastUtils;
-
 class PreferenceTheKeyImpl extends TheKeyImpl {
     private static final String PREFFILE_THEKEY = "thekey";
     private static final String PREF_ACCESS_TOKEN = "access_token";

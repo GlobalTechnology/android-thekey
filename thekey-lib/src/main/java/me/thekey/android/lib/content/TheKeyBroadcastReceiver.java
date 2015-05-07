@@ -1,23 +1,40 @@
 package me.thekey.android.lib.content;
 
 import static me.thekey.android.TheKey.ACTION_ATTRIBUTES_LOADED;
+import static me.thekey.android.TheKey.ACTION_CHANGE_DEFAULT_SESSION;
 import static me.thekey.android.TheKey.ACTION_LOGIN;
 import static me.thekey.android.TheKey.ACTION_LOGOUT;
-import static me.thekey.android.TheKey.EXTRA_GUID;
 import static me.thekey.android.TheKey.EXTRA_CHANGING_USER;
+import static me.thekey.android.TheKey.EXTRA_GUID;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
+import me.thekey.android.lib.BroadcastUtils;
+
 public abstract class TheKeyBroadcastReceiver extends BroadcastReceiver {
+    @Nullable
+    private final String mGuid;
+
+    protected TheKeyBroadcastReceiver() {
+        this(null);
+    }
+
+    protected TheKeyBroadcastReceiver(@Nullable final String guid) {
+        mGuid = guid;
+    }
+
     public final void registerReceiver(final LocalBroadcastManager manager) {
         if (manager != null) {
-            manager.registerReceiver(this, new IntentFilter(ACTION_LOGIN));
-            manager.registerReceiver(this, new IntentFilter(ACTION_LOGOUT));
-            manager.registerReceiver(this, new IntentFilter(ACTION_ATTRIBUTES_LOADED));
+            manager.registerReceiver(this, BroadcastUtils.loginFilter(mGuid));
+            manager.registerReceiver(this, BroadcastUtils.logoutFilter(mGuid));
+            manager.registerReceiver(this, BroadcastUtils.changeDefaultSessionFilter());
+            manager.registerReceiver(this, BroadcastUtils.attributesLoadedFilter(mGuid));
         }
     }
 
@@ -32,21 +49,34 @@ public abstract class TheKeyBroadcastReceiver extends BroadcastReceiver {
         final String action = intent.getAction();
         final Bundle extras = intent.getExtras();
         final String guid = extras != null ? extras.getString(EXTRA_GUID) : null;
-        if (ACTION_LOGIN.equals(action)) {
-            this.onLogin(guid);
-        } else if (ACTION_LOGOUT.equals(action)) {
-            this.onLogout(guid, extras != null && extras.getBoolean(EXTRA_CHANGING_USER, false));
-        } else if (ACTION_ATTRIBUTES_LOADED.equals(action)) {
-            this.onAttributesLoaded(guid);
+
+        if (action != null && guid != null) {
+            switch (action) {
+                case ACTION_LOGIN:
+                    onLogin(guid);
+                    break;
+                case ACTION_LOGOUT:
+                    onLogout(guid, extras.getBoolean(EXTRA_CHANGING_USER, false));
+                    break;
+                case ACTION_CHANGE_DEFAULT_SESSION:
+                    onChangeDefaultSession(guid);
+                    break;
+                case ACTION_ATTRIBUTES_LOADED:
+                    onAttributesLoaded(guid);
+                    break;
+            }
         }
     }
 
-    protected void onLogin(final String guid) {
+    protected void onLogin(@NonNull final String guid) {
     }
 
-    protected void onLogout(final String guid, final boolean changingUser) {
+    protected void onLogout(@NonNull final String guid, final boolean changingUser) {
     }
 
-    protected void onAttributesLoaded(final String guid) {
+    protected void onChangeDefaultSession(@NonNull final String newGuid) {
+    }
+
+    protected void onAttributesLoaded(@NonNull final String guid) {
     }
 }

@@ -47,7 +47,6 @@ import me.thekey.android.TheKey;
 import me.thekey.android.TheKeyContext;
 import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.TheKeySocketException;
-import me.thekey.android.lib.util.BroadcastUtils;
 
 /**
  * The Key interaction library, handles all interactions with The Key OAuth API

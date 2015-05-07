@@ -25,7 +25,6 @@ import java.util.Date;
 
 import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.lib.accounts.AccountUtils;
-import me.thekey.android.lib.util.BroadcastUtils;
 
 public final class AccountManagerTheKeyImpl extends TheKeyImpl {
     private static final String DATA_ATTR_LOAD_TIME = "attr_load_time";

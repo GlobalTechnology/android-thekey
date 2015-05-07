@@ -6,9 +6,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface TheKey {
-    String ACTION_LOGIN = TheKey.class.getName() + ".ACTION_LOGIN";
-    String ACTION_LOGOUT = TheKey.class.getName() + ".ACTION_LOGOUT";
-    String ACTION_ATTRIBUTES_LOADED = TheKey.class.getName() + ".ACTION_ATTRIBUTES_LOADED";
+    String ACTION_LOGIN = "thekey.action_login";
+    String ACTION_LOGOUT = "thekey.action_logout";
+    String ACTION_CHANGE_DEFAULT_SESSION = "thekey.action_change_default_session";
+    String ACTION_ATTRIBUTES_LOADED = "thekey.action_attributes_loaded";
 
     String EXTRA_GUID = "guid";
     String EXTRA_CHANGING_USER = "changing_user";
