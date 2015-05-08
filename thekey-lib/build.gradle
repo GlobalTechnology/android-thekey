@@ -17,6 +17,7 @@ android {
 
 dependencies {
     compile project(':thekey-api')
+    compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.android.support:support-v4:22.1.1'
     compile 'org.slf4j:slf4j-api:1.7.10'
 }
