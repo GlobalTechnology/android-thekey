@@ -98,7 +98,16 @@ public abstract class TheKeyImpl implements TheKey {
         if (TextUtils.isEmpty(config.mAccountType)) {
             instance = new PreferenceTheKeyImpl(context.getApplicationContext(), config);
         } else {
-            instance = new AccountManagerTheKeyImpl(context.getApplicationContext(), config);
+            // dynamically look for AccountManager implementation
+            try {
+                instance = (TheKeyImpl) Class.forName("me.thekey.android.lib.AccountManagerTheKeyImpl")
+                        .getDeclaredConstructor(Context.class, Configuration.class)
+                        .newInstance(context.getApplicationContext(), config);
+            } catch (final Exception e) {
+                throw new RuntimeException(
+                        "unable to find AccountManagerTheKeyImpl, make sure thekey-lib-accountmanager library is loaded",
+                        e);
+            }
         }
 
         // trigger account migration for this instance

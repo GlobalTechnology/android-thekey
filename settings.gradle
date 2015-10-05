@@ -1,1 +1,1 @@
-include ':thekey-api', ':thekey-lib'
+include ':thekey-api', ':thekey-lib', ':thekey-lib-accountmanager'
