@@ -28,8 +28,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.util.SimpleArrayMap;
 import android.text.TextUtils;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicHeaderValueParser;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -44,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -359,39 +356,21 @@ public abstract class TheKeyImpl implements TheKey {
                     return true;
                 } else if (conn.getResponseCode() == HTTP_UNAUTHORIZED) {
                     // parse the Authenticate header
-                    String scheme = null;
-                    NameValuePair[] params = new NameValuePair[0];
-                    String auth = conn.getHeaderField("WWW-Authenticate");
+                    final String auth = conn.getHeaderField("WWW-Authenticate");
                     if (auth != null) {
-                        auth = auth.trim();
-                        int i = auth.indexOf(" ");
-                        if (i == -1) {
-                            scheme = auth;
-                        } else {
-                            scheme = auth.substring(0, i);
-                            auth = auth.substring(i).trim();
-                            params = BasicHeaderValueParser.parseParameters(auth, BasicHeaderValueParser.DEFAULT);
-                        }
+                        final HttpHeaderUtils.Challenge challenge = HttpHeaderUtils.parseChallenge(auth);
 
-                        scheme = scheme.toUpperCase(Locale.US);
-                    }
-
-                    // OAuth Bearer auth
-                    if ("BEARER".equals(scheme)) {
-                        // extract the error encountered
-                        String error = null;
-                        for (final NameValuePair param : params) {
-                            if (param != null && "error".equals(param.getName())) {
-                                error = param.getValue();
+                        // OAuth Bearer auth
+                        if ("BEARER".equals(challenge.getScheme())) {
+                            // extract the error encountered
+                            final String error = challenge.getParameterValue("error");
+                            if ("insufficient_scope".equals(error)) {
+                                removeAttributes(guid);
+                                return false;
+                            } else if ("invalid_token".equals(error)) {
+                                removeAccessToken(guid, accessToken);
+                                continue;
                             }
-                        }
-
-                        if ("insufficient_scope".equals(error)) {
-                            removeAttributes(guid);
-                            return false;
-                        } else if ("invalid_token".equals(error)) {
-                            removeAccessToken(guid, accessToken);
-                            continue;
                         }
                     }
                 }
