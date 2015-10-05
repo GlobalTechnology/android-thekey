@@ -1,6 +1,6 @@
 package me.thekey.android;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 @Deprecated
 public interface TheKeyContext {
@@ -9,6 +9,6 @@ public interface TheKeyContext {
      *
      * @return the Key object to use for Key related requests
      */
-    @Nonnull
+    @NonNull
     TheKey getTheKey();
 }

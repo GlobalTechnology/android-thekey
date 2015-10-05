@@ -1,10 +1,10 @@
 package me.thekey.android;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public interface TheKey {
     String ACTION_LOGIN = "thekey.action_login";
@@ -24,7 +24,7 @@ public interface TheKey {
         @Nullable
         String getGuid();
 
-        @Nonnull
+        @NonNull
         Date getLoadedTime();
 
         boolean areValid();
@@ -41,13 +41,13 @@ public interface TheKey {
 
     @Deprecated
     final class TicketAttributesPair {
-        @Nonnull
+        @NonNull
         public final String ticket;
 
-        @Nonnull
+        @NonNull
         public final Attributes attributes;
 
-        public TicketAttributesPair(@Nonnull final String ticket, @Nonnull final Attributes attributes) {
+        public TicketAttributesPair(@NonNull final String ticket, @NonNull final Attributes attributes) {
             this.ticket = ticket;
             this.attributes = attributes;
         }
@@ -59,7 +59,7 @@ public interface TheKey {
      *
      * @return a {@link Collection} of currently active session guids
      */
-    @Nonnull
+    @NonNull
     Collection<String> getSessions();
 
     /**
@@ -68,7 +68,7 @@ public interface TheKey {
      * @param guid the guid of the session to use as the default session
      * @throws TheKeyInvalidSessionException Thrown if there isn't a valid session for the specified guid
      */
-    void setDefaultSession(@Nonnull String guid) throws TheKeyInvalidSessionException;
+    void setDefaultSession(@NonNull String guid) throws TheKeyInvalidSessionException;
 
     /**
      * This method will return the guid of the default OAuth session. This is a non-blocking method and may be called
@@ -126,7 +126,7 @@ public interface TheKey {
      *
      * @return The attributes for the current OAuth session
      */
-    @Nonnull
+    @NonNull
     Attributes getAttributes();
 
     /**
@@ -138,7 +138,7 @@ public interface TheKey {
      *
      * @return The attributes for the current OAuth session
      */
-    @Nonnull
+    @NonNull
     Attributes getAttributes(@Nullable String guid);
 
     /**
@@ -149,7 +149,7 @@ public interface TheKey {
      * @return The ticket
      */
     @Nullable
-    String getTicket(@Nonnull String service) throws TheKeySocketException;
+    String getTicket(@NonNull String service) throws TheKeySocketException;
 
     /**
      * This method returns a ticket for the specified service for the specified session. This method is a
@@ -159,7 +159,7 @@ public interface TheKey {
      * @return The ticket
      */
     @Nullable
-    String getTicket(@Nonnull String guid, @Nonnull String service) throws TheKeySocketException;
+    String getTicket(@NonNull String guid, @NonNull String service) throws TheKeySocketException;
 
     /**
      * This method returns a ticket for the specified service and attributes the
@@ -172,7 +172,7 @@ public interface TheKey {
      */
     @Deprecated
     @Nullable
-    TicketAttributesPair getTicketAndAttributes(@Nonnull String service) throws TheKeySocketException;
+    TicketAttributesPair getTicketAndAttributes(@NonNull String service) throws TheKeySocketException;
 
     /**
      * This method will logout the default user. This is a non-blocking method
@@ -184,5 +184,5 @@ public interface TheKey {
      * This method will logout the specified user. This is a non-blocking method
      * and may be called on the UI thread.
      */
-    void logout(@Nonnull String guid);
+    void logout(@NonNull String guid);
 }

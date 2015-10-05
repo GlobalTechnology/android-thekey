@@ -1,18 +1,20 @@
-apply plugin: 'java'
+apply plugin: 'com.android.library'
 
-configurations {
-    provided {
-        dependencies.all { dep ->
-            configurations.default.exclude group: dep.group, module: dep.name
-        }
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
+
+    defaultConfig {
+        minSdkVersion 8
+        targetSdkVersion 23
     }
-    compile.extendsFrom provided
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
 }
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
-
 dependencies {
-    // XXX: I don't like using jsr305 for these annotations. But android-annotations isn't available for java projects
-    provided 'com.google.code.findbugs:jsr305:3.0.0'
+    compile 'com.android.support:support-annotations:23.0.1'
 }
