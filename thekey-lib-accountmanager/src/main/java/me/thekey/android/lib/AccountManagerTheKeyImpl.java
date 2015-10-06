@@ -15,7 +15,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -29,7 +28,6 @@ import java.util.HashSet;
 import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.lib.accounts.AccountUtils;
 
-@Keep
 final class AccountManagerTheKeyImpl extends TheKeyImpl {
     private static final String DATA_ATTR_LOAD_TIME = "attr_load_time";
     private static final String DATA_ATTR_EMAIL = "attr_email";
