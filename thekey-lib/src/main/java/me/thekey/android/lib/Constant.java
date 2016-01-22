@@ -15,6 +15,7 @@ public final class Constant {
     public static final String OAUTH_PARAM_GRANT_TYPE = "grant_type";
     public static final String OAUTH_PARAM_REDIRECT_URI = "redirect_uri";
     public static final String OAUTH_PARAM_REFRESH_TOKEN = "refresh_token";
+    public static final String OAUTH_PARAM_RESPONSE_TYPE = "response_type";
     public static final String OAUTH_PARAM_STATE = "state";
     public static final String OAUTH_PARAM_THEKEY_GUID = "thekey_guid";
     public static final String OAUTH_PARAM_THEKEY_USERNAME = "thekey_username";
@@ -24,6 +25,9 @@ public final class Constant {
     public static final String OAUTH_PARAM_ATTR_EMAIL = "email";
     public static final String OAUTH_PARAM_ATTR_FIRST_NAME = "firstName";
     public static final String OAUTH_PARAM_ATTR_LAST_NAME = "lastName";
+
+    // OAuth response types
+    public static final String OAUTH_RESPONSE_TYPE_CODE = "code";
 
     // OAuth grant types
     public static final String OAUTH_GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code";

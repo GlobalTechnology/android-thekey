@@ -11,8 +11,10 @@ import static me.thekey.android.lib.Constant.OAUTH_PARAM_CODE;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_GRANT_TYPE;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_REDIRECT_URI;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_RESPONSE_TYPE;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_STATE;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
+import static me.thekey.android.lib.Constant.OAUTH_RESPONSE_TYPE_CODE;
 import static me.thekey.android.lib.Constant.REDIRECT_URI;
 import static me.thekey.android.lib.Constant.THEKEY_PARAM_SERVICE;
 import static me.thekey.android.lib.Constant.THEKEY_PARAM_TICKET;
@@ -327,6 +329,7 @@ public abstract class TheKeyImpl implements TheKey {
     private Uri getAuthorizeUri(final String state) {
         // build oauth authorize url
         final Builder uri = this.getCasUri("oauth", "authorize").buildUpon()
+                .appendQueryParameter(OAUTH_PARAM_RESPONSE_TYPE, OAUTH_RESPONSE_TYPE_CODE)
                 .appendQueryParameter(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId))
                 .appendQueryParameter(OAUTH_PARAM_REDIRECT_URI, REDIRECT_URI.toString());
         if (state != null) {
