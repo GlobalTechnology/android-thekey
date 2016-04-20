@@ -1,7 +1,5 @@
 package me.thekey.android.lib;
 
-import static me.thekey.android.lib.Constant.REDIRECT_URI;
-
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.os.AsyncTaskCompat;
@@ -24,7 +22,7 @@ public abstract class CodeGrantAsyncTask extends AsyncTask<String, Void, Boolean
     protected final Boolean doInBackground(final String... code) {
         if (code.length > 0) {
             try {
-                return mTheKey.processCodeGrant(code[0], REDIRECT_URI);
+                return mTheKey.processCodeGrant(code[0], mTheKey.getRedirectUri());
             } catch (final TheKeySocketException e) {
                 return false;
             }

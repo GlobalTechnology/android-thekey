@@ -1,24 +1,5 @@
 package me.thekey.android.lib;
 
-import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static me.thekey.android.lib.Constant.CAS_SERVER;
-import static me.thekey.android.lib.Constant.OAUTH_GRANT_TYPE_AUTHORIZATION_CODE;
-import static me.thekey.android.lib.Constant.OAUTH_GRANT_TYPE_REFRESH_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ACCESS_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_CLIENT_ID;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_CODE;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_GRANT_TYPE;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_REDIRECT_URI;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_RESPONSE_TYPE;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_STATE;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
-import static me.thekey.android.lib.Constant.OAUTH_RESPONSE_TYPE_CODE;
-import static me.thekey.android.lib.Constant.REDIRECT_URI;
-import static me.thekey.android.lib.Constant.THEKEY_PARAM_SERVICE;
-import static me.thekey.android.lib.Constant.THEKEY_PARAM_TICKET;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -51,6 +32,24 @@ import me.thekey.android.TheKey;
 import me.thekey.android.TheKeyContext;
 import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.TheKeySocketException;
+
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static me.thekey.android.lib.Constant.CAS_SERVER;
+import static me.thekey.android.lib.Constant.OAUTH_GRANT_TYPE_AUTHORIZATION_CODE;
+import static me.thekey.android.lib.Constant.OAUTH_GRANT_TYPE_REFRESH_TOKEN;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ACCESS_TOKEN;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_CLIENT_ID;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_CODE;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_GRANT_TYPE;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_REDIRECT_URI;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_RESPONSE_TYPE;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_STATE;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
+import static me.thekey.android.lib.Constant.OAUTH_RESPONSE_TYPE_CODE;
+import static me.thekey.android.lib.Constant.THEKEY_PARAM_SERVICE;
+import static me.thekey.android.lib.Constant.THEKEY_PARAM_TICKET;
 
 /**
  * The Key interaction library, handles all interactions with The Key OAuth API
@@ -319,6 +318,11 @@ public abstract class TheKeyImpl implements TheKey {
         return uri.build();
     }
 
+    @NonNull
+    Uri getRedirectUri() {
+        return getCasUri("oauth", "client", "public");
+    }
+
     /**
      * @hide
      */
@@ -328,10 +332,10 @@ public abstract class TheKeyImpl implements TheKey {
 
     private Uri getAuthorizeUri(final String state) {
         // build oauth authorize url
-        final Builder uri = this.getCasUri("oauth", "authorize").buildUpon()
+        final Builder uri = this.getCasUri("login").buildUpon()
                 .appendQueryParameter(OAUTH_PARAM_RESPONSE_TYPE, OAUTH_RESPONSE_TYPE_CODE)
                 .appendQueryParameter(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId))
-                .appendQueryParameter(OAUTH_PARAM_REDIRECT_URI, REDIRECT_URI.toString());
+                .appendQueryParameter(OAUTH_PARAM_REDIRECT_URI, getRedirectUri().toString());
         if (state != null) {
             uri.appendQueryParameter(OAUTH_PARAM_STATE, state);
         }
