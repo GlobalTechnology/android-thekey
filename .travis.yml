@@ -1,0 +1,75 @@
+language: android
+sudo: false
+jdk:
+  - oraclejdk8
+env:
+  global:
+    # wait up to 10 minutes for adb to connect to emulator
+    - ADB_INSTALL_TIMEOUT=10
+#    - DEPLOY_USERNAME=travis-android-thekey
+#    - DEPLOY_PASSWORD=
+  matrix:
+#    - ANDROID_TARGET=android-15 ANDROID_ABI=armeabi-v7a
+#    - ANDROID_TARGET=android-21 ANDROID_ABI=armeabi-v7a
+    - ANDROID_TARGET=android-23 ANDROID_ABI=armeabi-v7a DEPLOY_SNAPSHOT=true
+branches:
+  only:
+    - master
+
+android:
+  components:
+    - platform-tools
+    - tools
+    - build-tools-23.0.3
+    - android-23
+    - extra-android-m2repository
+
+    # system image for testing
+    - sys-img-$ANDROID_ABI-$ANDROID_TARGET
+
+before_cache:
+  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+
+cache:
+  directories:
+    - $HOME/.gradle/caches
+    - $HOME/.gradle/daemon
+    - $HOME/.gradle/native
+    - $HOME/.gradle/wrapper
+
+# Emulator Management: Create, Start and Wait
+before_script:
+  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
+  - emulator -avd test -no-skin -no-audio -no-window &
+
+# gradle options
+#  --parallel      : build/test multiple subprojects simultaneously
+#  --continue      : continue processing on an error to try and capture all errors
+#  --stacktrace    : output stacktraces for failures to aid in debugging
+#  -PdisablePreDex : disable library pre-dex to improve build server performance
+script:
+  - ./gradlew build -PdisablePreDex --parallel --continue --stacktrace
+  - android-wait-for-emulator
+  - adb devices
+  - adb shell input keyevent 82 &
+  - ./gradlew connectedAndroidTest -PdisablePreDex --continue --stacktrace
+
+after_failure:
+  - cat /home/travis/build/GlobalTechnology/android-thekey/*/build/outputs/lint-results.xml
+
+#before_deploy:
+#  - echo gcxMavenRepositoryUsername=$DEPLOY_USERNAME >> $HOME/.gradle/gradle.properties
+#  - echo gcxMavenRepositoryPassword=$DEPLOY_PASSWORD >> $HOME/.gradle/gradle.properties
+#
+#deploy:
+#  provider: script
+#  skip_cleanup: true
+#  script: ./gradlew uploadArchives --parallel
+#  on:
+#    repo: GlobalTechnology/android-thekey
+#    branch: master
+#    jdk: oraclejdk8
+#    condition: $DEPLOY_SNAPSHOT = true
+
+notifications:
+  email: false
