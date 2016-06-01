@@ -90,8 +90,8 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
                 prefs.putString(PREF_ACCESS_TOKEN, json.getString(OAUTH_PARAM_ACCESS_TOKEN));
                 prefs.remove(PREF_EXPIRE_TIME);
                 if (json.has(OAUTH_PARAM_EXPIRES_IN)) {
-                    prefs.putLong(PREF_EXPIRE_TIME, System.currentTimeMillis() + json.getLong(OAUTH_PARAM_EXPIRES_IN)
-                            * 1000);
+                    prefs.putLong(PREF_EXPIRE_TIME,
+                                  System.currentTimeMillis() + json.getLong(OAUTH_PARAM_EXPIRES_IN) * 1000);
                 }
                 prefs.remove(PREF_GUID);
                 prefs.remove(PREF_USERNAME);
@@ -164,11 +164,8 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     String getAccessToken(@NonNull final String guid) {
         final Map<String, ?> attrs = getPrefs().getAll();
         final long currentTime = System.currentTimeMillis();
-        final long expireTime;
-        {
-            final Long v = (Long) attrs.get(PREF_EXPIRE_TIME);
-            expireTime = v != null ? v : currentTime;
-        }
+        final Long rawExpireTime = (Long) attrs.get(PREF_EXPIRE_TIME);
+        final long expireTime = rawExpireTime != null ? rawExpireTime : currentTime;
 
         // return access_token only if it hasn't expired (and is for the requested user)
         return expireTime >= currentTime && guid.equals(attrs.get(PREF_GUID)) ? (String) attrs.get(PREF_ACCESS_TOKEN) :

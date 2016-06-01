@@ -12,7 +12,7 @@ public final class FragmentBuilder<T extends Fragment> extends AbstractBuilder<T
     }
 
     @Override
-    public final T build() {
+    public T build() {
         try {
             final T fragment = clazz.newInstance();
             fragment.setArguments(mArgs);
