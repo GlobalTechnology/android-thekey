@@ -1,12 +1,5 @@
 package me.thekey.android.lib.content;
 
-import static me.thekey.android.TheKey.ACTION_ATTRIBUTES_LOADED;
-import static me.thekey.android.TheKey.ACTION_CHANGE_DEFAULT_SESSION;
-import static me.thekey.android.TheKey.ACTION_LOGIN;
-import static me.thekey.android.TheKey.ACTION_LOGOUT;
-import static me.thekey.android.TheKey.EXTRA_CHANGING_USER;
-import static me.thekey.android.TheKey.EXTRA_GUID;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +9,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
 import me.thekey.android.lib.BroadcastUtils;
+
+import static me.thekey.android.TheKey.ACTION_ATTRIBUTES_LOADED;
+import static me.thekey.android.TheKey.ACTION_CHANGE_DEFAULT_SESSION;
+import static me.thekey.android.TheKey.ACTION_LOGIN;
+import static me.thekey.android.TheKey.ACTION_LOGOUT;
+import static me.thekey.android.TheKey.EXTRA_CHANGING_USER;
+import static me.thekey.android.TheKey.EXTRA_GUID;
 
 public abstract class TheKeyBroadcastReceiver extends BroadcastReceiver {
     @Nullable
@@ -64,6 +64,8 @@ public abstract class TheKeyBroadcastReceiver extends BroadcastReceiver {
                 case ACTION_ATTRIBUTES_LOADED:
                     onAttributesLoaded(guid);
                     break;
+                default:
+                    // ignore broadcast
             }
         }
     }

@@ -81,6 +81,7 @@ final class HttpHeaderUtils {
     /**
      * Header parser. Originally sourced from BasicHeaderValueParser in Apache HttpClient.
      */
+    @SuppressWarnings("checkstyle:OperatorWrap")
     static final class Parser {
         private static final char PARAM_DELIMITER = ';';
         private static final char ELEM_DELIMITER = ',';
