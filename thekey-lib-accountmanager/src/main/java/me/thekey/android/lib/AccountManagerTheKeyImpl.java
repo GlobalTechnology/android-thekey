@@ -1,14 +1,5 @@
 package me.thekey.android.lib;
 
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ACCESS_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_EMAIL;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_FIRST_NAME;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_LAST_NAME;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_USERNAME;
-import static me.thekey.android.lib.accounts.Constants.DATA_GUID;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.annotation.TargetApi;
@@ -27,6 +18,15 @@ import java.util.HashSet;
 
 import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.lib.accounts.AccountUtils;
+
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ACCESS_TOKEN;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_EMAIL;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_FIRST_NAME;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_LAST_NAME;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_USERNAME;
+import static me.thekey.android.lib.accounts.Constants.DATA_GUID;
 
 final class AccountManagerTheKeyImpl extends TheKeyImpl {
     private static final String DATA_ATTR_LOAD_TIME = "attr_load_time";
@@ -75,7 +75,7 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
     }
 
     @Nullable
-    private Account findAccount(@NonNull final String guid) {
+    private Account findAccount(@Nullable final String guid) {
         final Account account = AccountUtils.getAccount(mAccountManager, mAccountType, guid);
 
         // reset the default session if this was it
@@ -97,7 +97,7 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
     @NonNull
     @Override
     public Attributes getAttributes(@Nullable final String guid) {
-        return new AttributesImpl(this, guid != null ? findAccount(guid) : null);
+        return new AttributesImpl(this, findAccount(guid));
     }
 
     @Override
