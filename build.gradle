@@ -18,7 +18,7 @@ subprojects {
     apply plugin: 'com.android.library'
 
     group 'me.thekey.android'
-    version = '1.1.3-SNAPSHOT'
+    version = '1.2.0-SNAPSHOT'
 
     repositories {
         mavenLocal()
@@ -39,7 +39,7 @@ subprojects {
             buildToolsVersion "23.0.3"
 
             defaultConfig {
-                minSdkVersion 8
+                minSdkVersion 9
                 targetSdkVersion 23
             }
 
