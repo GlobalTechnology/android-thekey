@@ -1,6 +1,8 @@
 package me.thekey.android;
 
-public class TheKeySocketException extends TheKeyException {
+import java.io.IOException;
+
+public class TheKeySocketException extends IOException {
     private static final long serialVersionUID = -8970831070058243609L;
 
     public TheKeySocketException() {
