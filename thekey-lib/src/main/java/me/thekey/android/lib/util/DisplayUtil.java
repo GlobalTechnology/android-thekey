@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -43,8 +44,20 @@ public final class DisplayUtil {
         settings.setJavaScriptEnabled(true);
         settings.setLoadsImagesAutomatically(true);
 
+        // clear SSO cookies if needed
+        final String authorizeUrl = thekey.getAuthorizeUri().toString();
+        final CookieManager cookieManager = CookieManager.getInstance();
+        final String cookies = cookieManager.getCookie(authorizeUrl);
+        if (cookies != null && cookies.length() > 0) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                cookieManager.removeAllCookies(null);
+            } else {
+                cookieManager.removeAllCookie();
+            }
+        }
+
         webView.setWebViewClient(client);
-        webView.loadUrl(thekey.getAuthorizeUri().toString());
+        webView.loadUrl(authorizeUrl);
 
         // apply any hacks to work around various bugs in previous versions of android
         switch (Build.VERSION.SDK_INT) {
@@ -65,7 +78,7 @@ public final class DisplayUtil {
      * <p/>
      * see http://stackoverflow.com/questions/3460915
      */
-    private final static class SDK8TouchListener implements View.OnTouchListener {
+    static final class SDK8TouchListener implements View.OnTouchListener {
         @Override
         public boolean onTouch(final View v, final MotionEvent event) {
             switch (event.getAction()) {
