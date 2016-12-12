@@ -18,9 +18,9 @@ branches:
 
 android:
   components:
-    - platform-tools
     - tools
-    - build-tools-23.0.3
+    - tools
+    - platform-tools
     - android-23
     - extra-android-m2repository
 
