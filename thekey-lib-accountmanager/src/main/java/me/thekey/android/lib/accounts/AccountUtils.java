@@ -1,7 +1,5 @@
 package me.thekey.android.lib.accounts;
 
-import static me.thekey.android.lib.accounts.Constants.DATA_GUID;
-
 import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -9,6 +7,8 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
+
+import static me.thekey.android.lib.accounts.Constants.DATA_GUID;
 
 public class AccountUtils {
     @Nullable
@@ -28,6 +28,7 @@ public class AccountUtils {
     }
 
     @Nullable
+    @SuppressWarnings("MissingPermission")
     @RequiresPermission(value = Manifest.permission.GET_ACCOUNTS, conditional = true)
     public static Account getAccount(@NonNull final AccountManager manager, @NonNull final String accountType,
                                      @Nullable final String guid) {

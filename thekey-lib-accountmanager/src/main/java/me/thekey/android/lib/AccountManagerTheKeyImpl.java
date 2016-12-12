@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresPermission;
 import android.text.TextUtils;
 
 import org.json.JSONObject;
@@ -19,6 +20,7 @@ import java.util.HashSet;
 import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.lib.accounts.AccountUtils;
 
+import static android.Manifest.permission.GET_ACCOUNTS;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_EMAIL;
 import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_FIRST_NAME;
@@ -53,6 +55,8 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
 
     @NonNull
     @Override
+    @SuppressWarnings("MissingPermission")
+    @RequiresPermission(value = GET_ACCOUNTS, conditional = true)
     public Collection<String> getSessions() {
         final Collection<String> sessions = new HashSet<>();
         for (final Account account : mAccountManager.getAccountsByType(mAccountType)) {
