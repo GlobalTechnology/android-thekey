@@ -22,13 +22,7 @@ android:
     - tools
     - tools
     - platform-tools
-#    - build-tools-25.0.1
     - android-23
-#    - extra-android-m2repository
-
-#    # system image for testing
-#    - $ANDROID_TARGET
-#    - sys-img-$ANDROID_ABI-$ANDROID_TARGET
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -45,9 +39,6 @@ before_script:
   - mkdir -p ${ANDROID_HOME}licenses
   - echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > "$ANDROID_HOME/licenses/android-sdk-license"
   - echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> "$ANDROID_HOME/licenses/android-sdk-license"
-#  # Emulator Management: Create, Start and Wait
-#  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-#  - emulator -avd test -no-skin -no-audio -no-window &
 
 # gradle options
 #  --parallel      : build/test multiple subprojects simultaneously
@@ -56,10 +47,6 @@ before_script:
 #  -PdisablePreDex : disable library pre-dex to improve build server performance
 script:
   - ./gradlew build -PdisablePreDex --parallel --continue --stacktrace
-#  - android-wait-for-emulator
-#  - adb devices
-#  - adb shell input keyevent 82 &
-#  - ./gradlew connectedAndroidTest -PdisablePreDex --continue --stacktrace
 
 after_failure:
   - cat /home/travis/build/GlobalTechnology/android-thekey/*/build/outputs/lint-results.xml
