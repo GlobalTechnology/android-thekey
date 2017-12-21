@@ -39,20 +39,6 @@ public interface TheKey {
         String getLastName();
     }
 
-    @Deprecated
-    final class TicketAttributesPair {
-        @NonNull
-        public final String ticket;
-
-        @NonNull
-        public final Attributes attributes;
-
-        public TicketAttributesPair(@NonNull final String ticket, @NonNull final Attributes attributes) {
-            this.ticket = ticket;
-            this.attributes = attributes;
-        }
-    }
-
     /**
      * This method will return a list of all current sessions. This is a non-blocking method and may be called on the UI
      * thread.
@@ -160,19 +146,6 @@ public interface TheKey {
      */
     @Nullable
     String getTicket(@NonNull String guid, @NonNull String service) throws TheKeySocketException;
-
-    /**
-     * This method returns a ticket for the specified service and attributes the
-     * ticket was issued for. This is a blocking method and should never be
-     * called directly on the UI thread.
-     *
-     * @param service
-     * @return The ticket &amp; attributes for the current session, or null if no ticket could be retrieved
-     * @deprecated This functionality has been deprecated in favor of discrete {@link TheKey#getTicket(String, String)} and {@link TheKey#getAttributes(String)} methods.
-     */
-    @Deprecated
-    @Nullable
-    TicketAttributesPair getTicketAndAttributes(@NonNull String service) throws TheKeySocketException;
 
     /**
      * This method will logout the default user. This is a non-blocking method

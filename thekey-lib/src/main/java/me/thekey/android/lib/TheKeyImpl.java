@@ -1,11 +1,9 @@
 package me.thekey.android.lib;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.net.Uri.Builder;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.SimpleArrayMap;
@@ -29,7 +27,6 @@ import java.util.List;
 import javax.net.ssl.HttpsURLConnection;
 
 import me.thekey.android.TheKey;
-import me.thekey.android.TheKeyContext;
 import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.TheKeySocketException;
 
@@ -142,51 +139,12 @@ public abstract class TheKeyImpl implements TheKey {
             }
         }
 
-        // support legacy lookup of TheKey object
-        // deprecated
-        while (true) {
-            // short-circuit if this context is a TheKeyContext
-            if (context instanceof TheKeyContext) {
-                return (TheKeyImpl) ((TheKeyContext) context).getTheKey();
-            }
-
-            // check the ApplicationContext (if we haven't already)
-            final Context old = context;
-            context = context.getApplicationContext();
-            if (context == old) {
-                break;
-            }
-        }
-
         throw new IllegalStateException("TheKeyImpl has not been configured yet!");
     }
 
     @NonNull
     public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Configuration config) {
         configure(config);
-        return getInstance(context);
-    }
-
-    @NonNull
-    @Deprecated
-    public static TheKeyImpl getInstance(@NonNull final Context context, final long clientId) {
-        configure(Configuration.base().clientId(clientId));
-        return getInstance(context);
-    }
-
-    @NonNull
-    @Deprecated
-    public static TheKeyImpl getInstance(@NonNull final Context context, @Nullable final String server,
-                                         final long clientId) {
-        configure(Configuration.base().server(server).clientId(clientId));
-        return getInstance(context);
-    }
-
-    @NonNull
-    @Deprecated
-    public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Uri server,
-                                         final long clientId) {
-        configure(Configuration.base().server(server).clientId(clientId));
         return getInstance(context);
     }
 
@@ -203,7 +161,6 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     public final void setDefaultSession(@NonNull final String guid) throws TheKeyInvalidSessionException {
         if (!isValidSession(guid)) {
             throw new TheKeyInvalidSessionException();
@@ -213,12 +170,9 @@ public abstract class TheKeyImpl implements TheKey {
 
         // persist updated default guid
         mDefaultGuid = guid;
-        final SharedPreferences.Editor prefs = getPrefs().edit().putString(PREF_DEFAULT_GUID, guid);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
-            prefs.commit();
-        } else {
-            prefs.apply();
-        }
+        getPrefs().edit()
+                .putString(PREF_DEFAULT_GUID, guid)
+                .apply();
 
         // broadcast that the default session changed
         if (!TextUtils.equals(oldGuid, mDefaultGuid)) {
@@ -253,12 +207,9 @@ public abstract class TheKeyImpl implements TheKey {
         if (TextUtils.equals(mDefaultGuid, guid)) {
             // remove persisted default guid
             mDefaultGuid = null;
-            final SharedPreferences.Editor prefs = getPrefs().edit().remove(PREF_DEFAULT_GUID);
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
-                prefs.commit();
-            } else {
-                prefs.apply();
-            }
+            getPrefs().edit()
+                    .remove(PREF_DEFAULT_GUID)
+                    .apply();
 
             // reinitialize the default guid
             initDefaultSession();
@@ -281,25 +232,6 @@ public abstract class TheKeyImpl implements TheKey {
     public final String getTicket(@NonNull final String service) throws TheKeySocketException {
         final String guid = getDefaultSessionGuid();
         return guid != null ? getTicket(guid, service) : null;
-    }
-
-    @Nullable
-    @Override
-    @Deprecated
-    public final TicketAttributesPair getTicketAndAttributes(@NonNull final String service)
-            throws TheKeySocketException {
-        // short-circuit if there isn't a default session
-        final String guid = getDefaultSessionGuid();
-        if (guid == null) {
-            return null;
-        }
-
-        final String ticket = getTicket(guid, service);
-        if (ticket != null) {
-            return new TicketAttributesPair(ticket, getAttributes(guid));
-        }
-
-        return null;
     }
 
     @Override
