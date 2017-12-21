@@ -2,17 +2,17 @@ language: android
 sudo: false
 jdk:
   - oraclejdk8
-env:
-  global:
-    # wait up to 10 minutes for adb to connect to emulator
-    - ADB_INSTALL_TIMEOUT=10
+#env:
+#  global:
+#    # wait up to 10 minutes for adb to connect to emulator
+#    - ADB_INSTALL_TIMEOUT=10
 #    - DEPLOY_USERNAME=travis-android-thekey
 #    - DEPLOY_PASSWORD=
-  matrix:
+#  matrix:
 #    - ANDROID_TARGET=android-15 ANDROID_ABI=armeabi-v7a
 #    - ANDROID_TARGET=android-21 ANDROID_ABI=armeabi-v7a
 #    - ANDROID_TARGET=android-23 ANDROID_ABI=armeabi-v7a
-    - ANDROID_TARGET=android-24 ANDROID_ABI=armeabi-v7a DEPLOY_SNAPSHOT=true
+#    - ANDROID_TARGET=android-24 ANDROID_ABI=armeabi-v7a DEPLOY_SNAPSHOT=true
 branches:
   only:
     - master
@@ -22,13 +22,13 @@ android:
     - tools
     - tools
     - platform-tools
-    - build-tools-25.0.1
+#    - build-tools-25.0.1
     - android-23
-    - extra-android-m2repository
+#    - extra-android-m2repository
 
-    # system image for testing
-    - $ANDROID_TARGET
-    - sys-img-$ANDROID_ABI-$ANDROID_TARGET
+#    # system image for testing
+#    - $ANDROID_TARGET
+#    - sys-img-$ANDROID_ABI-$ANDROID_TARGET
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -40,10 +40,10 @@ cache:
     - $HOME/.gradle/native
     - $HOME/.gradle/wrapper
 
-# Emulator Management: Create, Start and Wait
-before_script:
-  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-  - emulator -avd test -no-skin -no-audio -no-window &
+## Emulator Management: Create, Start and Wait
+#before_script:
+#  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
+#  - emulator -avd test -no-skin -no-audio -no-window &
 
 # gradle options
 #  --parallel      : build/test multiple subprojects simultaneously
@@ -52,10 +52,10 @@ before_script:
 #  -PdisablePreDex : disable library pre-dex to improve build server performance
 script:
   - ./gradlew build -PdisablePreDex --parallel --continue --stacktrace
-  - android-wait-for-emulator
-  - adb devices
-  - adb shell input keyevent 82 &
-  - ./gradlew connectedAndroidTest -PdisablePreDex --continue --stacktrace
+#  - android-wait-for-emulator
+#  - adb devices
+#  - adb shell input keyevent 82 &
+#  - ./gradlew connectedAndroidTest -PdisablePreDex --continue --stacktrace
 
 after_failure:
   - cat /home/travis/build/GlobalTechnology/android-thekey/*/build/outputs/lint-results.xml
