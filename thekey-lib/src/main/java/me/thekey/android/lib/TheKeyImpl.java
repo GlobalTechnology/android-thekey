@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.net.Uri.Builder;
+import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 import android.support.v4.util.SimpleArrayMap;
 import android.text.TextUtils;
 
@@ -229,12 +231,14 @@ public abstract class TheKeyImpl implements TheKey {
 
     @Nullable
     @Override
+    @WorkerThread
     public final String getTicket(@NonNull final String service) throws TheKeySocketException {
         final String guid = getDefaultSessionGuid();
         return guid != null ? getTicket(guid, service) : null;
     }
 
     @Override
+    @AnyThread
     public final void logout() {
         final String guid = getDefaultSessionGuid();
         if (guid != null) {
@@ -242,6 +246,7 @@ public abstract class TheKeyImpl implements TheKey {
         }
     }
 
+    @AnyThread
     final Uri getCasUri(final String... segments) {
         final Builder uri = mServer.buildUpon();
         for (final String segment : segments) {
@@ -276,6 +281,7 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @Override
+    @WorkerThread
     public final boolean loadAttributes(@Nullable final String guid) throws TheKeySocketException {
         if (guid == null) {
             return false;
@@ -345,6 +351,7 @@ public abstract class TheKeyImpl implements TheKey {
 
     @Nullable
     @Override
+    @WorkerThread
     public final String getTicket(@NonNull final String guid, @NonNull final String service)
             throws TheKeySocketException {
         String accessToken;
@@ -364,6 +371,7 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @Nullable
+    @WorkerThread
     private String getTicketWithAccessToken(@NonNull final String accessToken, @NonNull final String service)
             throws TheKeySocketException {
         HttpsURLConnection conn = null;
@@ -399,8 +407,8 @@ public abstract class TheKeyImpl implements TheKey {
     abstract String getRefreshToken(@NonNull String guid);
 
     @Nullable
-    private String getValidAccessToken(@NonNull final String guid, final int depth)
-            throws TheKeySocketException {
+    @WorkerThread
+    private String getValidAccessToken(@NonNull final String guid, final int depth) throws TheKeySocketException {
         // prevent infinite recursion
         if (depth > 2) {
             return null;
@@ -432,6 +440,7 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @Override
+    @AnyThread
     public final void logout(@NonNull final String guid) {
         // clearAuthState() may block on synchronization, so process the call on a background thread
         new Thread(new Runnable() {
@@ -446,8 +455,10 @@ public abstract class TheKeyImpl implements TheKey {
 
     abstract void removeRefreshToken(@NonNull String guid, @NonNull String token);
 
+    @WorkerThread
     abstract void clearAuthState(@NonNull String guid, final boolean sendBroadcast);
 
+    @WorkerThread
     final boolean processCodeGrant(final String code, final Uri redirectUri) throws TheKeySocketException {
         final Uri tokenUri = this.getCasUri("api", "oauth", "token");
         HttpsURLConnection conn = null;
@@ -486,6 +497,7 @@ public abstract class TheKeyImpl implements TheKey {
         return false;
     }
 
+    @WorkerThread
     private boolean processRefreshTokenGrant(@NonNull final String guid, @NonNull final String refreshToken)
             throws TheKeySocketException {
         final Uri tokenUri = this.getCasUri("api", "oauth", "token");

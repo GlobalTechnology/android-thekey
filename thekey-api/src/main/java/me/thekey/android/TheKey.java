@@ -1,7 +1,9 @@
 package me.thekey.android;
 
+import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 
 import java.util.Collection;
 import java.util.Date;
@@ -46,6 +48,7 @@ public interface TheKey {
      * @return a {@link Collection} of currently active session guids
      */
     @NonNull
+    @AnyThread
     Collection<String> getSessions();
 
     /**
@@ -54,6 +57,7 @@ public interface TheKey {
      * @param guid the guid of the session to use as the default session
      * @throws TheKeyInvalidSessionException Thrown if there isn't a valid session for the specified guid
      */
+    @AnyThread
     void setDefaultSession(@NonNull String guid) throws TheKeyInvalidSessionException;
 
     /**
@@ -63,6 +67,7 @@ public interface TheKey {
      * @return the user's guid
      */
     @Nullable
+    @AnyThread
     String getDefaultSessionGuid();
 
     /**
@@ -74,6 +79,7 @@ public interface TheKey {
      */
     @Deprecated
     @Nullable
+    @AnyThread
     String getGuid();
 
     /**
@@ -83,6 +89,7 @@ public interface TheKey {
      * @param guid the guid of the session being checked
      * @return whether or not the specified session is valid
      */
+    @AnyThread
     boolean isValidSession(@Nullable String guid);
 
     /**
@@ -92,6 +99,7 @@ public interface TheKey {
      *
      * @return whether or not attributes were loaded
      */
+    @WorkerThread
     boolean loadAttributes() throws TheKeySocketException;
 
     /**
@@ -101,6 +109,7 @@ public interface TheKey {
      *
      * @return whether or not attributes were loaded
      */
+    @WorkerThread
     boolean loadAttributes(@Nullable String guid) throws TheKeySocketException;
 
     /**
@@ -113,6 +122,7 @@ public interface TheKey {
      * @return The attributes for the current OAuth session
      */
     @NonNull
+    @AnyThread
     Attributes getAttributes();
 
     /**
@@ -125,6 +135,7 @@ public interface TheKey {
      * @return The attributes for the current OAuth session
      */
     @NonNull
+    @AnyThread
     Attributes getAttributes(@Nullable String guid);
 
     /**
@@ -135,6 +146,7 @@ public interface TheKey {
      * @return The ticket
      */
     @Nullable
+    @WorkerThread
     String getTicket(@NonNull String service) throws TheKeySocketException;
 
     /**
@@ -145,17 +157,20 @@ public interface TheKey {
      * @return The ticket
      */
     @Nullable
+    @WorkerThread
     String getTicket(@NonNull String guid, @NonNull String service) throws TheKeySocketException;
 
     /**
      * This method will logout the default user. This is a non-blocking method
      * and may be called on the UI thread.
      */
+    @AnyThread
     void logout();
 
     /**
      * This method will logout the specified user. This is a non-blocking method
      * and may be called on the UI thread.
      */
+    @AnyThread
     void logout(@NonNull String guid);
 }
