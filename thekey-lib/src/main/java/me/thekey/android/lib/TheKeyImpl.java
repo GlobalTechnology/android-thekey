@@ -234,25 +234,6 @@ public abstract class TheKeyImpl implements TheKey {
         return guid != null ? getTicket(guid, service) : null;
     }
 
-    @Nullable
-    @Override
-    @Deprecated
-    public final TicketAttributesPair getTicketAndAttributes(@NonNull final String service)
-            throws TheKeySocketException {
-        // short-circuit if there isn't a default session
-        final String guid = getDefaultSessionGuid();
-        if (guid == null) {
-            return null;
-        }
-
-        final String ticket = getTicket(guid, service);
-        if (ticket != null) {
-            return new TicketAttributesPair(ticket, getAttributes(guid));
-        }
-
-        return null;
-    }
-
     @Override
     public final void logout() {
         final String guid = getDefaultSessionGuid();
