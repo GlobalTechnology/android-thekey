@@ -2,9 +2,10 @@ buildscript {
     repositories {
         mavenLocal()
         jcenter()
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:3.0.1'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
     }
 }
@@ -23,6 +24,7 @@ subprojects {
     repositories {
         mavenLocal()
         jcenter()
+        google()
         maven {
             name "maven.gcx.org"
             url "https://maven.gcx.org/"
@@ -36,7 +38,6 @@ subprojects {
     beforeEvaluate {
         android {
             compileSdkVersion 23
-            buildToolsVersion "25.0.1"
 
             defaultConfig {
                 minSdkVersion 9
