@@ -2,7 +2,6 @@ package me.thekey.android.lib;
 
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.support.v4.os.AsyncTaskCompat;
 
 import me.thekey.android.TheKeySocketException;
 
@@ -15,7 +14,7 @@ public abstract class CodeGrantAsyncTask extends AsyncTask<String, Void, Boolean
     }
 
     public final AsyncTask<String, Void, Boolean> execute(final String code) {
-        return AsyncTaskCompat.executeParallel(this, code);
+        return executeOnExecutor(THREAD_POOL_EXECUTOR, code);
     }
 
     @Override
