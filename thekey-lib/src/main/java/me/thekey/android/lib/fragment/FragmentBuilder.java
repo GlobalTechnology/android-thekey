@@ -1,11 +1,9 @@
 package me.thekey.android.lib.fragment;
 
-import me.thekey.android.lib.AbstractBuilder;
-import android.annotation.TargetApi;
 import android.app.Fragment;
-import android.os.Build;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+import me.thekey.android.lib.AbstractBuilder;
+
 public final class FragmentBuilder<T extends Fragment> extends AbstractBuilder<T> {
     private final Class<T> clazz;
 
