@@ -1,19 +1,7 @@
 package me.thekey.android.lib;
 
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ACCESS_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_EMAIL;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_FIRST_NAME;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_GUID;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_LAST_NAME;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_EXPIRES_IN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_USERNAME;
-
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -26,6 +14,16 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ACCESS_TOKEN;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_EMAIL;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_FIRST_NAME;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_GUID;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_LAST_NAME;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_EXPIRES_IN;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
+import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_USERNAME;
 
 final class PreferenceTheKeyImpl extends TheKeyImpl {
     private static final String PREFFILE_THEKEY = "thekey";
@@ -83,7 +81,6 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     boolean storeGrants(@NonNull final String guid, @NonNull final JSONObject json) {
         try {
             final SharedPreferences.Editor prefs = this.getPrefs().edit();
@@ -117,11 +114,7 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
                 oldGuid = getPrefs().getString(PREF_GUID, null);
 
                 // store updates
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                    prefs.apply();
-                } else {
-                    prefs.commit();
-                }
+                prefs.apply();
             }
 
             // trigger logout/login broadcasts based on guid changes
@@ -150,7 +143,6 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     void removeRefreshToken(@NonNull final String guid, @NonNull final String token) {
         final SharedPreferences.Editor prefs = getPrefs().edit();
         prefs.remove(PREF_REFRESH_TOKEN);
@@ -162,11 +154,7 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             }
 
             if (token.equals(getPrefs().getString(PREF_REFRESH_TOKEN, null))) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                    prefs.apply();
-                } else {
-                    prefs.commit();
-                }
+                prefs.apply();
             }
         }
     }
@@ -188,7 +176,6 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     void removeAccessToken(@NonNull final String guid, @NonNull final String token) {
         final SharedPreferences.Editor prefs = getPrefs().edit();
         prefs.remove(PREF_ACCESS_TOKEN);
@@ -201,17 +188,12 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             }
 
             if (token.equals(getPrefs().getString(PREF_ACCESS_TOKEN, null))) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                    prefs.apply();
-                } else {
-                    prefs.commit();
-                }
+                prefs.apply();
             }
         }
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     void storeAttributes(@NonNull final String guid, @NonNull final JSONObject json) {
         final SharedPreferences.Editor prefs = getPrefs().edit();
         prefs.putLong(PREF_ATTR_LOAD_TIME, System.currentTimeMillis());
@@ -228,16 +210,11 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             }
 
             // store updates
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                prefs.apply();
-            } else {
-                prefs.commit();
-            }
+            prefs.apply();
         }
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     void removeAttributes(@NonNull final String guid) {
         final SharedPreferences.Editor prefs = this.getPrefs().edit();
         prefs.remove(PREF_ATTR_GUID);
@@ -254,16 +231,11 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             }
 
             // store updates
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                prefs.apply();
-            } else {
-                prefs.commit();
-            }
+            prefs.apply();
         }
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     void clearAuthState(@NonNull final String guid, final boolean sendBroadcast) {
         final SharedPreferences.Editor prefs = this.getPrefs().edit();
         prefs.remove(PREF_ACCESS_TOKEN);
@@ -278,11 +250,7 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
                 return;
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                prefs.apply();
-            } else {
-                prefs.commit();
-            }
+            prefs.apply();
         }
 
         if (sendBroadcast) {
@@ -292,7 +260,6 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     boolean createMigratingAccount(@NonNull final MigratingAccount account) {
         if (account.isValid()) {
             final SharedPreferences.Editor prefs = getPrefs().edit();
@@ -307,11 +274,7 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             prefs.putString(PREF_ATTR_FIRST_NAME, account.attributes.getFirstName());
             prefs.putString(PREF_ATTR_LAST_NAME, account.attributes.getLastName());
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                prefs.apply();
-            } else {
-                prefs.commit();
-            }
+            prefs.apply();
 
             return true;
         }
