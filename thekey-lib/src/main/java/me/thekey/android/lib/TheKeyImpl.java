@@ -167,29 +167,6 @@ public abstract class TheKeyImpl implements TheKey {
         return getInstance(context);
     }
 
-    @NonNull
-    @Deprecated
-    public static TheKeyImpl getInstance(@NonNull final Context context, final long clientId) {
-        configure(Configuration.base().clientId(clientId));
-        return getInstance(context);
-    }
-
-    @NonNull
-    @Deprecated
-    public static TheKeyImpl getInstance(@NonNull final Context context, @Nullable final String server,
-                                         final long clientId) {
-        configure(Configuration.base().server(server).clientId(clientId));
-        return getInstance(context);
-    }
-
-    @NonNull
-    @Deprecated
-    public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Uri server,
-                                         final long clientId) {
-        configure(Configuration.base().server(server).clientId(clientId));
-        return getInstance(context);
-    }
-
     @Nullable
     @Override
     @Deprecated
