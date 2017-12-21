@@ -12,7 +12,7 @@ buildscript {
 
 // define dependency versions for this project
 ext.deps = [
-        androidSupport: '23.4.0'
+        androidSupport: '27.0.2'
 ]
 
 subprojects {
@@ -37,11 +37,11 @@ subprojects {
 
     beforeEvaluate {
         android {
-            compileSdkVersion 23
+            compileSdkVersion 27
 
             defaultConfig {
-                minSdkVersion 9
-                targetSdkVersion 23
+                minSdkVersion 14
+                targetSdkVersion 27
             }
 
             compileOptions {
