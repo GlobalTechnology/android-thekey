@@ -2,30 +2,27 @@ language: android
 sudo: false
 jdk:
   - oraclejdk8
-env:
-  global:
-    # wait up to 10 minutes for adb to connect to emulator
-    - ADB_INSTALL_TIMEOUT=10
+#env:
+#  global:
+#    # wait up to 10 minutes for adb to connect to emulator
+#    - ADB_INSTALL_TIMEOUT=10
 #    - DEPLOY_USERNAME=travis-android-thekey
 #    - DEPLOY_PASSWORD=
-  matrix:
+#  matrix:
 #    - ANDROID_TARGET=android-15 ANDROID_ABI=armeabi-v7a
 #    - ANDROID_TARGET=android-21 ANDROID_ABI=armeabi-v7a
-    - ANDROID_TARGET=android-23 ANDROID_ABI=armeabi-v7a DEPLOY_SNAPSHOT=true
+#    - ANDROID_TARGET=android-23 ANDROID_ABI=armeabi-v7a
+#    - ANDROID_TARGET=android-24 ANDROID_ABI=armeabi-v7a DEPLOY_SNAPSHOT=true
 branches:
   only:
     - master
 
 android:
   components:
-    - platform-tools
     - tools
-    - build-tools-23.0.3
+    - tools
+    - platform-tools
     - android-23
-    - extra-android-m2repository
-
-    # system image for testing
-    - sys-img-$ANDROID_ABI-$ANDROID_TARGET
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -37,10 +34,11 @@ cache:
     - $HOME/.gradle/native
     - $HOME/.gradle/wrapper
 
-# Emulator Management: Create, Start and Wait
 before_script:
-  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-  - emulator -avd test -no-skin -no-audio -no-window &
+  # Install SDK license so Android Gradle plugin can install deps.
+  - mkdir -p ${ANDROID_HOME}licenses
+  - echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > "$ANDROID_HOME/licenses/android-sdk-license"
+  - echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> "$ANDROID_HOME/licenses/android-sdk-license"
 
 # gradle options
 #  --parallel      : build/test multiple subprojects simultaneously
@@ -49,10 +47,6 @@ before_script:
 #  -PdisablePreDex : disable library pre-dex to improve build server performance
 script:
   - ./gradlew build -PdisablePreDex --parallel --continue --stacktrace
-  - android-wait-for-emulator
-  - adb devices
-  - adb shell input keyevent 82 &
-  - ./gradlew connectedAndroidTest -PdisablePreDex --continue --stacktrace
 
 after_failure:
   - cat /home/travis/build/GlobalTechnology/android-thekey/*/build/outputs/lint-results.xml
