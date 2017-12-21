@@ -29,7 +29,6 @@ import java.util.List;
 import javax.net.ssl.HttpsURLConnection;
 
 import me.thekey.android.TheKey;
-import me.thekey.android.TheKeyContext;
 import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.TheKeySocketException;
 
@@ -139,22 +138,6 @@ public abstract class TheKeyImpl implements TheKey {
 
             if (INSTANCE != null) {
                 return INSTANCE;
-            }
-        }
-
-        // support legacy lookup of TheKey object
-        // deprecated
-        while (true) {
-            // short-circuit if this context is a TheKeyContext
-            if (context instanceof TheKeyContext) {
-                return (TheKeyImpl) ((TheKeyContext) context).getTheKey();
-            }
-
-            // check the ApplicationContext (if we haven't already)
-            final Context old = context;
-            context = context.getApplicationContext();
-            if (context == old) {
-                break;
             }
         }
 
