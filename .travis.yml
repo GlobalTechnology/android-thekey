@@ -22,7 +22,7 @@ android:
     - tools
     - tools
     - platform-tools
-    - android-23
+    - android-27
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
