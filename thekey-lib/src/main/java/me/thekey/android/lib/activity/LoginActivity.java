@@ -1,7 +1,5 @@
 package me.thekey.android.lib.activity;
 
-import static me.thekey.android.lib.activity.ActivityBuilder.EXTRA_ARGS;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -18,8 +16,10 @@ import me.thekey.android.lib.R;
 import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.util.DisplayUtil;
 
+import static me.thekey.android.lib.activity.ActivityBuilder.EXTRA_ARGS;
+
 public class LoginActivity extends Activity {
-    public final static String EXTRA_GUID = LoginActivity.class.getName() + ".EXTRA_GUID";
+    public static final String EXTRA_GUID = LoginActivity.class.getName() + ".EXTRA_GUID";
 
     private Bundle mArgs;
     @NonNull
@@ -91,7 +91,7 @@ public class LoginActivity extends Activity {
     }
 
     private class ActivityLoginWebViewClient extends LoginWebViewClient {
-        public ActivityLoginWebViewClient() {
+        ActivityLoginWebViewClient() {
             super(LoginActivity.this, mArgs);
         }
 

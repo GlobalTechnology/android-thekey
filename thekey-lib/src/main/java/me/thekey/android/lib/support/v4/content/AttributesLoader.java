@@ -25,6 +25,9 @@ public final class AttributesLoader extends AsyncTaskLoader<Attributes> {
     private final long mMaxAge = DEFAULT_MAX_AGE;
     private boolean mRefresh = false;
 
+    /**
+     * @deprecated use {@link AttributesLoader#AttributesLoader(Context, TheKey, String)} explicitly instead.
+     */
     @Deprecated
     public AttributesLoader(@NonNull final Context context, @NonNull final TheKey thekey) {
         this(context, thekey, null);

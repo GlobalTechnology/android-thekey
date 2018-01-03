@@ -54,6 +54,27 @@ subprojects {
         }
     }
 
+    // configure checkstyle
+    apply plugin: 'checkstyle'
+    checkstyle {
+        toolVersion '7.8.2'
+    }
+    task checkstyle(type: Checkstyle) {
+        configFile rootProject.file('config/checkstyle/checkstyle.xml')
+        source 'src'
+        include '*/java/**/*.java'
+        ignoreFailures false
+        showViolations true
+
+        classpath = files()
+    }
+    afterEvaluate {
+        if (project.tasks.findByName('check')) {
+            check.dependsOn('checkstyle')
+        }
+    }
+
+    // configure maven uploadArchives task
     apply from: "$rootProject.projectDir/maven_publish.gradle"
     afterEvaluate { project ->
         artifacts {

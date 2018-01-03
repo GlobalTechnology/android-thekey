@@ -43,8 +43,10 @@ public abstract class LoginWebViewClient extends WebViewClient {
     }
 
     @Override
+    @SuppressWarnings("checkstyle:RightCurly")
     public boolean shouldOverrideUrlLoading(final WebView view, final String uri) {
         final Uri parsedUri = Uri.parse(uri);
+
         // response redirect
         if (this.isRedirectUri(parsedUri)) {
             final String code = parsedUri.getQueryParameter(OAUTH_PARAM_CODE);
@@ -129,7 +131,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
                 TextUtils.equals(uri.getPath(), baseUri.getPath());
     }
 
-    protected abstract void onAuthorizeSuccess(final Uri uri, final String code);
+    protected abstract void onAuthorizeSuccess(Uri uri, String code);
 
-    protected abstract void onAuthorizeError(final Uri uri, final String errorCode);
+    protected abstract void onAuthorizeError(Uri uri, String errorCode);
 }

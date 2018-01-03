@@ -27,16 +27,16 @@ import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_USERNAME;
 
 final class PreferenceTheKeyImpl extends TheKeyImpl {
     private static final String PREFFILE_THEKEY = "thekey";
-    private static final String PREF_ACCESS_TOKEN = "access_token";
-    private static final String PREF_EXPIRE_TIME = "expire_time";
-    private static final String PREF_USERNAME = "username";
-    private static final String PREF_GUID = "guid";
-    private static final String PREF_REFRESH_TOKEN = "refresh_token";
-    private static final String PREF_ATTR_LOAD_TIME = "attr_load_time";
-    private static final String PREF_ATTR_GUID = "attr_guid";
-    private static final String PREF_ATTR_EMAIL = "attr_email";
-    private static final String PREF_ATTR_FIRST_NAME = "attr_firstName";
-    private static final String PREF_ATTR_LAST_NAME = "attr_lastName";
+    static final String PREF_ACCESS_TOKEN = "access_token";
+    static final String PREF_EXPIRE_TIME = "expire_time";
+    static final String PREF_USERNAME = "username";
+    static final String PREF_GUID = "guid";
+    static final String PREF_REFRESH_TOKEN = "refresh_token";
+    static final String PREF_ATTR_LOAD_TIME = "attr_load_time";
+    static final String PREF_ATTR_GUID = "attr_guid";
+    static final String PREF_ATTR_EMAIL = "attr_email";
+    static final String PREF_ATTR_FIRST_NAME = "attr_firstName";
+    static final String PREF_ATTR_LAST_NAME = "attr_lastName";
 
     private final Object mLockPrefs = new Object();
 
@@ -90,8 +90,8 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
                 prefs.putString(PREF_ACCESS_TOKEN, json.getString(OAUTH_PARAM_ACCESS_TOKEN));
                 prefs.remove(PREF_EXPIRE_TIME);
                 if (json.has(OAUTH_PARAM_EXPIRES_IN)) {
-                    prefs.putLong(PREF_EXPIRE_TIME, System.currentTimeMillis() + json.getLong(OAUTH_PARAM_EXPIRES_IN)
-                            * 1000);
+                    prefs.putLong(PREF_EXPIRE_TIME,
+                                  System.currentTimeMillis() + json.getLong(OAUTH_PARAM_EXPIRES_IN) * 1000);
                 }
                 prefs.remove(PREF_GUID);
                 prefs.remove(PREF_USERNAME);
@@ -164,11 +164,8 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     String getAccessToken(@NonNull final String guid) {
         final Map<String, ?> attrs = getPrefs().getAll();
         final long currentTime = System.currentTimeMillis();
-        final long expireTime;
-        {
-            final Long v = (Long) attrs.get(PREF_EXPIRE_TIME);
-            expireTime = v != null ? v : currentTime;
-        }
+        final Long rawExpireTime = (Long) attrs.get(PREF_EXPIRE_TIME);
+        final long expireTime = rawExpireTime != null ? rawExpireTime : currentTime;
 
         // return access_token only if it hasn't expired (and is for the requested user)
         return expireTime >= currentTime && guid.equals(attrs.get(PREF_GUID)) ? (String) attrs.get(PREF_ACCESS_TOKEN) :
@@ -294,8 +291,8 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
 
             // determine if the attributes are valid
             final String guid = (String) this.attrs.get(PREF_GUID);
-            this.valid = this.attrs.containsKey(PREF_ATTR_LOAD_TIME) && guid != null
-                    && guid.equals(this.attrs.get(PREF_ATTR_GUID));
+            this.valid = this.attrs.containsKey(PREF_ATTR_LOAD_TIME) && guid != null &&
+                    guid.equals(this.attrs.get(PREF_ATTR_GUID));
         }
 
         @Nullable

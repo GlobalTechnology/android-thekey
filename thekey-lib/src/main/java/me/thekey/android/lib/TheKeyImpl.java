@@ -60,8 +60,8 @@ public abstract class TheKeyImpl implements TheKey {
 
     private static final Object INSTANCE_LOCK = new Object();
     @Nullable
-    private static Configuration INSTANCE_CONFIG = null;
-    private static TheKeyImpl INSTANCE = null;
+    private static Configuration sInstanceConfig = null;
+    private static TheKeyImpl sInstance = null;
 
     private final SimpleArrayMap<String, Object> mLockAuth = new SimpleArrayMap<>();
 
@@ -104,9 +104,8 @@ public abstract class TheKeyImpl implements TheKey {
                         .getDeclaredConstructor(Context.class, Configuration.class)
                         .newInstance(context.getApplicationContext(), config);
             } catch (final Exception e) {
-                throw new RuntimeException(
-                        "unable to find AccountManagerTheKeyImpl, make sure thekey-lib-accountmanager library is loaded",
-                        e);
+                throw new RuntimeException("Unable to find AccountManagerTheKeyImpl, " +
+                                                   "make sure thekey-lib-accountmanager library is loaded", e);
             }
         }
 
@@ -118,11 +117,11 @@ public abstract class TheKeyImpl implements TheKey {
 
     public static void configure(@NonNull final Configuration config) {
         synchronized (INSTANCE_LOCK) {
-            if (INSTANCE == null) {
-                INSTANCE_CONFIG = config;
-            } else if (INSTANCE_CONFIG == null) {
-                throw new IllegalStateException("Strange, we have an INSTANCE, but no INSTANCE_CONFIG");
-            } else if (!INSTANCE_CONFIG.equals(config)) {
+            if (sInstance == null) {
+                sInstanceConfig = config;
+            } else if (sInstanceConfig == null) {
+                throw new IllegalStateException("Strange, we have an instance, but no instance config");
+            } else if (!sInstanceConfig.equals(config)) {
                 throw new IllegalArgumentException("Configuration cannot be changed after TheKeyImpl is initialized");
             }
         }
@@ -132,12 +131,12 @@ public abstract class TheKeyImpl implements TheKey {
     public static TheKeyImpl getInstance(@NonNull Context context) {
         synchronized (INSTANCE_LOCK) {
             // initialize the instance if we haven't already and we have configuration
-            if (INSTANCE == null && INSTANCE_CONFIG != null) {
-                INSTANCE = createInstance(context.getApplicationContext(), INSTANCE_CONFIG);
+            if (sInstance == null && sInstanceConfig != null) {
+                sInstance = createInstance(context.getApplicationContext(), sInstanceConfig);
             }
 
-            if (INSTANCE != null) {
-                return INSTANCE;
+            if (sInstance != null) {
+                return sInstance;
             }
         }
 
@@ -150,6 +149,9 @@ public abstract class TheKeyImpl implements TheKey {
         return getInstance(context);
     }
 
+    /**
+     * @deprecated use {@link TheKey#getDefaultSessionGuid()} instead.
+     */
     @Nullable
     @Override
     @Deprecated
@@ -456,7 +458,7 @@ public abstract class TheKeyImpl implements TheKey {
     abstract void removeRefreshToken(@NonNull String guid, @NonNull String token);
 
     @WorkerThread
-    abstract void clearAuthState(@NonNull String guid, final boolean sendBroadcast);
+    abstract void clearAuthState(@NonNull String guid, boolean sendBroadcast);
 
     @WorkerThread
     final boolean processCodeGrant(final String code, final Uri redirectUri) throws TheKeySocketException {

@@ -1,7 +1,8 @@
 package me.thekey.android.lib.support.v4.fragment;
 
-import me.thekey.android.lib.AbstractBuilder;
 import android.support.v4.app.Fragment;
+
+import me.thekey.android.lib.AbstractBuilder;
 
 public final class FragmentBuilder<T extends Fragment> extends AbstractBuilder<T> {
     private final Class<T> clazz;
@@ -11,7 +12,7 @@ public final class FragmentBuilder<T extends Fragment> extends AbstractBuilder<T
     }
 
     @Override
-    public final T build() {
+    public T build() {
         try {
             final T fragment = clazz.newInstance();
             fragment.setArguments(mArgs);
