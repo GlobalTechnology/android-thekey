@@ -17,14 +17,14 @@ public final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void onPostExecute(final Boolean result) {
-        super.onPostExecute(result);
+    protected void onPostExecute(final String guid) {
+        super.onPostExecute(guid);
 
         final Activity activity = this.dialog.getActivity();
         if (activity instanceof LoginDialogListener) {
             // trigger the correct callback
-            if (result) {
-                ((LoginDialogListener<DialogFragment>) activity).onLoginSuccess(dialog, mTheKey.getGuid());
+            if (guid != null) {
+                ((LoginDialogListener<DialogFragment>) activity).onLoginSuccess(dialog, guid);
             } else {
                 ((LoginDialogListener<DialogFragment>) activity).onLoginFailure(dialog);
             }
