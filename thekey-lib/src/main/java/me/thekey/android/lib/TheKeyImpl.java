@@ -104,9 +104,8 @@ public abstract class TheKeyImpl implements TheKey {
                         .getDeclaredConstructor(Context.class, Configuration.class)
                         .newInstance(context.getApplicationContext(), config);
             } catch (final Exception e) {
-                throw new RuntimeException(
-                        "unable to find AccountManagerTheKeyImpl, make sure thekey-lib-accountmanager library is loaded",
-                        e);
+                throw new RuntimeException("Unable to find AccountManagerTheKeyImpl, " +
+                                                   "make sure thekey-lib-accountmanager library is loaded", e);
             }
         }
 
@@ -150,6 +149,9 @@ public abstract class TheKeyImpl implements TheKey {
         return getInstance(context);
     }
 
+    /**
+     * @deprecated use {@link TheKey#getDefaultSessionGuid()} instead.
+     */
     @Nullable
     @Override
     @Deprecated
