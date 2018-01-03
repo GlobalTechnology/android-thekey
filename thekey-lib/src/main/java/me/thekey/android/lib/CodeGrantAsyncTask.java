@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import me.thekey.android.TheKeySocketException;
 
-public abstract class CodeGrantAsyncTask extends AsyncTask<String, Void, Boolean> {
+public abstract class CodeGrantAsyncTask extends AsyncTask<String, Void, String> {
     @NonNull
     protected final TheKeyImpl mTheKey;
 
@@ -13,20 +13,20 @@ public abstract class CodeGrantAsyncTask extends AsyncTask<String, Void, Boolean
         mTheKey = thekey;
     }
 
-    public final AsyncTask<String, Void, Boolean> execute(final String code) {
+    public final AsyncTask<String, Void, String> execute(final String code) {
         return executeOnExecutor(THREAD_POOL_EXECUTOR, code);
     }
 
     @Override
-    protected final Boolean doInBackground(final String... code) {
+    protected final String doInBackground(final String... code) {
         if (code.length > 0) {
             try {
                 return mTheKey.processCodeGrant(code[0], mTheKey.getRedirectUri());
             } catch (final TheKeySocketException e) {
-                return false;
+                return null;
             }
         } else {
-            return false;
+            return null;
         }
     }
 }

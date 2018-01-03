@@ -71,18 +71,6 @@ public interface TheKey {
     String getDefaultSessionGuid();
 
     /**
-     * This method will return the guid of the current OAuth session. This is a
-     * non-blocking method and may be called on the UI thread.
-     *
-     * @return the user's guid
-     * @deprecated use {@link TheKey#getDefaultSessionGuid()} instead
-     */
-    @Deprecated
-    @Nullable
-    @AnyThread
-    String getGuid();
-
-    /**
      * This method will return if the session for the specified guid is valid. This is a non-blocking method and may be
      * called on the UI thread.
      *

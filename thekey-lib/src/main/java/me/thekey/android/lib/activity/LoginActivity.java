@@ -113,12 +113,12 @@ public class LoginActivity extends Activity {
         }
 
         @Override
-        protected void onPostExecute(final Boolean result) {
-            super.onPostExecute(result);
+        protected void onPostExecute(final String guid) {
+            super.onPostExecute(guid);
 
-            if (result) {
+            if (guid != null) {
                 final Intent response = new Intent();
-                response.putExtra(EXTRA_GUID, mTheKey.getGuid());
+                response.putExtra(EXTRA_GUID, guid);
                 LoginActivity.this.setResult(RESULT_OK, response);
             } else {
                 LoginActivity.this.setResult(RESULT_CANCELED);

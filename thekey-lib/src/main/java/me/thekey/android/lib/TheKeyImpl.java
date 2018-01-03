@@ -149,16 +149,6 @@ public abstract class TheKeyImpl implements TheKey {
         return getInstance(context);
     }
 
-    /**
-     * @deprecated use {@link TheKey#getDefaultSessionGuid()} instead.
-     */
-    @Nullable
-    @Override
-    @Deprecated
-    public final String getGuid() {
-        return getDefaultSessionGuid();
-    }
-
     @NonNull
     private SharedPreferences getPrefs() {
         return mContext.getSharedPreferences(PREFFILE_THEKEY, Context.MODE_PRIVATE);
@@ -460,8 +450,11 @@ public abstract class TheKeyImpl implements TheKey {
     @WorkerThread
     abstract void clearAuthState(@NonNull String guid, boolean sendBroadcast);
 
+    /**
+     * @return The guid the code grant was successfully processed for, null if there was an error.
+     */
     @WorkerThread
-    final boolean processCodeGrant(final String code, final Uri redirectUri) throws TheKeySocketException {
+    final String processCodeGrant(final String code, final Uri redirectUri) throws TheKeySocketException {
         final Uri tokenUri = this.getCasUri("api", "oauth", "token");
         HttpsURLConnection conn = null;
         try {
@@ -481,7 +474,9 @@ public abstract class TheKeyImpl implements TheKey {
                 final JSONObject json = this.parseJsonResponse(conn.getInputStream());
                 final String guid = json.optString(OAUTH_PARAM_THEKEY_GUID, null);
                 if (guid != null) {
-                    return storeGrants(guid, json);
+                    if (storeGrants(guid, json)) {
+                        return guid;
+                    }
                 }
             }
         } catch (final MalformedURLException e) {
@@ -496,7 +491,7 @@ public abstract class TheKeyImpl implements TheKey {
             }
         }
 
-        return false;
+        return null;
     }
 
     @WorkerThread
