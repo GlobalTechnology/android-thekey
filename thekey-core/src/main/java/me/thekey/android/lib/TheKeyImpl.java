@@ -32,6 +32,7 @@ import javax.net.ssl.HttpsURLConnection;
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.TheKeySocketException;
+import me.thekey.android.core.EventsManager;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
@@ -69,6 +70,9 @@ public abstract class TheKeyImpl implements TheKey {
     @NonNull
     final Context mContext;
     @NonNull
+    protected final EventsManager mEventsManager;
+
+    @NonNull
     final Configuration mConfig;
     @NonNull
     private final Uri mServer;
@@ -81,6 +85,7 @@ public abstract class TheKeyImpl implements TheKey {
 
     TheKeyImpl(@NonNull final Context context, @NonNull final Configuration config) {
         mContext = context;
+        mEventsManager = new LocalBroadcastManagerEventsManager(mContext);
         mConfig = config;
         mServer = mConfig.mServer;
         mClientId = mConfig.mClientId;
@@ -171,7 +176,7 @@ public abstract class TheKeyImpl implements TheKey {
 
         // broadcast that the default session changed
         if (!TextUtils.equals(oldGuid, mDefaultGuid)) {
-            BroadcastUtils.broadcastChangeDefaultSession(mContext, mDefaultGuid);
+            mEventsManager.changeDefaultSessionEvent(mDefaultGuid);
         }
     }
 
@@ -297,7 +302,7 @@ public abstract class TheKeyImpl implements TheKey {
                     storeAttributes(guid, json);
 
                     // broadcast that we just loaded the attributes
-                    BroadcastUtils.broadcastAttributesLoaded(mContext, guid);
+                    mEventsManager.attributesUpdatedEvent(guid);
 
                     // return that attributes were loaded
                     return true;

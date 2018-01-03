@@ -120,10 +120,10 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             // trigger logout/login broadcasts based on guid changes
             final String newGuid = json.optString(OAUTH_PARAM_THEKEY_GUID, null);
             if (oldGuid != null && !oldGuid.equals(newGuid)) {
-                BroadcastUtils.broadcastLogout(mContext, oldGuid, newGuid != null);
+                mEventsManager.logoutEvent(oldGuid, newGuid != null);
             }
             if (newGuid != null && !newGuid.equals(oldGuid)) {
-                BroadcastUtils.broadcastLogin(mContext, newGuid);
+                mEventsManager.loginEvent(newGuid);
             }
         } catch (final JSONException e) {
             clearAuthState(guid, true);
@@ -252,7 +252,7 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
 
         if (sendBroadcast) {
             // broadcast a logout action if we had a guid
-            BroadcastUtils.broadcastLogout(mContext, guid, false);
+            mEventsManager.logoutEvent(guid, false);
         }
     }
 

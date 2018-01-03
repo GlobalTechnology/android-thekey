@@ -204,7 +204,7 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
         }
 
         if (broadcastLogin) {
-            BroadcastUtils.broadcastLogin(mContext, guid);
+            mEventsManager.loginEvent(guid);
         }
 
         return true;
@@ -300,7 +300,7 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
         resetDefaultSession(guid);
 
         if (broadcastLogout && guid != null) {
-            BroadcastUtils.broadcastLogout(mContext, guid, false);
+            mEventsManager.logoutEvent(guid, false);
         }
     }
 
