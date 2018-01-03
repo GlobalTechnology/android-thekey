@@ -12,7 +12,8 @@ buildscript {
 
 // define dependency versions for this project
 ext.deps = [
-        androidSupport: '27.0.2'
+        androidSupport: '27.0.2',
+        timber        : '4.6.0'
 ]
 
 subprojects {

@@ -1,12 +1,8 @@
-android {
-    defaultConfig {
-        consumerProguardFiles 'proguard-rules.txt'
-    }
-}
-
 dependencies {
     compile project(':thekey-api')
+
     compile "com.android.support:appcompat-v7:${deps.androidSupport}"
     compile "com.android.support:support-v4:${deps.androidSupport}"
-    compile 'org.slf4j:slf4j-api:1.7.12'
+
+    implementation "com.jakewharton.timber:timber:${deps.timber}"
 }

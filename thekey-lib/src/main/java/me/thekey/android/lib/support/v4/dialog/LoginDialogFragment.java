@@ -8,19 +8,15 @@ import android.view.LayoutInflater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import me.thekey.android.lib.Builder;
 import me.thekey.android.lib.R;
 import me.thekey.android.lib.dialog.LoginDialogListener;
 import me.thekey.android.lib.dialog.LoginDialogWebViewClient;
 import me.thekey.android.lib.support.v4.fragment.FragmentBuilder;
 import me.thekey.android.lib.util.DisplayUtil;
+import timber.log.Timber;
 
 public class LoginDialogFragment extends DialogFragment implements me.thekey.android.lib.fragment.DialogFragment {
-    private static final Logger LOG = LoggerFactory.getLogger(LoginDialogFragment.class);
-
     // login WebView
     private FrameLayout frame = null;
     private WebView mLoginView = null;
@@ -85,7 +81,7 @@ public class LoginDialogFragment extends DialogFragment implements me.thekey.and
                 this.frame.removeView(mLoginView);
             } catch (final IllegalArgumentException e) {
                 // XXX: KEYAND-12 IllegalArgumentException: Receiver not registered: android.webkit.WebViewClassic
-                LOG.error("error removing Login WebView, let's just reset the login view", e);
+                Timber.e(e, "error removing Login WebView, let's just reset the login view");
                 mLoginView = null;
             }
             this.frame = null;
