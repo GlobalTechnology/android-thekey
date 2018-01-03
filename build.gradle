@@ -57,7 +57,7 @@ subprojects {
     // configure checkstyle
     apply plugin: 'checkstyle'
     checkstyle {
-        toolVersion '6.17'
+        toolVersion '7.8.2'
     }
     task checkstyle(type: Checkstyle) {
         configFile rootProject.file('config/checkstyle/checkstyle.xml')
