@@ -1,3 +1,4 @@
 include ':thekey-api'
+include ':thekey-core'
 include ':thekey-lib'
 include ':thekey-lib-accountmanager'
