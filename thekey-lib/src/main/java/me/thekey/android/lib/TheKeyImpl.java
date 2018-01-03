@@ -456,7 +456,7 @@ public abstract class TheKeyImpl implements TheKey {
     abstract void removeRefreshToken(@NonNull String guid, @NonNull String token);
 
     @WorkerThread
-    abstract void clearAuthState(@NonNull String guid, final boolean sendBroadcast);
+    abstract void clearAuthState(@NonNull String guid, boolean sendBroadcast);
 
     @WorkerThread
     final boolean processCodeGrant(final String code, final Uri redirectUri) throws TheKeySocketException {

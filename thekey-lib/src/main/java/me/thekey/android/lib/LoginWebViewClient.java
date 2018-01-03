@@ -131,7 +131,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
                 TextUtils.equals(uri.getPath(), baseUri.getPath());
     }
 
-    protected abstract void onAuthorizeSuccess(final Uri uri, final String code);
+    protected abstract void onAuthorizeSuccess(Uri uri, String code);
 
-    protected abstract void onAuthorizeError(final Uri uri, final String errorCode);
+    protected abstract void onAuthorizeError(Uri uri, String errorCode);
 }
