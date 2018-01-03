@@ -106,7 +106,7 @@ public abstract class TheKeyImpl implements TheKey {
                         .newInstance(context.getApplicationContext(), config);
             } catch (final Exception e) {
                 throw new RuntimeException("Unable to find AccountManagerTheKeyImpl, " +
-                                                   "make sure thekey-lib-accountmanager library is loaded", e);
+                                                   "make sure thekey-accountmanager library is loaded", e);
             }
         }
 
