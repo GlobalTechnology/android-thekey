@@ -461,7 +461,8 @@ public abstract class TheKeyImpl implements TheKey {
      * @return The guid the code grant was successfully processed for, null if there was an error.
      */
     @WorkerThread
-    final String processCodeGrant(final String code, final Uri redirectUri) throws TheKeySocketException {
+    public final String processCodeGrant(@NonNull final String code, @NonNull final Uri redirectUri)
+            throws TheKeySocketException {
         final Uri tokenUri = this.getCasUri("api", "oauth", "token");
         HttpsURLConnection conn = null;
         try {

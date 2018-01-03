@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 
 import java.util.Collection;
 
-public interface TheKey extends TheKeyAttributeApi, TheKeyTicketApi {
+public interface TheKey extends TheKeyAttributeApi, TheKeyTicketApi, TheKeyTokenApi {
     String ACTION_LOGIN = "thekey.action_login";
     String ACTION_LOGOUT = "thekey.action_logout";
     String ACTION_CHANGE_DEFAULT_SESSION = "thekey.action_change_default_session";
