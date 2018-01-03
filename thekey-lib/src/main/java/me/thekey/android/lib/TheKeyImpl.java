@@ -8,7 +8,6 @@ import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
-import android.support.v4.util.SimpleArrayMap;
 import android.text.TextUtils;
 
 import org.json.JSONObject;
@@ -24,7 +23,9 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -63,7 +64,7 @@ public abstract class TheKeyImpl implements TheKey {
     private static Configuration sInstanceConfig = null;
     private static TheKeyImpl sInstance = null;
 
-    private final SimpleArrayMap<String, Object> mLockAuth = new SimpleArrayMap<>();
+    private final Map<String, Object> mLockAuth = new HashMap<>();
 
     @NonNull
     final Context mContext;
@@ -600,7 +601,7 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
-    private static <K> Object getLock(@NonNull final SimpleArrayMap<K, Object> locks, @NonNull final K key) {
+    private static <K> Object getLock(@NonNull final Map<K, Object> locks, @NonNull final K key) {
         synchronized (locks) {
             if (!locks.containsKey(key)) {
                 locks.put(key, new Object());
