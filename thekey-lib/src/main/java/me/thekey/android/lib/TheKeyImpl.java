@@ -34,21 +34,21 @@ import me.thekey.android.TheKeySocketException;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static me.thekey.android.lib.Constant.CAS_SERVER;
-import static me.thekey.android.lib.Constant.OAUTH_GRANT_TYPE_AUTHORIZATION_CODE;
-import static me.thekey.android.lib.Constant.OAUTH_GRANT_TYPE_REFRESH_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ACCESS_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_CLIENT_ID;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_CODE;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_GRANT_TYPE;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_REDIRECT_URI;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_RESPONSE_TYPE;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_STATE;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
-import static me.thekey.android.lib.Constant.OAUTH_RESPONSE_TYPE_CODE;
-import static me.thekey.android.lib.Constant.THEKEY_PARAM_SERVICE;
-import static me.thekey.android.lib.Constant.THEKEY_PARAM_TICKET;
+import static me.thekey.android.core.Constants.CAS_SERVER;
+import static me.thekey.android.core.Constants.OAUTH_GRANT_TYPE_AUTHORIZATION_CODE;
+import static me.thekey.android.core.Constants.OAUTH_GRANT_TYPE_REFRESH_TOKEN;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_CLIENT_ID;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_CODE;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_GRANT_TYPE;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_REDIRECT_URI;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_REFRESH_TOKEN;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_RESPONSE_TYPE;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_STATE;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
+import static me.thekey.android.core.Constants.OAUTH_RESPONSE_TYPE_CODE;
+import static me.thekey.android.core.Constants.THEKEY_PARAM_SERVICE;
+import static me.thekey.android.core.Constants.THEKEY_PARAM_TICKET;
 
 /**
  * The Key interaction library, handles all interactions with The Key OAuth API

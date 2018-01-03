@@ -11,10 +11,10 @@ import android.view.ViewParent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import static me.thekey.android.lib.Constant.ARG_SELF_SERVICE;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_CODE;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ERROR;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_STATE;
+import static me.thekey.android.core.Constants.ARG_SELF_SERVICE;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_CODE;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_ERROR;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_STATE;
 
 public abstract class LoginWebViewClient extends WebViewClient {
     private final Context mContext;
