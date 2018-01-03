@@ -149,16 +149,6 @@ public abstract class TheKeyImpl implements TheKey {
         return getInstance(context);
     }
 
-    /**
-     * @deprecated use {@link TheKey#getDefaultSessionGuid()} instead.
-     */
-    @Nullable
-    @Override
-    @Deprecated
-    public final String getGuid() {
-        return getDefaultSessionGuid();
-    }
-
     @NonNull
     private SharedPreferences getPrefs() {
         return mContext.getSharedPreferences(PREFFILE_THEKEY, Context.MODE_PRIVATE);
