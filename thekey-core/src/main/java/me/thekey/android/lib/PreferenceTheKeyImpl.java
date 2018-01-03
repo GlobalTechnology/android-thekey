@@ -15,6 +15,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.thekey.android.Attributes;
+
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_EMAIL;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_FIRST_NAME;

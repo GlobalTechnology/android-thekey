@@ -9,7 +9,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import java.util.Date;
 
 import me.thekey.android.TheKey;
-import me.thekey.android.TheKey.Attributes;
+import me.thekey.android.Attributes;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
 
