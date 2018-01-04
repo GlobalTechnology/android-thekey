@@ -27,7 +27,6 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.accounts.Constants.DATA_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_REFRESH_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
 
@@ -200,9 +199,8 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
         }
 
         // store refresh_token
-        if (json.has(OAUTH_PARAM_REFRESH_TOKEN)) {
-            mAccountManager.setAuthToken(account, AUTH_TOKEN_REFRESH_TOKEN,
-                                         json.optString(OAUTH_PARAM_REFRESH_TOKEN, null));
+        if (json.has(JSON_REFRESH_TOKEN)) {
+            mAccountManager.setAuthToken(account, AUTH_TOKEN_REFRESH_TOKEN, json.optString(JSON_REFRESH_TOKEN, null));
         }
 
         if (broadcastLogin) {

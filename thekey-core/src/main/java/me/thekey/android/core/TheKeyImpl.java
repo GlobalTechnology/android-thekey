@@ -47,7 +47,6 @@ import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_CLIENT_ID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_CODE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_REDIRECT_URI;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_REFRESH_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_RESPONSE_TYPE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_STATE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
@@ -525,7 +524,7 @@ public abstract class TheKeyImpl implements TheKey {
             conn.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             final byte[] data = (encodeParam(PARAM_GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN) + "&" +
                     encodeParam(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId)) + "&" +
-                    encodeParam(OAUTH_PARAM_REFRESH_TOKEN, refreshToken)).getBytes("UTF-8");
+                    encodeParam(PARAM_REFRESH_TOKEN, refreshToken)).getBytes("UTF-8");
             conn.setFixedLengthStreamingMode(data.length);
             conn.getOutputStream().write(data);
 

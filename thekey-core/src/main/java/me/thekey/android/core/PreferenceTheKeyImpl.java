@@ -22,7 +22,6 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_EXPIRES_IN;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_REFRESH_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
 
@@ -107,8 +106,8 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             }
 
             // store refresh_token
-            if (json.has(OAUTH_PARAM_REFRESH_TOKEN)) {
-                prefs.putString(PREF_REFRESH_TOKEN, json.getString(OAUTH_PARAM_REFRESH_TOKEN));
+            if (json.has(JSON_REFRESH_TOKEN)) {
+                prefs.putString(PREF_REFRESH_TOKEN, json.getString(JSON_REFRESH_TOKEN));
             }
 
             // we synchronize actual update to prevent race conditions
