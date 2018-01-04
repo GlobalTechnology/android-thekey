@@ -12,6 +12,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -467,35 +468,70 @@ public abstract class TheKeyImpl implements TheKey {
     @RestrictTo(SUBCLASSES)
     abstract void clearAuthState(@NonNull String guid, boolean sendBroadcast);
 
-    /**
-     * @return The guid the code grant was successfully processed for, null if there was an error.
-     */
+    @Override
     @WorkerThread
     public final String processCodeGrant(@NonNull final String code, @NonNull final Uri redirectUri)
             throws TheKeySocketException {
-        final Uri tokenUri = this.getCasUri("api", "oauth", "token");
+        // build the request params
+        final Map<String, String> params = new HashMap<>();
+        params.put(PARAM_GRANT_TYPE, GRANT_TYPE_AUTHORIZATION_CODE);
+        params.put(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId));
+        params.put(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString());
+        params.put(OAUTH_PARAM_CODE, code);
+
+        // perform the token api request and process the response
+        final JSONObject resp = sendTokenApiRequest(params);
+        if (resp != null) {
+            final String guid = resp.optString(OAUTH_PARAM_THEKEY_GUID, null);
+            if (guid != null) {
+                storeGrants(guid, resp);
+                return guid;
+            }
+        }
+
+        return null;
+    }
+
+    @WorkerThread
+    private boolean processRefreshTokenGrant(@NonNull final String guid, @NonNull final String refreshToken)
+            throws TheKeySocketException {
+        // build the request params
+        final Map<String, String> params = new HashMap<>();
+        params.put(PARAM_GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN);
+        params.put(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId));
+        params.put(PARAM_REFRESH_TOKEN, refreshToken);
+
+        // perform the token api request and process the response
+        final JSONObject resp = sendTokenApiRequest(params);
+        if (resp != null) {
+            storeGrants(guid, resp);
+            return true;
+        }
+        return false;
+    }
+
+    @Nullable
+    private JSONObject sendTokenApiRequest(@NonNull final Map<String, String> params) throws TheKeySocketException {
+        final Uri tokenUri = getCasUri("api", "oauth", "token");
         HttpsURLConnection conn = null;
         try {
-            // generate & send request
+            // convert params into request data
+            final Uri.Builder dataBuilder = new Uri.Builder();
+            for (final Map.Entry<String, String> entry : params.entrySet()) {
+                dataBuilder.appendQueryParameter(entry.getKey(), entry.getValue());
+            }
+            final byte[] data = dataBuilder.build().getQuery().getBytes("UTF-8");
+
+            // connect & send request
             conn = (HttpsURLConnection) new URL(tokenUri.toString()).openConnection();
             conn.setDoOutput(true);
             conn.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            final byte[] data = (encodeParam(PARAM_GRANT_TYPE, GRANT_TYPE_AUTHORIZATION_CODE) + "&" +
-                    encodeParam(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId)) + "&" +
-                    encodeParam(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString()) + "&" +
-                    encodeParam(OAUTH_PARAM_CODE, code)).getBytes("UTF-8");
             conn.setFixedLengthStreamingMode(data.length);
             conn.getOutputStream().write(data);
 
+            // if it's a successful request, return the parsed JSON
             if (conn.getResponseCode() == HTTP_OK) {
-                // parse the json response
-                final JSONObject json = this.parseJsonResponse(conn.getInputStream());
-                final String guid = json.optString(OAUTH_PARAM_THEKEY_GUID, null);
-                if (guid != null) {
-                    if (storeGrants(guid, json)) {
-                        return guid;
-                    }
-                }
+                return parseJsonResponse(conn.getInputStream());
             }
         } catch (final MalformedURLException e) {
             throw new RuntimeException("invalid CAS URL", e);
@@ -510,44 +546,6 @@ public abstract class TheKeyImpl implements TheKey {
         }
 
         return null;
-    }
-
-    @WorkerThread
-    private boolean processRefreshTokenGrant(@NonNull final String guid, @NonNull final String refreshToken)
-            throws TheKeySocketException {
-        final Uri tokenUri = this.getCasUri("api", "oauth", "token");
-        HttpsURLConnection conn = null;
-        try {
-            // generate & send request
-            conn = (HttpsURLConnection) new URL(tokenUri.toString()).openConnection();
-            conn.setDoOutput(true);
-            conn.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            final byte[] data = (encodeParam(PARAM_GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN) + "&" +
-                    encodeParam(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId)) + "&" +
-                    encodeParam(PARAM_REFRESH_TOKEN, refreshToken)).getBytes("UTF-8");
-            conn.setFixedLengthStreamingMode(data.length);
-            conn.getOutputStream().write(data);
-
-            // store the grants in the JSON response
-            if (conn.getResponseCode() == HTTP_OK) {
-                storeGrants(guid, parseJsonResponse(conn.getInputStream()));
-            } else {
-                return false;
-            }
-
-            // return success
-            return true;
-        } catch (final MalformedURLException e) {
-            throw new RuntimeException("invalid CAS URL", e);
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException("Unsupported encoding??? this shouldn't happen", e);
-        } catch (final IOException e) {
-            throw new TheKeySocketException(e);
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
     }
 
     @RestrictTo(SUBCLASSES)
@@ -604,16 +602,19 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @NonNull
-    private JSONObject parseJsonResponse(final InputStream in) {
+    private JSONObject parseJsonResponse(final InputStream response) throws IOException {
+        // read response into string builder
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(response, "UTF-8"));
+        final StringBuilder json = new StringBuilder();
+        String buffer;
+        while ((buffer = reader.readLine()) != null) {
+            json.append(buffer);
+        }
+
+        // parse response as JSON
         try {
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            final StringBuilder json = new StringBuilder();
-            String buffer;
-            while ((buffer = reader.readLine()) != null) {
-                json.append(buffer);
-            }
             return new JSONObject(json.toString());
-        } catch (final Exception e) {
+        } catch (final JSONException e) {
             // return an empty object on error
             return new JSONObject();
         }
