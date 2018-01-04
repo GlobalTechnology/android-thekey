@@ -1,5 +1,6 @@
 package me.thekey.android.core;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -68,6 +69,7 @@ public abstract class TheKeyImpl implements TheKey {
     private static final Object INSTANCE_LOCK = new Object();
     @Nullable
     private static Configuration sInstanceConfig = null;
+    @SuppressLint("StaticFieldLeak")
     private static TheKeyImpl sInstance = null;
 
     private final Map<String, Object> mLockAuth = new HashMap<>();
