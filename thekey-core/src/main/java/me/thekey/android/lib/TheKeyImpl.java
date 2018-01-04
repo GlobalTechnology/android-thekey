@@ -7,6 +7,7 @@ import android.net.Uri.Builder;
 import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 
@@ -35,6 +36,8 @@ import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.core.EventsManager;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static me.thekey.android.core.Constants.CAS_SERVER;
@@ -204,6 +207,7 @@ public abstract class TheKeyImpl implements TheKey {
         }
     }
 
+    @RestrictTo(SUBCLASSES)
     final void resetDefaultSession(@Nullable final String guid) {
         if (TextUtils.equals(mDefaultGuid, guid)) {
             // remove persisted default guid
@@ -344,8 +348,10 @@ public abstract class TheKeyImpl implements TheKey {
         return false;
     }
 
+    @RestrictTo(SUBCLASSES)
     abstract void storeAttributes(@NonNull String guid, @NonNull JSONObject json);
 
+    @RestrictTo(SUBCLASSES)
     abstract void removeAttributes(@NonNull String guid);
 
     @Nullable
@@ -400,9 +406,11 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @Nullable
+    @RestrictTo(SUBCLASSES)
     abstract String getAccessToken(@NonNull String guid);
 
     @Nullable
+    @RestrictTo(SUBCLASSES)
     abstract String getRefreshToken(@NonNull String guid);
 
     @Nullable
@@ -450,11 +458,14 @@ public abstract class TheKeyImpl implements TheKey {
         }).start();
     }
 
+    @RestrictTo(SUBCLASSES)
     abstract void removeAccessToken(@NonNull String guid, @NonNull String token);
 
+    @RestrictTo(SUBCLASSES)
     abstract void removeRefreshToken(@NonNull String guid, @NonNull String token);
 
     @WorkerThread
+    @RestrictTo(SUBCLASSES)
     abstract void clearAuthState(@NonNull String guid, boolean sendBroadcast);
 
     /**
@@ -540,6 +551,7 @@ public abstract class TheKeyImpl implements TheKey {
         }
     }
 
+    @RestrictTo(SUBCLASSES)
     abstract boolean storeGrants(@NonNull String guid, @NonNull JSONObject json);
 
     private void migrateAccounts() {
@@ -564,6 +576,7 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @NonNull
+    @RestrictTo(SUBCLASSES)
     final MigratingAccount getMigratingAccount(@NonNull final String guid) {
         final MigratingAccount account = new MigratingAccount(guid);
         account.accessToken = getAccessToken(guid);
@@ -572,12 +585,12 @@ public abstract class TheKeyImpl implements TheKey {
         return account;
     }
 
-    private boolean removeMigratingAccount(@NonNull final MigratingAccount account) {
+    private void removeMigratingAccount(@NonNull final MigratingAccount account) {
         removeAttributes(account.guid);
         clearAuthState(account.guid, false);
-        return true;
     }
 
+    @RestrictTo(SUBCLASSES)
     abstract boolean createMigratingAccount(@NonNull MigratingAccount account);
 
     @SuppressWarnings("deprecation")
@@ -617,6 +630,7 @@ public abstract class TheKeyImpl implements TheKey {
         }
     }
 
+    @RestrictTo(LIBRARY_GROUP)
     static final class MigratingAccount {
         @NonNull
         final String guid;
