@@ -43,20 +43,14 @@ import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static me.thekey.android.core.Constants.CAS_SERVER;
-import static me.thekey.android.core.Constants.OAUTH_GRANT_TYPE_AUTHORIZATION_CODE;
-import static me.thekey.android.core.Constants.OAUTH_GRANT_TYPE_REFRESH_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_CLIENT_ID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_CODE;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_GRANT_TYPE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_REDIRECT_URI;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_REFRESH_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_RESPONSE_TYPE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_STATE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
 import static me.thekey.android.core.Constants.OAUTH_RESPONSE_TYPE_CODE;
-import static me.thekey.android.core.Constants.THEKEY_PARAM_SERVICE;
-import static me.thekey.android.core.Constants.THEKEY_PARAM_TICKET;
 
 /**
  * The Key interaction library, handles all interactions with The Key OAuth API
@@ -389,13 +383,13 @@ public abstract class TheKeyImpl implements TheKey {
             // generate & send request
             final Uri ticketUri = getCasUri("api", "oauth", "ticket").buildUpon()
                     .appendQueryParameter(OAUTH_PARAM_ACCESS_TOKEN, accessToken)
-                    .appendQueryParameter(THEKEY_PARAM_SERVICE, service).build();
+                    .appendQueryParameter(PARAM_SERVICE, service).build();
             conn = (HttpsURLConnection) new URL(ticketUri.toString()).openConnection();
 
             // parse the json response if we have a valid response
             if (conn.getResponseCode() == 200) {
                 final JSONObject json = parseJsonResponse(conn.getInputStream());
-                return json.optString(THEKEY_PARAM_TICKET, null);
+                return json.optString(JSON_TICKET, null);
             }
         } catch (final MalformedURLException e) {
             throw new RuntimeException("malformed CAS URL", e);
@@ -486,7 +480,7 @@ public abstract class TheKeyImpl implements TheKey {
             conn = (HttpsURLConnection) new URL(tokenUri.toString()).openConnection();
             conn.setDoOutput(true);
             conn.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            final byte[] data = (encodeParam(OAUTH_PARAM_GRANT_TYPE, OAUTH_GRANT_TYPE_AUTHORIZATION_CODE) + "&" +
+            final byte[] data = (encodeParam(PARAM_GRANT_TYPE, GRANT_TYPE_AUTHORIZATION_CODE) + "&" +
                     encodeParam(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId)) + "&" +
                     encodeParam(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString()) + "&" +
                     encodeParam(OAUTH_PARAM_CODE, code)).getBytes("UTF-8");
@@ -528,9 +522,9 @@ public abstract class TheKeyImpl implements TheKey {
             conn = (HttpsURLConnection) new URL(tokenUri.toString()).openConnection();
             conn.setDoOutput(true);
             conn.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            final byte[] data = (encodeParam(OAUTH_PARAM_GRANT_TYPE, OAUTH_GRANT_TYPE_REFRESH_TOKEN) + "&" +
+            final byte[] data = (encodeParam(PARAM_GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN) + "&" +
                     encodeParam(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId)) + "&" +
-                    encodeParam(OAUTH_PARAM_REFRESH_TOKEN, refreshToken)).getBytes("UTF-8");
+                    encodeParam(PARAM_REFRESH_TOKEN, refreshToken)).getBytes("UTF-8");
             conn.setFixedLengthStreamingMode(data.length);
             conn.getOutputStream().write(data);
 

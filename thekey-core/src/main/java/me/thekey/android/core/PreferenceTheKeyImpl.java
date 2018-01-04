@@ -21,12 +21,6 @@ import me.thekey.android.Attributes;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_EMAIL;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_FIRST_NAME;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_GUID;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_LAST_NAME;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_EXPIRES_IN;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_REFRESH_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
 
@@ -96,9 +90,8 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             if (json.has(OAUTH_PARAM_ACCESS_TOKEN)) {
                 prefs.putString(PREF_ACCESS_TOKEN, json.getString(OAUTH_PARAM_ACCESS_TOKEN));
                 prefs.remove(PREF_EXPIRE_TIME);
-                if (json.has(OAUTH_PARAM_EXPIRES_IN)) {
-                    prefs.putLong(PREF_EXPIRE_TIME,
-                                  System.currentTimeMillis() + json.getLong(OAUTH_PARAM_EXPIRES_IN) * 1000);
+                if (json.has(JSON_EXPIRES_IN)) {
+                    prefs.putLong(PREF_EXPIRE_TIME, System.currentTimeMillis() + json.getLong(JSON_EXPIRES_IN) * 1000);
                 }
                 prefs.remove(PREF_GUID);
                 prefs.remove(PREF_USERNAME);
@@ -111,8 +104,8 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             }
 
             // store refresh_token
-            if (json.has(OAUTH_PARAM_REFRESH_TOKEN)) {
-                prefs.putString(PREF_REFRESH_TOKEN, json.getString(OAUTH_PARAM_REFRESH_TOKEN));
+            if (json.has(JSON_REFRESH_TOKEN)) {
+                prefs.putString(PREF_REFRESH_TOKEN, json.getString(JSON_REFRESH_TOKEN));
             }
 
             // we synchronize actual update to prevent race conditions
@@ -201,10 +194,10 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     void storeAttributes(@NonNull final String guid, @NonNull final JSONObject json) {
         final SharedPreferences.Editor prefs = getPrefs().edit();
         prefs.putLong(PREF_ATTR_LOAD_TIME, System.currentTimeMillis());
-        prefs.putString(PREF_ATTR_GUID, json.optString(OAUTH_PARAM_ATTR_GUID, null));
-        prefs.putString(PREF_ATTR_EMAIL, json.optString(OAUTH_PARAM_ATTR_EMAIL, null));
-        prefs.putString(PREF_ATTR_FIRST_NAME, json.optString(OAUTH_PARAM_ATTR_FIRST_NAME, null));
-        prefs.putString(PREF_ATTR_LAST_NAME, json.optString(OAUTH_PARAM_ATTR_LAST_NAME, null));
+        prefs.putString(PREF_ATTR_GUID, json.optString(JSON_ATTR_GUID, null));
+        prefs.putString(PREF_ATTR_EMAIL, json.optString(JSON_ATTR_EMAIL, null));
+        prefs.putString(PREF_ATTR_FIRST_NAME, json.optString(JSON_ATTR_FIRST_NAME, null));
+        prefs.putString(PREF_ATTR_LAST_NAME, json.optString(JSON_ATTR_LAST_NAME, null));
 
         // we synchronize this to prevent race conditions with getAttributes
         synchronized (mLockPrefs) {
