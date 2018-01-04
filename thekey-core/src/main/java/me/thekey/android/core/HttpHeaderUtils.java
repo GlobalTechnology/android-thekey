@@ -1,7 +1,8 @@
-package me.thekey.android.lib;
+package me.thekey.android.core;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +10,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+
+@RestrictTo(LIBRARY)
 final class HttpHeaderUtils {
     @NonNull
     static Challenge parseChallenge(@NonNull final String challenge) {

@@ -1,4 +1,4 @@
-package me.thekey.android.lib.accounts;
+package me.thekey.android.accounts;
 
 import android.Manifest;
 import android.accounts.Account;
@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
 
-import static me.thekey.android.lib.accounts.Constants.DATA_GUID;
+import static me.thekey.android.accounts.Constants.DATA_GUID;
 
 public class AccountUtils {
     @Nullable

@@ -1,9 +1,9 @@
 package me.thekey.android.lib;
 
-import static me.thekey.android.lib.Constant.ARG_SELF_SERVICE;
-
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+
+import static me.thekey.android.core.Constants.ARG_SELF_SERVICE;
 
 public abstract class AbstractBuilder<T> implements Builder<T> {
     protected final Bundle mArgs = new Bundle();

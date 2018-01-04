@@ -1,4 +1,4 @@
-package me.thekey.android.lib;
+package me.thekey.android.core;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
+import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import org.json.JSONObject;
@@ -17,19 +18,23 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
+import me.thekey.android.Attributes;
 import me.thekey.android.TheKeyInvalidSessionException;
-import me.thekey.android.lib.accounts.AccountUtils;
+import me.thekey.android.accounts.AccountUtils;
 
 import static android.Manifest.permission.GET_ACCOUNTS;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ACCESS_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_EMAIL;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_FIRST_NAME;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_LAST_NAME;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_USERNAME;
-import static me.thekey.android.lib.accounts.Constants.DATA_GUID;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
+import static me.thekey.android.accounts.Constants.DATA_GUID;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_EMAIL;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_FIRST_NAME;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_LAST_NAME;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_REFRESH_TOKEN;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
 
+@RestrictTo(LIBRARY_GROUP)
 final class AccountManagerTheKeyImpl extends TheKeyImpl {
     private static final String DATA_ATTR_LOAD_TIME = "attr_load_time";
     private static final String DATA_ATTR_EMAIL = "attr_email";
@@ -128,6 +133,7 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
     }
 
     @Override
+    @RestrictTo(SUBCLASSES)
     boolean storeGrants(@NonNull final String guid, @NonNull final JSONObject json) {
         // short-circuit if this grant is for a different user
         if (!TextUtils.equals(guid, json.optString(OAUTH_PARAM_THEKEY_GUID, null))) {
@@ -204,7 +210,7 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
         }
 
         if (broadcastLogin) {
-            BroadcastUtils.broadcastLogin(mContext, guid);
+            mEventsManager.loginEvent(guid);
         }
 
         return true;
@@ -300,7 +306,7 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
         resetDefaultSession(guid);
 
         if (broadcastLogout && guid != null) {
-            BroadcastUtils.broadcastLogout(mContext, guid, false);
+            mEventsManager.logoutEvent(guid, false);
         }
     }
 

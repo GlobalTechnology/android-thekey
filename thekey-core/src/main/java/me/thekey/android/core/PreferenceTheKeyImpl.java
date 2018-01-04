@@ -1,9 +1,10 @@
-package me.thekey.android.lib;
+package me.thekey.android.core;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import org.json.JSONException;
@@ -15,16 +16,21 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ACCESS_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_EMAIL;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_FIRST_NAME;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_GUID;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ATTR_LAST_NAME;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_EXPIRES_IN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_USERNAME;
+import me.thekey.android.Attributes;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_EMAIL;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_FIRST_NAME;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_GUID;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_LAST_NAME;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_EXPIRES_IN;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_REFRESH_TOKEN;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
+
+@RestrictTo(LIBRARY)
 final class PreferenceTheKeyImpl extends TheKeyImpl {
     private static final String PREFFILE_THEKEY = "thekey";
     static final String PREF_ACCESS_TOKEN = "access_token";
@@ -81,6 +87,7 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     }
 
     @Override
+    @RestrictTo(SUBCLASSES)
     boolean storeGrants(@NonNull final String guid, @NonNull final JSONObject json) {
         try {
             final SharedPreferences.Editor prefs = this.getPrefs().edit();
@@ -120,10 +127,10 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             // trigger logout/login broadcasts based on guid changes
             final String newGuid = json.optString(OAUTH_PARAM_THEKEY_GUID, null);
             if (oldGuid != null && !oldGuid.equals(newGuid)) {
-                BroadcastUtils.broadcastLogout(mContext, oldGuid, newGuid != null);
+                mEventsManager.logoutEvent(oldGuid, newGuid != null);
             }
             if (newGuid != null && !newGuid.equals(oldGuid)) {
-                BroadcastUtils.broadcastLogin(mContext, newGuid);
+                mEventsManager.loginEvent(newGuid);
             }
         } catch (final JSONException e) {
             clearAuthState(guid, true);
@@ -252,7 +259,7 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
 
         if (sendBroadcast) {
             // broadcast a logout action if we had a guid
-            BroadcastUtils.broadcastLogout(mContext, guid, false);
+            mEventsManager.logoutEvent(guid, false);
         }
     }
 

@@ -1,5 +1,6 @@
-package me.thekey.android.lib;
+package me.thekey.android.core;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -7,8 +8,8 @@ import android.net.Uri.Builder;
 import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
-import android.support.v4.util.SimpleArrayMap;
 import android.text.TextUtils;
 
 import org.json.JSONObject;
@@ -24,31 +25,38 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import me.thekey.android.Attributes;
+import me.thekey.android.EventsManager;
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.TheKeySocketException;
+import me.thekey.android.lib.LocalBroadcastManagerEventsManager;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static me.thekey.android.lib.Constant.CAS_SERVER;
-import static me.thekey.android.lib.Constant.OAUTH_GRANT_TYPE_AUTHORIZATION_CODE;
-import static me.thekey.android.lib.Constant.OAUTH_GRANT_TYPE_REFRESH_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_ACCESS_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_CLIENT_ID;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_CODE;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_GRANT_TYPE;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_REDIRECT_URI;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_REFRESH_TOKEN;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_RESPONSE_TYPE;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_STATE;
-import static me.thekey.android.lib.Constant.OAUTH_PARAM_THEKEY_GUID;
-import static me.thekey.android.lib.Constant.OAUTH_RESPONSE_TYPE_CODE;
-import static me.thekey.android.lib.Constant.THEKEY_PARAM_SERVICE;
-import static me.thekey.android.lib.Constant.THEKEY_PARAM_TICKET;
+import static me.thekey.android.core.Constants.CAS_SERVER;
+import static me.thekey.android.core.Constants.OAUTH_GRANT_TYPE_AUTHORIZATION_CODE;
+import static me.thekey.android.core.Constants.OAUTH_GRANT_TYPE_REFRESH_TOKEN;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_CLIENT_ID;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_CODE;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_GRANT_TYPE;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_REDIRECT_URI;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_REFRESH_TOKEN;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_RESPONSE_TYPE;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_STATE;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
+import static me.thekey.android.core.Constants.OAUTH_RESPONSE_TYPE_CODE;
+import static me.thekey.android.core.Constants.THEKEY_PARAM_SERVICE;
+import static me.thekey.android.core.Constants.THEKEY_PARAM_TICKET;
 
 /**
  * The Key interaction library, handles all interactions with The Key OAuth API
@@ -61,13 +69,20 @@ public abstract class TheKeyImpl implements TheKey {
     private static final Object INSTANCE_LOCK = new Object();
     @Nullable
     private static Configuration sInstanceConfig = null;
+    @SuppressLint("StaticFieldLeak")
     private static TheKeyImpl sInstance = null;
 
-    private final SimpleArrayMap<String, Object> mLockAuth = new SimpleArrayMap<>();
+    private final Map<String, Object> mLockAuth = new HashMap<>();
 
     @NonNull
+    @RestrictTo(SUBCLASSES)
     final Context mContext;
     @NonNull
+    @RestrictTo(SUBCLASSES)
+    final EventsManager mEventsManager;
+
+    @NonNull
+    @RestrictTo(SUBCLASSES)
     final Configuration mConfig;
     @NonNull
     private final Uri mServer;
@@ -80,6 +95,7 @@ public abstract class TheKeyImpl implements TheKey {
 
     TheKeyImpl(@NonNull final Context context, @NonNull final Configuration config) {
         mContext = context;
+        mEventsManager = new LocalBroadcastManagerEventsManager(mContext);
         mConfig = config;
         mServer = mConfig.mServer;
         mClientId = mConfig.mClientId;
@@ -96,16 +112,16 @@ public abstract class TheKeyImpl implements TheKey {
     private static TheKeyImpl createInstance(@NonNull final Context context, @NonNull final Configuration config) {
         final TheKeyImpl instance;
         if (TextUtils.isEmpty(config.mAccountType)) {
-            instance = new PreferenceTheKeyImpl(context.getApplicationContext(), config);
+            instance = new PreferenceTheKeyImpl(context, config);
         } else {
             // dynamically look for AccountManager implementation
             try {
-                instance = (TheKeyImpl) Class.forName("me.thekey.android.lib.AccountManagerTheKeyImpl")
+                instance = (TheKeyImpl) Class.forName("me.thekey.android.core.AccountManagerTheKeyImpl")
                         .getDeclaredConstructor(Context.class, Configuration.class)
-                        .newInstance(context.getApplicationContext(), config);
+                        .newInstance(context, config);
             } catch (final Exception e) {
                 throw new RuntimeException("Unable to find AccountManagerTheKeyImpl, " +
-                                                   "make sure thekey-lib-accountmanager library is loaded", e);
+                                                   "make sure thekey-accountmanager library is loaded", e);
             }
         }
 
@@ -128,7 +144,7 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @NonNull
-    public static TheKeyImpl getInstance(@NonNull Context context) {
+    public static TheKeyImpl getInstance(@NonNull final Context context) {
         synchronized (INSTANCE_LOCK) {
             // initialize the instance if we haven't already and we have configuration
             if (sInstance == null && sInstanceConfig != null) {
@@ -170,7 +186,7 @@ public abstract class TheKeyImpl implements TheKey {
 
         // broadcast that the default session changed
         if (!TextUtils.equals(oldGuid, mDefaultGuid)) {
-            BroadcastUtils.broadcastChangeDefaultSession(mContext, mDefaultGuid);
+            mEventsManager.changeDefaultSessionEvent(mDefaultGuid);
         }
     }
 
@@ -197,6 +213,7 @@ public abstract class TheKeyImpl implements TheKey {
         }
     }
 
+    @RestrictTo(SUBCLASSES)
     final void resetDefaultSession(@Nullable final String guid) {
         if (TextUtils.equals(mDefaultGuid, guid)) {
             // remove persisted default guid
@@ -239,7 +256,8 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @AnyThread
-    final Uri getCasUri(final String... segments) {
+    @RestrictTo(LIBRARY_GROUP)
+    public final Uri getCasUri(final String... segments) {
         final Builder uri = mServer.buildUpon();
         for (final String segment : segments) {
             uri.appendPath(segment);
@@ -248,13 +266,11 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @NonNull
-    Uri getRedirectUri() {
+    public Uri getRedirectUri() {
         return getCasUri("oauth", "client", "public");
     }
 
-    /**
-     * @hide
-     */
+    @RestrictTo(LIBRARY_GROUP)
     public final Uri getAuthorizeUri() {
         return this.getAuthorizeUri(null);
     }
@@ -296,7 +312,7 @@ public abstract class TheKeyImpl implements TheKey {
                     storeAttributes(guid, json);
 
                     // broadcast that we just loaded the attributes
-                    BroadcastUtils.broadcastAttributesLoaded(mContext, guid);
+                    mEventsManager.attributesUpdatedEvent(guid);
 
                     // return that attributes were loaded
                     return true;
@@ -337,8 +353,10 @@ public abstract class TheKeyImpl implements TheKey {
         return false;
     }
 
+    @RestrictTo(SUBCLASSES)
     abstract void storeAttributes(@NonNull String guid, @NonNull JSONObject json);
 
+    @RestrictTo(SUBCLASSES)
     abstract void removeAttributes(@NonNull String guid);
 
     @Nullable
@@ -393,9 +411,11 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @Nullable
+    @RestrictTo(SUBCLASSES)
     abstract String getAccessToken(@NonNull String guid);
 
     @Nullable
+    @RestrictTo(SUBCLASSES)
     abstract String getRefreshToken(@NonNull String guid);
 
     @Nullable
@@ -443,18 +463,22 @@ public abstract class TheKeyImpl implements TheKey {
         }).start();
     }
 
+    @RestrictTo(SUBCLASSES)
     abstract void removeAccessToken(@NonNull String guid, @NonNull String token);
 
+    @RestrictTo(SUBCLASSES)
     abstract void removeRefreshToken(@NonNull String guid, @NonNull String token);
 
     @WorkerThread
+    @RestrictTo(SUBCLASSES)
     abstract void clearAuthState(@NonNull String guid, boolean sendBroadcast);
 
     /**
      * @return The guid the code grant was successfully processed for, null if there was an error.
      */
     @WorkerThread
-    final String processCodeGrant(final String code, final Uri redirectUri) throws TheKeySocketException {
+    public final String processCodeGrant(@NonNull final String code, @NonNull final Uri redirectUri)
+            throws TheKeySocketException {
         final Uri tokenUri = this.getCasUri("api", "oauth", "token");
         HttpsURLConnection conn = null;
         try {
@@ -532,6 +556,7 @@ public abstract class TheKeyImpl implements TheKey {
         }
     }
 
+    @RestrictTo(SUBCLASSES)
     abstract boolean storeGrants(@NonNull String guid, @NonNull JSONObject json);
 
     private void migrateAccounts() {
@@ -556,6 +581,7 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @NonNull
+    @RestrictTo(SUBCLASSES)
     final MigratingAccount getMigratingAccount(@NonNull final String guid) {
         final MigratingAccount account = new MigratingAccount(guid);
         account.accessToken = getAccessToken(guid);
@@ -564,12 +590,12 @@ public abstract class TheKeyImpl implements TheKey {
         return account;
     }
 
-    private boolean removeMigratingAccount(@NonNull final MigratingAccount account) {
+    private void removeMigratingAccount(@NonNull final MigratingAccount account) {
         removeAttributes(account.guid);
         clearAuthState(account.guid, false);
-        return true;
     }
 
+    @RestrictTo(SUBCLASSES)
     abstract boolean createMigratingAccount(@NonNull MigratingAccount account);
 
     @SuppressWarnings("deprecation")
@@ -600,7 +626,7 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
-    private static <K> Object getLock(@NonNull final SimpleArrayMap<K, Object> locks, @NonNull final K key) {
+    private static <K> Object getLock(@NonNull final Map<K, Object> locks, @NonNull final K key) {
         synchronized (locks) {
             if (!locks.containsKey(key)) {
                 locks.put(key, new Object());
@@ -609,14 +635,19 @@ public abstract class TheKeyImpl implements TheKey {
         }
     }
 
+    @RestrictTo(LIBRARY_GROUP)
     static final class MigratingAccount {
         @NonNull
+        @RestrictTo(SUBCLASSES)
         final String guid;
         @Nullable
+        @RestrictTo(SUBCLASSES)
         String accessToken;
         @Nullable
+        @RestrictTo(SUBCLASSES)
         String refreshToken;
         @NonNull
+        @RestrictTo(SUBCLASSES)
         Attributes attributes;
 
         MigratingAccount(@NonNull final String guid) {
@@ -633,6 +664,7 @@ public abstract class TheKeyImpl implements TheKey {
         final Uri mServer;
         final long mClientId;
         @Nullable
+        @RestrictTo(SUBCLASSES)
         final String mAccountType;
         @Nullable
         final Configuration mMigrationSource;

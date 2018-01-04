@@ -1,8 +1,8 @@
-package me.thekey.android.lib;
+package me.thekey.android.core;
 
 import android.net.Uri;
 
-public final class Constant {
+public final class Constants {
     public static final Uri CAS_SERVER = Uri.parse("https://thekey.me/cas/");
 
     // OAuth request/response params

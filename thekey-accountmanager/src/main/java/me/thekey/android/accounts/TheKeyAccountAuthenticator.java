@@ -1,4 +1,4 @@
-package me.thekey.android.lib.accounts;
+package me.thekey.android.accounts;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
