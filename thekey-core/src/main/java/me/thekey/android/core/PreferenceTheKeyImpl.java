@@ -21,10 +21,6 @@ import me.thekey.android.Attributes;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_EMAIL;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_FIRST_NAME;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_GUID;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_LAST_NAME;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_EXPIRES_IN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_REFRESH_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
@@ -201,10 +197,10 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     void storeAttributes(@NonNull final String guid, @NonNull final JSONObject json) {
         final SharedPreferences.Editor prefs = getPrefs().edit();
         prefs.putLong(PREF_ATTR_LOAD_TIME, System.currentTimeMillis());
-        prefs.putString(PREF_ATTR_GUID, json.optString(OAUTH_PARAM_ATTR_GUID, null));
-        prefs.putString(PREF_ATTR_EMAIL, json.optString(OAUTH_PARAM_ATTR_EMAIL, null));
-        prefs.putString(PREF_ATTR_FIRST_NAME, json.optString(OAUTH_PARAM_ATTR_FIRST_NAME, null));
-        prefs.putString(PREF_ATTR_LAST_NAME, json.optString(OAUTH_PARAM_ATTR_LAST_NAME, null));
+        prefs.putString(PREF_ATTR_GUID, json.optString(JSON_ATTR_GUID, null));
+        prefs.putString(PREF_ATTR_EMAIL, json.optString(JSON_ATTR_EMAIL, null));
+        prefs.putString(PREF_ATTR_FIRST_NAME, json.optString(JSON_ATTR_FIRST_NAME, null));
+        prefs.putString(PREF_ATTR_LAST_NAME, json.optString(JSON_ATTR_LAST_NAME, null));
 
         // we synchronize this to prevent race conditions with getAttributes
         synchronized (mLockPrefs) {

@@ -6,6 +6,11 @@ import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
 interface TheKeyAttributeApi {
+    String JSON_ATTR_GUID = "ssoGuid";
+    String JSON_ATTR_EMAIL = "email";
+    String JSON_ATTR_FIRST_NAME = "firstName";
+    String JSON_ATTR_LAST_NAME = "lastName";
+
     /**
      * This method will load the attributes for the default OAuth session from
      * The Key. This method is a blocking method and should never be called

@@ -27,9 +27,6 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.accounts.Constants.DATA_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_EMAIL;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_FIRST_NAME;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_LAST_NAME;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_REFRESH_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
@@ -114,10 +111,9 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
         final Account account = findAccount(guid);
         if (account != null) {
             mAccountManager.setUserData(account, DATA_ATTR_LOAD_TIME, Long.toString(System.currentTimeMillis()));
-            mAccountManager.setUserData(account, DATA_ATTR_EMAIL, json.optString(OAUTH_PARAM_ATTR_EMAIL, null));
-            mAccountManager.setUserData(account, DATA_ATTR_FIRST_NAME,
-                                        json.optString(OAUTH_PARAM_ATTR_FIRST_NAME, null));
-            mAccountManager.setUserData(account, DATA_ATTR_LAST_NAME, json.optString(OAUTH_PARAM_ATTR_LAST_NAME, null));
+            mAccountManager.setUserData(account, DATA_ATTR_EMAIL, json.optString(JSON_ATTR_EMAIL, null));
+            mAccountManager.setUserData(account, DATA_ATTR_FIRST_NAME, json.optString(JSON_ATTR_FIRST_NAME, null));
+            mAccountManager.setUserData(account, DATA_ATTR_LAST_NAME, json.optString(JSON_ATTR_LAST_NAME, null));
         }
     }
 
