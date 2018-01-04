@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 
 interface TheKeyTokenApi {
+    String PARAM_GRANT_TYPE = "grant_type";
+
     String GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code";
     String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
 

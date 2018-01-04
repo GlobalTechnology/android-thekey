@@ -11,7 +11,6 @@ public final class Constants {
     public static final String OAUTH_PARAM_CODE = "code";
     public static final String OAUTH_PARAM_ERROR = "error";
     public static final String OAUTH_PARAM_EXPIRES_IN = "expires_in";
-    public static final String OAUTH_PARAM_GRANT_TYPE = "grant_type";
     public static final String OAUTH_PARAM_REDIRECT_URI = "redirect_uri";
     public static final String OAUTH_PARAM_REFRESH_TOKEN = "refresh_token";
     public static final String OAUTH_PARAM_RESPONSE_TYPE = "response_type";

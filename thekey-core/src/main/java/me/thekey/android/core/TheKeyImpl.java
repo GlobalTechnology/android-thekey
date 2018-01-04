@@ -46,7 +46,6 @@ import static me.thekey.android.core.Constants.CAS_SERVER;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_CLIENT_ID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_CODE;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_GRANT_TYPE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_REDIRECT_URI;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_REFRESH_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_RESPONSE_TYPE;
@@ -482,7 +481,7 @@ public abstract class TheKeyImpl implements TheKey {
             conn = (HttpsURLConnection) new URL(tokenUri.toString()).openConnection();
             conn.setDoOutput(true);
             conn.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            final byte[] data = (encodeParam(OAUTH_PARAM_GRANT_TYPE, GRANT_TYPE_AUTHORIZATION_CODE) + "&" +
+            final byte[] data = (encodeParam(PARAM_GRANT_TYPE, GRANT_TYPE_AUTHORIZATION_CODE) + "&" +
                     encodeParam(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId)) + "&" +
                     encodeParam(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString()) + "&" +
                     encodeParam(OAUTH_PARAM_CODE, code)).getBytes("UTF-8");
@@ -524,7 +523,7 @@ public abstract class TheKeyImpl implements TheKey {
             conn = (HttpsURLConnection) new URL(tokenUri.toString()).openConnection();
             conn.setDoOutput(true);
             conn.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            final byte[] data = (encodeParam(OAUTH_PARAM_GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN) + "&" +
+            final byte[] data = (encodeParam(PARAM_GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN) + "&" +
                     encodeParam(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId)) + "&" +
                     encodeParam(OAUTH_PARAM_REFRESH_TOKEN, refreshToken)).getBytes("UTF-8");
             conn.setFixedLengthStreamingMode(data.length);
