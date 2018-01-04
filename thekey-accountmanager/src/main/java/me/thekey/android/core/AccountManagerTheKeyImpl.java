@@ -20,11 +20,12 @@ import java.util.HashSet;
 
 import me.thekey.android.Attributes;
 import me.thekey.android.TheKeyInvalidSessionException;
-import me.thekey.android.lib.accounts.AccountUtils;
+import me.thekey.android.accounts.AccountUtils;
 
 import static android.Manifest.permission.GET_ACCOUNTS;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
+import static me.thekey.android.accounts.Constants.DATA_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_EMAIL;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_FIRST_NAME;
@@ -32,7 +33,6 @@ import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_LAST_NAME;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_REFRESH_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
-import static me.thekey.android.lib.accounts.Constants.DATA_GUID;
 
 @RestrictTo(LIBRARY_GROUP)
 final class AccountManagerTheKeyImpl extends TheKeyImpl {

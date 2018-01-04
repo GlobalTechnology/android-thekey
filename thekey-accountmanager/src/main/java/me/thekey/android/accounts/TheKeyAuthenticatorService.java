@@ -1,4 +1,4 @@
-package me.thekey.android.lib.accounts;
+package me.thekey.android.accounts;
 
 import android.app.Service;
 import android.content.Intent;
