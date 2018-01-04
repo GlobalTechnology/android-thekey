@@ -1,1 +1,1 @@
--keep class me.thekey.android.lib.AccountManagerTheKeyImpl { <init>(...); }
+-keep class me.thekey.android.core.AccountManagerTheKeyImpl { <init>(...); }

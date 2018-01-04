@@ -1,9 +1,10 @@
-package me.thekey.android.lib;
+package me.thekey.android.core;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import org.json.JSONException;
@@ -17,6 +18,8 @@ import java.util.Map;
 
 import me.thekey.android.Attributes;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_EMAIL;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_FIRST_NAME;
@@ -27,6 +30,7 @@ import static me.thekey.android.core.Constants.OAUTH_PARAM_REFRESH_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
 
+@RestrictTo(LIBRARY_GROUP)
 final class PreferenceTheKeyImpl extends TheKeyImpl {
     private static final String PREFFILE_THEKEY = "thekey";
     static final String PREF_ACCESS_TOKEN = "access_token";
@@ -83,6 +87,7 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     }
 
     @Override
+    @RestrictTo(SUBCLASSES)
     boolean storeGrants(@NonNull final String guid, @NonNull final JSONObject json) {
         try {
             final SharedPreferences.Editor prefs = this.getPrefs().edit();

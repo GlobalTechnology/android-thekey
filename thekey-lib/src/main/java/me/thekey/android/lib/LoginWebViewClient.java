@@ -11,6 +11,8 @@ import android.view.ViewParent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import me.thekey.android.core.TheKeyImpl;
+
 import static me.thekey.android.core.Constants.ARG_SELF_SERVICE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_CODE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ERROR;

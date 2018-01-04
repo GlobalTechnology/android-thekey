@@ -3,8 +3,8 @@ package me.thekey.android.lib.dialog;
 import android.app.Activity;
 import android.support.annotation.NonNull;
 
+import me.thekey.android.core.TheKeyImpl;
 import me.thekey.android.lib.CodeGrantAsyncTask;
-import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.fragment.DialogFragment;
 
 public final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {

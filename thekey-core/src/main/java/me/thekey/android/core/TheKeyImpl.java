@@ -1,4 +1,4 @@
-package me.thekey.android.lib;
+package me.thekey.android.core;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -34,7 +34,7 @@ import me.thekey.android.Attributes;
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.TheKeySocketException;
-import me.thekey.android.core.EventsManager;
+import me.thekey.android.lib.LocalBroadcastManagerEventsManager;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
@@ -72,11 +72,14 @@ public abstract class TheKeyImpl implements TheKey {
     private final Map<String, Object> mLockAuth = new HashMap<>();
 
     @NonNull
+    @RestrictTo(SUBCLASSES)
     final Context mContext;
     @NonNull
-    protected final EventsManager mEventsManager;
+    @RestrictTo(SUBCLASSES)
+    final EventsManager mEventsManager;
 
     @NonNull
+    @RestrictTo(SUBCLASSES)
     final Configuration mConfig;
     @NonNull
     private final Uri mServer;
@@ -106,13 +109,13 @@ public abstract class TheKeyImpl implements TheKey {
     private static TheKeyImpl createInstance(@NonNull final Context context, @NonNull final Configuration config) {
         final TheKeyImpl instance;
         if (TextUtils.isEmpty(config.mAccountType)) {
-            instance = new PreferenceTheKeyImpl(context.getApplicationContext(), config);
+            instance = new PreferenceTheKeyImpl(context, config);
         } else {
             // dynamically look for AccountManager implementation
             try {
-                instance = (TheKeyImpl) Class.forName("me.thekey.android.lib.AccountManagerTheKeyImpl")
+                instance = (TheKeyImpl) Class.forName("me.thekey.android.core.AccountManagerTheKeyImpl")
                         .getDeclaredConstructor(Context.class, Configuration.class)
-                        .newInstance(context.getApplicationContext(), config);
+                        .newInstance(context, config);
             } catch (final Exception e) {
                 throw new RuntimeException("Unable to find AccountManagerTheKeyImpl, " +
                                                    "make sure thekey-accountmanager library is loaded", e);
@@ -138,7 +141,7 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @NonNull
-    public static TheKeyImpl getInstance(@NonNull Context context) {
+    public static TheKeyImpl getInstance(@NonNull final Context context) {
         synchronized (INSTANCE_LOCK) {
             // initialize the instance if we haven't already and we have configuration
             if (sInstance == null && sInstanceConfig != null) {
@@ -250,7 +253,8 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @AnyThread
-    final Uri getCasUri(final String... segments) {
+    @RestrictTo(LIBRARY_GROUP)
+    public final Uri getCasUri(final String... segments) {
         final Builder uri = mServer.buildUpon();
         for (final String segment : segments) {
             uri.appendPath(segment);
@@ -259,13 +263,11 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @NonNull
-    Uri getRedirectUri() {
+    public Uri getRedirectUri() {
         return getCasUri("oauth", "client", "public");
     }
 
-    /**
-     * @hide
-     */
+    @RestrictTo(LIBRARY_GROUP)
     public final Uri getAuthorizeUri() {
         return this.getAuthorizeUri(null);
     }
@@ -633,12 +635,16 @@ public abstract class TheKeyImpl implements TheKey {
     @RestrictTo(LIBRARY_GROUP)
     static final class MigratingAccount {
         @NonNull
+        @RestrictTo(SUBCLASSES)
         final String guid;
         @Nullable
+        @RestrictTo(SUBCLASSES)
         String accessToken;
         @Nullable
+        @RestrictTo(SUBCLASSES)
         String refreshToken;
         @NonNull
+        @RestrictTo(SUBCLASSES)
         Attributes attributes;
 
         MigratingAccount(@NonNull final String guid) {
@@ -655,6 +661,7 @@ public abstract class TheKeyImpl implements TheKey {
         final Uri mServer;
         final long mClientId;
         @Nullable
+        @RestrictTo(SUBCLASSES)
         final String mAccountType;
         @Nullable
         final Configuration mMigrationSource;

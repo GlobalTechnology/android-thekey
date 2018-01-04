@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
 import me.thekey.android.TheKeySocketException;
+import me.thekey.android.core.TheKeyImpl;
 
 public abstract class CodeGrantAsyncTask extends AsyncTask<String, Void, String> {
     @NonNull
