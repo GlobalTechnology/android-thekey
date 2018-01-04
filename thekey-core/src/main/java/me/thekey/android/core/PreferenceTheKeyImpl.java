@@ -18,7 +18,7 @@ import java.util.Map;
 
 import me.thekey.android.Attributes;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ATTR_EMAIL;
@@ -30,7 +30,7 @@ import static me.thekey.android.core.Constants.OAUTH_PARAM_REFRESH_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
 
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY)
 final class PreferenceTheKeyImpl extends TheKeyImpl {
     private static final String PREFFILE_THEKEY = "thekey";
     static final String PREF_ACCESS_TOKEN = "access_token";

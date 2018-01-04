@@ -1,4 +1,4 @@
-package me.thekey.android.core;
+package me.thekey.android;
 
 import android.support.annotation.NonNull;
 

@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 
-import me.thekey.android.core.EventsManager;
+import me.thekey.android.EventsManager;
 
 import static me.thekey.android.TheKey.ACTION_ATTRIBUTES_LOADED;
 import static me.thekey.android.TheKey.ACTION_CHANGE_DEFAULT_SESSION;
