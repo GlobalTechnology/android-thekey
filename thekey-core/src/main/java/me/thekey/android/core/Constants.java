@@ -32,10 +32,6 @@ public final class Constants {
     public static final String OAUTH_GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code";
     public static final String OAUTH_GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
 
-    // The Key API params
-    public static final String THEKEY_PARAM_SERVICE = "service";
-    public static final String THEKEY_PARAM_TICKET = "ticket";
-
     // configuration arguments
     public static final String ARG_SELF_SERVICE = "enable.self_service";
 }

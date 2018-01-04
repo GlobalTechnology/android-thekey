@@ -55,8 +55,6 @@ import static me.thekey.android.core.Constants.OAUTH_PARAM_RESPONSE_TYPE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_STATE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
 import static me.thekey.android.core.Constants.OAUTH_RESPONSE_TYPE_CODE;
-import static me.thekey.android.core.Constants.THEKEY_PARAM_SERVICE;
-import static me.thekey.android.core.Constants.THEKEY_PARAM_TICKET;
 
 /**
  * The Key interaction library, handles all interactions with The Key OAuth API
@@ -389,13 +387,13 @@ public abstract class TheKeyImpl implements TheKey {
             // generate & send request
             final Uri ticketUri = getCasUri("api", "oauth", "ticket").buildUpon()
                     .appendQueryParameter(OAUTH_PARAM_ACCESS_TOKEN, accessToken)
-                    .appendQueryParameter(THEKEY_PARAM_SERVICE, service).build();
+                    .appendQueryParameter(PARAM_SERVICE, service).build();
             conn = (HttpsURLConnection) new URL(ticketUri.toString()).openConnection();
 
             // parse the json response if we have a valid response
             if (conn.getResponseCode() == 200) {
                 final JSONObject json = parseJsonResponse(conn.getInputStream());
-                return json.optString(THEKEY_PARAM_TICKET, null);
+                return json.optString(JSON_TICKET, null);
             }
         } catch (final MalformedURLException e) {
             throw new RuntimeException("malformed CAS URL", e);

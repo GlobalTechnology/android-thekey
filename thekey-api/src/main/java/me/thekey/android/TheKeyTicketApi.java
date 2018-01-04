@@ -5,6 +5,9 @@ import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
 interface TheKeyTicketApi {
+    String PARAM_SERVICE = "service";
+    String JSON_TICKET = "ticket";
+
     /**
      * This method returns a ticket for the specified service. This method is a
      * blocking method and should never be called directly on the UI thread.
