@@ -5,6 +5,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 
 interface TheKeyTokenApi {
+    String GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code";
+    String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
+
     /**
      * Process an OAuth code grant request. This method is blocking, do not call it from the UI thread.
      *

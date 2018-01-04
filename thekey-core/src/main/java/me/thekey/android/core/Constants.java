@@ -28,10 +28,6 @@ public final class Constants {
     // OAuth response types
     public static final String OAUTH_RESPONSE_TYPE_CODE = "code";
 
-    // OAuth grant types
-    public static final String OAUTH_GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code";
-    public static final String OAUTH_GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
-
     // configuration arguments
     public static final String ARG_SELF_SERVICE = "enable.self_service";
 }
