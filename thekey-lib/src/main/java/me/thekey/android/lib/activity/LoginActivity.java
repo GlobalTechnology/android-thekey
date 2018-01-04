@@ -7,10 +7,13 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
-import me.thekey.android.core.TheKeyImpl;
+import java.lang.ref.WeakReference;
+
+import me.thekey.android.TheKey;
 import me.thekey.android.lib.CodeGrantAsyncTask;
 import me.thekey.android.lib.LoginWebViewClient;
 import me.thekey.android.lib.R;
@@ -22,8 +25,6 @@ public class LoginActivity extends Activity {
     public static final String EXTRA_GUID = LoginActivity.class.getName() + ".EXTRA_GUID";
 
     private Bundle mArgs;
-    @NonNull
-    private /* final */ TheKeyImpl mTheKey;
 
     // login WebView
     private FrameLayout frame = null;
@@ -46,9 +47,6 @@ public class LoginActivity extends Activity {
             finish();
             return;
         }
-
-        // get TheKey object
-        mTheKey = TheKeyImpl.getInstance(this);
 
         // init the Login WebView
         this.attachLoginView();
@@ -97,7 +95,7 @@ public class LoginActivity extends Activity {
 
         @Override
         protected void onAuthorizeSuccess(final Uri uri, final String code) {
-            new ActivityCodeGrantAsyncTask(mTheKey).execute(code);
+            new ActivityCodeGrantAsyncTask(LoginActivity.this, mTheKey, code, null).execute();
         }
 
         @Override
@@ -107,24 +105,31 @@ public class LoginActivity extends Activity {
         }
     }
 
-    private class ActivityCodeGrantAsyncTask extends CodeGrantAsyncTask {
-        ActivityCodeGrantAsyncTask(@NonNull final TheKeyImpl theKey) {
-            super(theKey);
+    private static class ActivityCodeGrantAsyncTask extends CodeGrantAsyncTask {
+        private final WeakReference<LoginActivity> mActivity;
+
+        ActivityCodeGrantAsyncTask(@NonNull final LoginActivity activity, @NonNull final TheKey theKey,
+                                   @NonNull final String code, @Nullable final String state) {
+            super(theKey, code, state);
+            mActivity = new WeakReference<>(activity);
         }
 
         @Override
         protected void onPostExecute(final String guid) {
             super.onPostExecute(guid);
 
-            if (guid != null) {
-                final Intent response = new Intent();
-                response.putExtra(EXTRA_GUID, guid);
-                LoginActivity.this.setResult(RESULT_OK, response);
-            } else {
-                LoginActivity.this.setResult(RESULT_CANCELED);
-            }
+            final LoginActivity activity = mActivity.get();
+            if (activity != null) {
+                if (guid != null) {
+                    final Intent response = new Intent();
+                    response.putExtra(EXTRA_GUID, guid);
+                    activity.setResult(RESULT_OK, response);
+                } else {
+                    activity.setResult(RESULT_CANCELED);
+                }
 
-            LoginActivity.this.finish();
+                activity.finish();
+            }
         }
     }
 }

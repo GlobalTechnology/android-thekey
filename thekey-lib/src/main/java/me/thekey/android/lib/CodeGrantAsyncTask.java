@@ -2,31 +2,36 @@ package me.thekey.android.lib;
 
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+import me.thekey.android.TheKey;
 import me.thekey.android.TheKeySocketException;
-import me.thekey.android.core.TheKeyImpl;
 
-public abstract class CodeGrantAsyncTask extends AsyncTask<String, Void, String> {
+public abstract class CodeGrantAsyncTask extends AsyncTask<Void, Void, String> {
     @NonNull
-    protected final TheKeyImpl mTheKey;
+    protected final TheKey mTheKey;
 
-    public CodeGrantAsyncTask(@NonNull final TheKeyImpl thekey) {
+    @NonNull
+    private final String mCode;
+    @Nullable
+    private final String mState;
+
+    protected CodeGrantAsyncTask(@NonNull final TheKey thekey, @NonNull final String code,
+                                 @Nullable final String state) {
         mTheKey = thekey;
+        mCode = code;
+        mState = state;
     }
 
-    public final AsyncTask<String, Void, String> execute(final String code) {
-        return executeOnExecutor(THREAD_POOL_EXECUTOR, code);
+    public final AsyncTask<Void, Void, String> execute() {
+        return executeOnExecutor(THREAD_POOL_EXECUTOR);
     }
 
     @Override
-    protected final String doInBackground(final String... code) {
-        if (code.length > 0) {
-            try {
-                return mTheKey.processCodeGrant(code[0], mTheKey.getDefaultRedirectUri());
-            } catch (final TheKeySocketException e) {
-                return null;
-            }
-        } else {
+    protected final String doInBackground(final Void... params) {
+        try {
+            return mTheKey.processCodeGrant(mCode, mTheKey.getDefaultRedirectUri());
+        } catch (final TheKeySocketException e) {
             return null;
         }
     }

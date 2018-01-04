@@ -17,7 +17,7 @@ public class LoginDialogWebViewClient extends LoginWebViewClient {
 
     @Override
     protected void onAuthorizeSuccess(final Uri uri, final String code) {
-        new LoginDialogCodeGrantAsyncTask(mDialog, mTheKey).execute(code);
+        new LoginDialogCodeGrantAsyncTask(mDialog, mTheKey, code, null).execute();
     }
 
     @Override
