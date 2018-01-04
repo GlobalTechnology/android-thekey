@@ -21,7 +21,6 @@ import me.thekey.android.Attributes;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_EXPIRES_IN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
 
@@ -91,9 +90,8 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             if (json.has(OAUTH_PARAM_ACCESS_TOKEN)) {
                 prefs.putString(PREF_ACCESS_TOKEN, json.getString(OAUTH_PARAM_ACCESS_TOKEN));
                 prefs.remove(PREF_EXPIRE_TIME);
-                if (json.has(OAUTH_PARAM_EXPIRES_IN)) {
-                    prefs.putLong(PREF_EXPIRE_TIME,
-                                  System.currentTimeMillis() + json.getLong(OAUTH_PARAM_EXPIRES_IN) * 1000);
+                if (json.has(JSON_EXPIRES_IN)) {
+                    prefs.putLong(PREF_EXPIRE_TIME, System.currentTimeMillis() + json.getLong(JSON_EXPIRES_IN) * 1000);
                 }
                 prefs.remove(PREF_GUID);
                 prefs.remove(PREF_USERNAME);

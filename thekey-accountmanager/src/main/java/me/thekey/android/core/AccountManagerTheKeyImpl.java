@@ -192,10 +192,9 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
             mAccountManager.setAuthToken(account, AUTH_TOKEN_ACCESS_TOKEN,
                                          json.optString(OAUTH_PARAM_ACCESS_TOKEN, null));
             //TODO: store expiration time for access_token?
-//                if (json.has(OAUTH_PARAM_EXPIRES_IN)) {
-//                    final long expireTime =
-//                            System.currentTimeMillis() + json.getLong(OAUTH_PARAM_EXPIRES_IN) * 1000;
-//                }
+//            if (json.has(JSON_EXPIRES_IN)) {
+//                final long expireTime = System.currentTimeMillis() + json.optLong(JSON_EXPIRES_IN) * 1000;
+//            }
         }
 
         // store refresh_token
