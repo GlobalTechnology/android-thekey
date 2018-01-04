@@ -40,7 +40,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
         mTheKey = TheKeyImpl.getInstance(context);
         mOauthUri = mTheKey.getAuthorizeUri().buildUpon().query("").build();
         mSelfServiceUri = mTheKey.getCasUri("service", "selfservice");
-        mRedirectUri = mTheKey.getRedirectUri();
+        mRedirectUri = mTheKey.getDefaultRedirectUri();
         mState = state;
     }
 

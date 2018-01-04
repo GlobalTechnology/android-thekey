@@ -1,5 +1,6 @@
 package me.thekey.android;
 
+import android.net.Uri;
 import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -55,6 +56,13 @@ public interface TheKey extends TheKeyAttributeApi, TheKeyTicketApi, TheKeyToken
      */
     @AnyThread
     boolean isValidSession(@Nullable String guid);
+
+    /**
+     * @return the configured default redirect_uri
+     */
+    @NonNull
+    @AnyThread
+    Uri getDefaultRedirectUri();
 
     /**
      * This method will logout the default user. This is a non-blocking method

@@ -79,28 +79,35 @@ public abstract class TheKeyImpl implements TheKey {
     @NonNull
     @RestrictTo(SUBCLASSES)
     final Configuration mConfig;
+    @Nullable
+    private TheKeyImpl mMigrationSource;
     @NonNull
     private final Uri mServer;
     private final long mClientId;
-    @Nullable
-    private TheKeyImpl mMigrationSource;
+
+    @NonNull
+    private final Uri mDefaultRedirectUri;
 
     @Nullable
     private String mDefaultGuid;
 
     TheKeyImpl(@NonNull final Context context, @NonNull final Configuration config) {
         mContext = context;
-        mEventsManager = new LocalBroadcastManagerEventsManager(mContext);
         mConfig = config;
         mServer = mConfig.mServer;
         mClientId = mConfig.mClientId;
         if (mClientId == INVALID_CLIENT_ID) {
             throw new IllegalStateException("client_id is invalid or not provided");
         }
+        mDefaultGuid = getPrefs().getString(PREF_DEFAULT_GUID, null);
+
+        mDefaultRedirectUri = mConfig.mDefaultRedirectUri != null ? mConfig.mDefaultRedirectUri :
+                getCasUri("oauth", "client", "public");
+
+        mEventsManager = new LocalBroadcastManagerEventsManager(mContext);
         if (mConfig.mMigrationSource != null) {
             mMigrationSource = createInstance(mContext, mConfig.mMigrationSource);
         }
-        mDefaultGuid = getPrefs().getString(PREF_DEFAULT_GUID, null);
     }
 
     @NonNull
@@ -261,21 +268,22 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @NonNull
-    public Uri getRedirectUri() {
-        return getCasUri("oauth", "client", "public");
+    @Override
+    public Uri getDefaultRedirectUri() {
+        return mDefaultRedirectUri;
     }
 
     @RestrictTo(LIBRARY_GROUP)
     public final Uri getAuthorizeUri() {
-        return this.getAuthorizeUri(null);
+        return getAuthorizeUri(getDefaultRedirectUri(), null);
     }
 
-    private Uri getAuthorizeUri(final String state) {
+    private Uri getAuthorizeUri(@NonNull final Uri redirectUri, @Nullable final String state) {
         // build oauth authorize url
         final Builder uri = this.getCasUri("login").buildUpon()
                 .appendQueryParameter(OAUTH_PARAM_RESPONSE_TYPE, OAUTH_RESPONSE_TYPE_CODE)
                 .appendQueryParameter(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId))
-                .appendQueryParameter(OAUTH_PARAM_REDIRECT_URI, getRedirectUri().toString());
+                .appendQueryParameter(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString());
         if (state != null) {
             uri.appendQueryParameter(OAUTH_PARAM_STATE, state);
         }
@@ -661,46 +669,61 @@ public abstract class TheKeyImpl implements TheKey {
         @Nullable
         @RestrictTo(SUBCLASSES)
         final String mAccountType;
+
+        @Nullable
+        @RestrictTo(SUBCLASSES)
+        final Uri mDefaultRedirectUri;
+
         @Nullable
         final Configuration mMigrationSource;
 
         private Configuration(@Nullable final Uri server, final long id, @Nullable final String accountType,
-                              @Nullable final Configuration migrationSource) {
+                              @Nullable final Uri redirectUri, @Nullable final Configuration migrationSource) {
             mServer = server != null ? server : CAS_SERVER;
             mClientId = id;
             mAccountType = accountType;
+            mDefaultRedirectUri = redirectUri;
             mMigrationSource = migrationSource;
         }
 
         @NonNull
         public static Configuration base() {
-            return new Configuration(null, INVALID_CLIENT_ID, null, null);
+            return new Configuration(null, INVALID_CLIENT_ID, null, null, null);
         }
 
         @NonNull
-        public Configuration server(@Nullable final String server) {
-            return new Configuration(server != null ? Uri.parse(server + (server.endsWith("/") ? "" : "/")) : null,
-                                     mClientId, mAccountType, mMigrationSource);
+        public Configuration server(@Nullable final String uri) {
+            return server(uri != null ? Uri.parse(uri + (uri.endsWith("/") ? "" : "/")) : null);
         }
 
         @NonNull
-        public Configuration server(@Nullable final Uri server) {
-            return new Configuration(server, mClientId, mAccountType, mMigrationSource);
-        }
-
-        @NonNull
-        public Configuration clientId(final long id) {
-            return new Configuration(mServer, id, mAccountType, mMigrationSource);
+        public Configuration server(@Nullable final Uri uri) {
+            return new Configuration(uri, mClientId, mAccountType, mDefaultRedirectUri, mMigrationSource);
         }
 
         @NonNull
         public Configuration accountType(@Nullable final String type) {
-            return new Configuration(mServer, mClientId, type, mMigrationSource);
+            return new Configuration(mServer, mClientId, type, mDefaultRedirectUri, mMigrationSource);
+        }
+
+        @NonNull
+        public Configuration clientId(final long id) {
+            return new Configuration(mServer, id, mAccountType, mDefaultRedirectUri, mMigrationSource);
+        }
+
+        @NonNull
+        public Configuration redirectUri(@Nullable final String uri) {
+            return redirectUri(uri != null ? Uri.parse(uri) : null);
+        }
+
+        @NonNull
+        public Configuration redirectUri(@Nullable final Uri uri) {
+            return new Configuration(mServer, mClientId, mAccountType, uri, mMigrationSource);
         }
 
         @NonNull
         public Configuration migrationSource(@Nullable final Configuration source) {
-            return new Configuration(mServer, mClientId, mAccountType, source);
+            return new Configuration(mServer, mClientId, mAccountType, mDefaultRedirectUri, source);
         }
 
         @Override

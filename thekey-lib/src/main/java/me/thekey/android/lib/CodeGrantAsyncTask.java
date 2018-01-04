@@ -22,7 +22,7 @@ public abstract class CodeGrantAsyncTask extends AsyncTask<String, Void, String>
     protected final String doInBackground(final String... code) {
         if (code.length > 0) {
             try {
-                return mTheKey.processCodeGrant(code[0], mTheKey.getRedirectUri());
+                return mTheKey.processCodeGrant(code[0], mTheKey.getDefaultRedirectUri());
             } catch (final TheKeySocketException e) {
                 return null;
             }
