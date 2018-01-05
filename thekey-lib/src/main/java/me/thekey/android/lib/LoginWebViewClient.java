@@ -24,7 +24,6 @@ public abstract class LoginWebViewClient extends WebViewClient {
     private final Bundle mArgs;
     @NonNull
     protected final TheKeyImpl mTheKey;
-    private final String mState;
 
     /* various Uris used internally */
     private final Uri mOauthUri;
@@ -32,17 +31,12 @@ public abstract class LoginWebViewClient extends WebViewClient {
     private final Uri mRedirectUri;
 
     protected LoginWebViewClient(final Context context, final Bundle args) {
-        this(context, args, null);
-    }
-
-    private LoginWebViewClient(final Context context, final Bundle args, final String state) {
         mContext = context;
         mArgs = args;
         mTheKey = TheKeyImpl.getInstance(context);
         mOauthUri = mTheKey.getAuthorizeUri().buildUpon().query("").build();
         mSelfServiceUri = mTheKey.getCasUri("service", "selfservice");
         mRedirectUri = mTheKey.getDefaultRedirectUri();
-        mState = state;
     }
 
     @Override
