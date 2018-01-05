@@ -52,6 +52,9 @@ import static me.thekey.android.core.Constants.OAUTH_PARAM_RESPONSE_TYPE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_STATE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
 import static me.thekey.android.core.Constants.OAUTH_RESPONSE_TYPE_CODE;
+import static me.thekey.android.core.PkceUtils.encodeS256Challenge;
+import static me.thekey.android.core.PkceUtils.generateUrlSafeBase64String;
+import static me.thekey.android.core.PkceUtils.generateVerifier;
 
 /**
  * The Key interaction library, handles all interactions with The Key OAuth API
@@ -79,28 +82,35 @@ public abstract class TheKeyImpl implements TheKey {
     @NonNull
     @RestrictTo(SUBCLASSES)
     final Configuration mConfig;
+    @Nullable
+    private TheKeyImpl mMigrationSource;
     @NonNull
     private final Uri mServer;
     private final long mClientId;
-    @Nullable
-    private TheKeyImpl mMigrationSource;
+
+    @NonNull
+    private final Uri mDefaultRedirectUri;
 
     @Nullable
     private String mDefaultGuid;
 
     TheKeyImpl(@NonNull final Context context, @NonNull final Configuration config) {
         mContext = context;
-        mEventsManager = new LocalBroadcastManagerEventsManager(mContext);
         mConfig = config;
         mServer = mConfig.mServer;
         mClientId = mConfig.mClientId;
         if (mClientId == INVALID_CLIENT_ID) {
             throw new IllegalStateException("client_id is invalid or not provided");
         }
+        mDefaultGuid = getPrefs().getString(PREF_DEFAULT_GUID, null);
+
+        mDefaultRedirectUri = mConfig.mDefaultRedirectUri != null ? mConfig.mDefaultRedirectUri :
+                getCasUri("oauth", "client", "public");
+
+        mEventsManager = new LocalBroadcastManagerEventsManager(mContext);
         if (mConfig.mMigrationSource != null) {
             mMigrationSource = createInstance(mContext, mConfig.mMigrationSource);
         }
-        mDefaultGuid = getPrefs().getString(PREF_DEFAULT_GUID, null);
     }
 
     @NonNull
@@ -261,24 +271,30 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @NonNull
-    public Uri getRedirectUri() {
-        return getCasUri("oauth", "client", "public");
+    @Override
+    public Uri getDefaultRedirectUri() {
+        return mDefaultRedirectUri;
     }
 
     @RestrictTo(LIBRARY_GROUP)
     public final Uri getAuthorizeUri() {
-        return this.getAuthorizeUri(null);
+        return getAuthorizeUri(getDefaultRedirectUri(), null);
     }
 
-    private Uri getAuthorizeUri(final String state) {
+    private Uri getAuthorizeUri(@NonNull final Uri redirectUri, @Nullable String state) {
+        if (state == null) {
+            state = generateUrlSafeBase64String(16);
+        }
+        final String challenge = encodeS256Challenge(generateAndStoreCodeVerifier(state));
+
         // build oauth authorize url
-        final Builder uri = this.getCasUri("login").buildUpon()
+        final Builder uri = getCasUri("login").buildUpon()
                 .appendQueryParameter(OAUTH_PARAM_RESPONSE_TYPE, OAUTH_RESPONSE_TYPE_CODE)
                 .appendQueryParameter(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId))
-                .appendQueryParameter(OAUTH_PARAM_REDIRECT_URI, getRedirectUri().toString());
-        if (state != null) {
-            uri.appendQueryParameter(OAUTH_PARAM_STATE, state);
-        }
+                .appendQueryParameter(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString())
+                .appendQueryParameter(OAUTH_PARAM_STATE, state)
+                .appendQueryParameter(PARAM_CODE_CHALLENGE_METHOD, CODE_CHALLENGE_METHOD_S256)
+                .appendQueryParameter(PARAM_CODE_CHALLENGE, challenge);
 
         return uri.build();
     }
@@ -470,22 +486,31 @@ public abstract class TheKeyImpl implements TheKey {
 
     @Override
     @WorkerThread
-    public final String processCodeGrant(@NonNull final String code, @NonNull final Uri redirectUri)
-            throws TheKeySocketException {
+    public final String processCodeGrant(@NonNull final String code, @NonNull final Uri redirectUri,
+                                         @Nullable final String state) throws TheKeySocketException {
         // build the request params
         final Map<String, String> params = new HashMap<>();
         params.put(PARAM_GRANT_TYPE, GRANT_TYPE_AUTHORIZATION_CODE);
         params.put(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId));
         params.put(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString());
         params.put(OAUTH_PARAM_CODE, code);
+        final String verifier = lookupCodeVerifier(state);
+        if (verifier != null) {
+            params.put(PARAM_CODE_VERIFIER, verifier);
+        }
 
         // perform the token api request and process the response
         final JSONObject resp = sendTokenApiRequest(params);
         if (resp != null) {
             final String guid = resp.optString(OAUTH_PARAM_THEKEY_GUID, null);
             if (guid != null) {
-                storeGrants(guid, resp);
-                return guid;
+                if (storeGrants(guid, resp)) {
+                    // clear any dangling code verifiers
+                    clearCodeVerifiers();
+
+                    // return the guid this grant was for
+                    return guid;
+                }
             }
         }
 
@@ -504,8 +529,7 @@ public abstract class TheKeyImpl implements TheKey {
         // perform the token api request and process the response
         final JSONObject resp = sendTokenApiRequest(params);
         if (resp != null) {
-            storeGrants(guid, resp);
-            return true;
+            return storeGrants(guid, resp);
         }
         return false;
     }
@@ -590,6 +614,41 @@ public abstract class TheKeyImpl implements TheKey {
     @RestrictTo(SUBCLASSES)
     abstract boolean createMigratingAccount(@NonNull MigratingAccount account);
 
+    @NonNull
+    private String codeVerifierKey(@NonNull final String state) {
+        return "code_verifier-" + state;
+    }
+
+    @NonNull
+    private String generateAndStoreCodeVerifier(@NonNull final String state) {
+        final String verifier = generateVerifier();
+        getPrefs().edit().putString(codeVerifierKey(state), verifier).apply();
+        return verifier;
+    }
+
+    @Nullable
+    private String lookupCodeVerifier(@Nullable final String state) {
+        if (state == null) {
+            return null;
+        }
+
+        final String key = codeVerifierKey(state);
+        final String verifier = getPrefs().getString(key, null);
+        getPrefs().edit().remove(key).apply();
+        return verifier;
+    }
+
+    private void clearCodeVerifiers() {
+        final SharedPreferences prefs = getPrefs();
+        final SharedPreferences.Editor editor = prefs.edit();
+        for (final String key : prefs.getAll().keySet()) {
+            if (key.startsWith("code_verifier-")) {
+                editor.remove(key);
+            }
+        }
+        editor.apply();
+    }
+
     @SuppressWarnings("deprecation")
     private String encodeParam(final String name, final String value) {
         try {
@@ -661,46 +720,61 @@ public abstract class TheKeyImpl implements TheKey {
         @Nullable
         @RestrictTo(SUBCLASSES)
         final String mAccountType;
+
+        @Nullable
+        @RestrictTo(SUBCLASSES)
+        final Uri mDefaultRedirectUri;
+
         @Nullable
         final Configuration mMigrationSource;
 
         private Configuration(@Nullable final Uri server, final long id, @Nullable final String accountType,
-                              @Nullable final Configuration migrationSource) {
+                              @Nullable final Uri redirectUri, @Nullable final Configuration migrationSource) {
             mServer = server != null ? server : CAS_SERVER;
             mClientId = id;
             mAccountType = accountType;
+            mDefaultRedirectUri = redirectUri;
             mMigrationSource = migrationSource;
         }
 
         @NonNull
         public static Configuration base() {
-            return new Configuration(null, INVALID_CLIENT_ID, null, null);
+            return new Configuration(null, INVALID_CLIENT_ID, null, null, null);
         }
 
         @NonNull
-        public Configuration server(@Nullable final String server) {
-            return new Configuration(server != null ? Uri.parse(server + (server.endsWith("/") ? "" : "/")) : null,
-                                     mClientId, mAccountType, mMigrationSource);
+        public Configuration server(@Nullable final String uri) {
+            return server(uri != null ? Uri.parse(uri + (uri.endsWith("/") ? "" : "/")) : null);
         }
 
         @NonNull
-        public Configuration server(@Nullable final Uri server) {
-            return new Configuration(server, mClientId, mAccountType, mMigrationSource);
-        }
-
-        @NonNull
-        public Configuration clientId(final long id) {
-            return new Configuration(mServer, id, mAccountType, mMigrationSource);
+        public Configuration server(@Nullable final Uri uri) {
+            return new Configuration(uri, mClientId, mAccountType, mDefaultRedirectUri, mMigrationSource);
         }
 
         @NonNull
         public Configuration accountType(@Nullable final String type) {
-            return new Configuration(mServer, mClientId, type, mMigrationSource);
+            return new Configuration(mServer, mClientId, type, mDefaultRedirectUri, mMigrationSource);
+        }
+
+        @NonNull
+        public Configuration clientId(final long id) {
+            return new Configuration(mServer, id, mAccountType, mDefaultRedirectUri, mMigrationSource);
+        }
+
+        @NonNull
+        public Configuration redirectUri(@Nullable final String uri) {
+            return redirectUri(uri != null ? Uri.parse(uri) : null);
+        }
+
+        @NonNull
+        public Configuration redirectUri(@Nullable final Uri uri) {
+            return new Configuration(mServer, mClientId, mAccountType, uri, mMigrationSource);
         }
 
         @NonNull
         public Configuration migrationSource(@Nullable final Configuration source) {
-            return new Configuration(mServer, mClientId, mAccountType, source);
+            return new Configuration(mServer, mClientId, mAccountType, mDefaultRedirectUri, source);
         }
 
         @Override

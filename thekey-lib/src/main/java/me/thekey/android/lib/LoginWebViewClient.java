@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewParent;
@@ -23,7 +24,6 @@ public abstract class LoginWebViewClient extends WebViewClient {
     private final Bundle mArgs;
     @NonNull
     protected final TheKeyImpl mTheKey;
-    private final String mState;
 
     /* various Uris used internally */
     private final Uri mOauthUri;
@@ -31,17 +31,12 @@ public abstract class LoginWebViewClient extends WebViewClient {
     private final Uri mRedirectUri;
 
     protected LoginWebViewClient(final Context context, final Bundle args) {
-        this(context, args, null);
-    }
-
-    private LoginWebViewClient(final Context context, final Bundle args, final String state) {
         mContext = context;
         mArgs = args;
         mTheKey = TheKeyImpl.getInstance(context);
         mOauthUri = mTheKey.getAuthorizeUri().buildUpon().query("").build();
         mSelfServiceUri = mTheKey.getCasUri("service", "selfservice");
-        mRedirectUri = mTheKey.getRedirectUri();
-        mState = state;
+        mRedirectUri = mTheKey.getDefaultRedirectUri();
     }
 
     @Override
@@ -52,8 +47,9 @@ public abstract class LoginWebViewClient extends WebViewClient {
         // response redirect
         if (this.isRedirectUri(parsedUri)) {
             final String code = parsedUri.getQueryParameter(OAUTH_PARAM_CODE);
+            final String state = parsedUri.getQueryParameter(OAUTH_PARAM_STATE);
             if (code != null) {
-                this.onAuthorizeSuccess(parsedUri, code);
+                onAuthorizeSuccess(parsedUri, code, state);
             } else {
                 this.onAuthorizeError(parsedUri, parsedUri.getQueryParameter(OAUTH_PARAM_ERROR));
             }
@@ -120,7 +116,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
     }
 
     private boolean isRedirectUri(final Uri uri) {
-        return isBaseUriEqual(mRedirectUri, uri) && TextUtils.equals(mState, uri.getQueryParameter(OAUTH_PARAM_STATE));
+        return isBaseUriEqual(mRedirectUri, uri) && uri.getQueryParameter(OAUTH_PARAM_CODE) != null;
     }
 
     private boolean isSelfServiceUri(final Uri uri) {
@@ -133,7 +129,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
                 TextUtils.equals(uri.getPath(), baseUri.getPath());
     }
 
-    protected abstract void onAuthorizeSuccess(Uri uri, String code);
+    protected abstract void onAuthorizeSuccess(@NonNull Uri uri, @NonNull String code, @Nullable String state);
 
     protected abstract void onAuthorizeError(Uri uri, String errorCode);
 }

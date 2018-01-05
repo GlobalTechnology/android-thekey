@@ -1,5 +1,6 @@
 package me.thekey.android;
 
+import android.net.Uri;
 import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,6 +17,11 @@ public interface TheKey extends TheKeyAttributeApi, TheKeyTicketApi, TheKeyToken
     String EXTRA_CHANGING_USER = "changing_user";
 
     long INVALID_CLIENT_ID = -1;
+
+    // RFC-7636 PKCE
+    String PARAM_CODE_CHALLENGE_METHOD = "code_challenge_method";
+    String PARAM_CODE_CHALLENGE = "code_challenge";
+    String CODE_CHALLENGE_METHOD_S256 = "S256";
 
     /**
      * This method will return a list of all current sessions. This is a non-blocking method and may be called on the UI
@@ -55,6 +61,13 @@ public interface TheKey extends TheKeyAttributeApi, TheKeyTicketApi, TheKeyToken
      */
     @AnyThread
     boolean isValidSession(@Nullable String guid);
+
+    /**
+     * @return the configured default redirect_uri
+     */
+    @NonNull
+    @AnyThread
+    Uri getDefaultRedirectUri();
 
     /**
      * This method will logout the default user. This is a non-blocking method
