@@ -21,7 +21,6 @@ import me.thekey.android.Attributes;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
 
 @RestrictTo(LIBRARY)
@@ -95,8 +94,8 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
                 }
                 prefs.remove(PREF_GUID);
                 prefs.remove(PREF_USERNAME);
-                if (json.has(OAUTH_PARAM_THEKEY_GUID)) {
-                    prefs.putString(PREF_GUID, json.getString(OAUTH_PARAM_THEKEY_GUID));
+                if (json.has(JSON_THEKEY_GUID)) {
+                    prefs.putString(PREF_GUID, json.getString(JSON_THEKEY_GUID));
                 }
                 if (json.has(OAUTH_PARAM_THEKEY_USERNAME)) {
                     prefs.putString(PREF_USERNAME, json.getString(OAUTH_PARAM_THEKEY_USERNAME));
@@ -118,7 +117,7 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             }
 
             // trigger logout/login broadcasts based on guid changes
-            final String newGuid = json.optString(OAUTH_PARAM_THEKEY_GUID, null);
+            final String newGuid = json.optString(JSON_THEKEY_GUID, null);
             if (oldGuid != null && !oldGuid.equals(newGuid)) {
                 mEventsManager.logoutEvent(oldGuid, newGuid != null);
             }

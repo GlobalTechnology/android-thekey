@@ -27,7 +27,6 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.accounts.Constants.DATA_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
 
 @RestrictTo(LIBRARY_GROUP)
@@ -131,7 +130,7 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
     @RestrictTo(SUBCLASSES)
     boolean storeGrants(@NonNull final String guid, @NonNull final JSONObject json) {
         // short-circuit if this grant is for a different user
-        if (!TextUtils.equals(guid, json.optString(OAUTH_PARAM_THEKEY_GUID, null))) {
+        if (!TextUtils.equals(guid, json.optString(JSON_THEKEY_GUID, null))) {
             return false;
         }
 

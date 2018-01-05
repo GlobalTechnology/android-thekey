@@ -13,7 +13,6 @@ public final class Constants {
     public static final String OAUTH_PARAM_REDIRECT_URI = "redirect_uri";
     public static final String OAUTH_PARAM_RESPONSE_TYPE = "response_type";
     public static final String OAUTH_PARAM_STATE = "state";
-    public static final String OAUTH_PARAM_THEKEY_GUID = "thekey_guid";
     public static final String OAUTH_PARAM_THEKEY_USERNAME = "thekey_username";
 
     // OAuth response types

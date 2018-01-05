@@ -50,7 +50,6 @@ import static me.thekey.android.core.Constants.OAUTH_PARAM_CODE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_REDIRECT_URI;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_RESPONSE_TYPE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_STATE;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
 import static me.thekey.android.core.Constants.OAUTH_RESPONSE_TYPE_CODE;
 import static me.thekey.android.core.PkceUtils.encodeS256Challenge;
 import static me.thekey.android.core.PkceUtils.generateUrlSafeBase64String;
@@ -502,7 +501,7 @@ public abstract class TheKeyImpl implements TheKey {
         // perform the token api request and process the response
         final JSONObject resp = sendTokenApiRequest(params);
         if (resp != null) {
-            final String guid = resp.optString(OAUTH_PARAM_THEKEY_GUID, null);
+            final String guid = resp.optString(JSON_THEKEY_GUID, null);
             if (guid != null) {
                 if (storeGrants(guid, resp)) {
                     // clear any dangling code verifiers

@@ -15,6 +15,7 @@ interface TheKeyTokenApi {
 
     String JSON_EXPIRES_IN = "expires_in";
     String JSON_REFRESH_TOKEN = "refresh_token";
+    String JSON_THEKEY_GUID = "thekey_guid";
 
     /**
      * Process an OAuth code grant request. This method is blocking, do not call it from the UI thread.
