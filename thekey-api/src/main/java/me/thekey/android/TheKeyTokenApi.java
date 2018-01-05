@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
+import me.thekey.android.exception.TheKeyApiError;
+
 interface TheKeyTokenApi {
     String PARAM_GRANT_TYPE = "grant_type";
     String PARAM_CODE_VERIFIER = "code_verifier";
@@ -25,7 +27,8 @@ interface TheKeyTokenApi {
      * @param state       The state used with this grant. This will be used to lookup any code_verifier for this grant.
      * @return The guid the code grant was successfully processed for, null if there was an error.
      */
+    @Nullable
     @WorkerThread
     String processCodeGrant(@NonNull String code, @NonNull Uri redirectUri, @Nullable String state)
-            throws TheKeySocketException;
+            throws TheKeyApiError, TheKeySocketException;
 }
