@@ -18,6 +18,11 @@ public interface TheKey extends TheKeyAttributeApi, TheKeyTicketApi, TheKeyToken
 
     long INVALID_CLIENT_ID = -1;
 
+    // RFC-7636 PKCE
+    String PARAM_CODE_CHALLENGE_METHOD = "code_challenge_method";
+    String PARAM_CODE_CHALLENGE = "code_challenge";
+    String CODE_CHALLENGE_METHOD_S256 = "S256";
+
     /**
      * This method will return a list of all current sessions. This is a non-blocking method and may be called on the UI
      * thread.

@@ -52,6 +52,9 @@ import static me.thekey.android.core.Constants.OAUTH_PARAM_RESPONSE_TYPE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_STATE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_GUID;
 import static me.thekey.android.core.Constants.OAUTH_RESPONSE_TYPE_CODE;
+import static me.thekey.android.core.PkceUtils.encodeS256Challenge;
+import static me.thekey.android.core.PkceUtils.generateUrlSafeBase64String;
+import static me.thekey.android.core.PkceUtils.generateVerifier;
 
 /**
  * The Key interaction library, handles all interactions with The Key OAuth API
@@ -278,15 +281,20 @@ public abstract class TheKeyImpl implements TheKey {
         return getAuthorizeUri(getDefaultRedirectUri(), null);
     }
 
-    private Uri getAuthorizeUri(@NonNull final Uri redirectUri, @Nullable final String state) {
+    private Uri getAuthorizeUri(@NonNull final Uri redirectUri, @Nullable String state) {
+        if (state == null) {
+            state = generateUrlSafeBase64String(16);
+        }
+        final String challenge = encodeS256Challenge(generateAndStoreCodeVerifier(state));
+
         // build oauth authorize url
-        final Builder uri = this.getCasUri("login").buildUpon()
+        final Builder uri = getCasUri("login").buildUpon()
                 .appendQueryParameter(OAUTH_PARAM_RESPONSE_TYPE, OAUTH_RESPONSE_TYPE_CODE)
                 .appendQueryParameter(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId))
-                .appendQueryParameter(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString());
-        if (state != null) {
-            uri.appendQueryParameter(OAUTH_PARAM_STATE, state);
-        }
+                .appendQueryParameter(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString())
+                .appendQueryParameter(OAUTH_PARAM_STATE, state)
+                .appendQueryParameter(PARAM_CODE_CHALLENGE_METHOD, CODE_CHALLENGE_METHOD_S256)
+                .appendQueryParameter(PARAM_CODE_CHALLENGE, challenge);
 
         return uri.build();
     }
@@ -597,6 +605,18 @@ public abstract class TheKeyImpl implements TheKey {
 
     @RestrictTo(SUBCLASSES)
     abstract boolean createMigratingAccount(@NonNull MigratingAccount account);
+
+    @NonNull
+    private String codeVerifierKey(@NonNull final String state) {
+        return "code_verifier-" + state;
+    }
+
+    @NonNull
+    private String generateAndStoreCodeVerifier(@NonNull final String state) {
+        final String verifier = generateVerifier();
+        getPrefs().edit().putString(codeVerifierKey(state), verifier).apply();
+        return verifier;
+    }
 
     @SuppressWarnings("deprecation")
     private String encodeParam(final String name, final String value) {
