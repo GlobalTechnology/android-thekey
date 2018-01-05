@@ -478,8 +478,8 @@ public abstract class TheKeyImpl implements TheKey {
 
     @Override
     @WorkerThread
-    public final String processCodeGrant(@NonNull final String code, @NonNull final Uri redirectUri)
-            throws TheKeySocketException {
+    public String processCodeGrant(@NonNull final String code, @NonNull final Uri redirectUri,
+                                   @Nullable final String state) throws TheKeySocketException {
         // build the request params
         final Map<String, String> params = new HashMap<>();
         params.put(PARAM_GRANT_TYPE, GRANT_TYPE_AUTHORIZATION_CODE);

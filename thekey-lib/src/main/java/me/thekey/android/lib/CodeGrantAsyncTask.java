@@ -30,7 +30,7 @@ public abstract class CodeGrantAsyncTask extends AsyncTask<Void, Void, String> {
     @Override
     protected final String doInBackground(final Void... params) {
         try {
-            return mTheKey.processCodeGrant(mCode, mTheKey.getDefaultRedirectUri());
+            return mTheKey.processCodeGrant(mCode, mTheKey.getDefaultRedirectUri(), mState);
         } catch (final TheKeySocketException e) {
             return null;
         }
