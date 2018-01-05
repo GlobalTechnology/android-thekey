@@ -494,14 +494,23 @@ public abstract class TheKeyImpl implements TheKey {
         params.put(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId));
         params.put(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString());
         params.put(OAUTH_PARAM_CODE, code);
+        final String verifier = lookupCodeVerifier(state);
+        if (verifier != null) {
+            params.put(PARAM_CODE_VERIFIER, verifier);
+        }
 
         // perform the token api request and process the response
         final JSONObject resp = sendTokenApiRequest(params);
         if (resp != null) {
             final String guid = resp.optString(OAUTH_PARAM_THEKEY_GUID, null);
             if (guid != null) {
-                storeGrants(guid, resp);
-                return guid;
+                if (storeGrants(guid, resp)) {
+                    // clear any dangling code verifiers
+                    clearCodeVerifiers();
+
+                    // return the guid this grant was for
+                    return guid;
+                }
             }
         }
 
@@ -616,6 +625,29 @@ public abstract class TheKeyImpl implements TheKey {
         final String verifier = generateVerifier();
         getPrefs().edit().putString(codeVerifierKey(state), verifier).apply();
         return verifier;
+    }
+
+    @Nullable
+    private String lookupCodeVerifier(@Nullable final String state) {
+        if (state == null) {
+            return null;
+        }
+
+        final String key = codeVerifierKey(state);
+        final String verifier = getPrefs().getString(key, null);
+        getPrefs().edit().remove(key).apply();
+        return verifier;
+    }
+
+    private void clearCodeVerifiers() {
+        final SharedPreferences prefs = getPrefs();
+        final SharedPreferences.Editor editor = prefs.edit();
+        for (final String key : prefs.getAll().keySet()) {
+            if (key.startsWith("code_verifier-")) {
+                editor.remove(key);
+            }
+        }
+        editor.apply();
     }
 
     @SuppressWarnings("deprecation")
