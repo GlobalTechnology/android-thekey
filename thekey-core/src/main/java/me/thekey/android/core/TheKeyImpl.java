@@ -47,6 +47,7 @@ import static me.thekey.android.core.Constants.CAS_SERVER;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_CLIENT_ID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_CODE;
+import static me.thekey.android.core.Constants.OAUTH_PARAM_ERROR;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_REDIRECT_URI;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_RESPONSE_TYPE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_STATE;
@@ -317,7 +318,7 @@ public abstract class TheKeyImpl implements TheKey {
 
                 if (conn.getResponseCode() == HTTP_OK) {
                     // parse the json response
-                    final JSONObject json = this.parseJsonResponse(conn.getInputStream());
+                    final JSONObject json = parseJsonResponse(conn.getInputStream());
 
                     storeAttributes(guid, json);
 
@@ -335,7 +336,7 @@ public abstract class TheKeyImpl implements TheKey {
                         // OAuth Bearer auth
                         if ("BEARER".equals(challenge.getScheme())) {
                             // extract the error encountered
-                            final String error = challenge.getParameterValue("error");
+                            final String error = challenge.getParameterValue(OAUTH_PARAM_ERROR);
                             if ("insufficient_scope".equals(error)) {
                                 removeAttributes(guid);
                                 return false;
@@ -403,7 +404,7 @@ public abstract class TheKeyImpl implements TheKey {
             conn = (HttpsURLConnection) new URL(ticketUri.toString()).openConnection();
 
             // parse the json response if we have a valid response
-            if (conn.getResponseCode() == 200) {
+            if (conn.getResponseCode() == HTTP_OK) {
                 final JSONObject json = parseJsonResponse(conn.getInputStream());
                 return json.optString(JSON_TICKET, null);
             }
