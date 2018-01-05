@@ -3,6 +3,8 @@ package me.thekey.android.lib.dialog;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import me.thekey.android.lib.LoginWebViewClient;
 import me.thekey.android.lib.fragment.DialogFragment;
@@ -16,8 +18,9 @@ public class LoginDialogWebViewClient extends LoginWebViewClient {
     }
 
     @Override
-    protected void onAuthorizeSuccess(final Uri uri, final String code) {
-        new LoginDialogCodeGrantAsyncTask(mDialog, mTheKey, code, null).execute();
+    protected void onAuthorizeSuccess(@NonNull final Uri uri, @NonNull final String code,
+                                      @Nullable final String state) {
+        new LoginDialogCodeGrantAsyncTask(mDialog, mTheKey, code, state).execute();
     }
 
     @Override

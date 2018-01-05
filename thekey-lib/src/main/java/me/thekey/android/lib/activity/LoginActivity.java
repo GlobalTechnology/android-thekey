@@ -94,8 +94,9 @@ public class LoginActivity extends Activity {
         }
 
         @Override
-        protected void onAuthorizeSuccess(final Uri uri, final String code) {
-            new ActivityCodeGrantAsyncTask(LoginActivity.this, mTheKey, code, null).execute();
+        protected void onAuthorizeSuccess(@NonNull final Uri uri, @NonNull final String code,
+                                          @Nullable final String state) {
+            new ActivityCodeGrantAsyncTask(LoginActivity.this, mTheKey, code, state).execute();
         }
 
         @Override
