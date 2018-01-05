@@ -529,8 +529,7 @@ public abstract class TheKeyImpl implements TheKey {
         // perform the token api request and process the response
         final JSONObject resp = sendTokenApiRequest(params);
         if (resp != null) {
-            storeGrants(guid, resp);
-            return true;
+            return storeGrants(guid, resp);
         }
         return false;
     }
