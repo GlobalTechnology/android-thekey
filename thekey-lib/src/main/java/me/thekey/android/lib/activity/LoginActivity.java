@@ -78,7 +78,7 @@ public class LoginActivity extends Activity {
         }
 
         // attach the login view to the current frame
-        this.frame = (FrameLayout) findViewById(R.id.loginViewFrame);
+        frame = findViewById(R.id.loginViewFrame);
         this.frame.addView(this.loginView);
     }
 
