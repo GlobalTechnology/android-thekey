@@ -523,6 +523,33 @@ public abstract class TheKeyImpl implements TheKey {
         return null;
     }
 
+    @Nullable
+    @Override
+    @WorkerThread
+    public final String processPasswordGrant(@NonNull final String username, @NonNull final String password)
+            throws TheKeyApiError, TheKeySocketException  {
+        // build the request params
+        final Map<String, String> params = new HashMap<>();
+        params.put(PARAM_GRANT_TYPE, GRANT_TYPE_PASSWORD);
+        params.put(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId));
+        params.put(PARAM_USERNAME, username);
+        params.put(PARAM_PASSWORD, password);
+
+        // perform the token api request and process the response
+        final JSONObject resp = sendTokenApiRequest(params);
+        if (resp != null) {
+            final String guid = resp.optString(JSON_THEKEY_GUID, null);
+            if (guid != null) {
+                if (storeGrants(guid, resp)) {
+                    // return the guid this grant was for
+                    return guid;
+                }
+            }
+        }
+
+        return null;
+    }
+
     @WorkerThread
     private boolean processRefreshTokenGrant(@NonNull final String guid, @NonNull final String refreshToken)
             throws TheKeyApiError, TheKeySocketException {
