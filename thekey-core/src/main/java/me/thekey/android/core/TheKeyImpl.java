@@ -37,10 +37,12 @@ import me.thekey.android.EventsManager;
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.TheKeySocketException;
+import me.thekey.android.exception.TheKeyApiError;
 import me.thekey.android.lib.LocalBroadcastManagerEventsManager;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static me.thekey.android.core.Constants.CAS_SERVER;
@@ -447,8 +449,11 @@ public abstract class TheKeyImpl implements TheKey {
             // try fetching a new access_token using a refresh_token
             final String refreshToken = getRefreshToken(guid);
             if (refreshToken != null) {
-                if (processRefreshTokenGrant(guid, refreshToken)) {
-                    return getValidAccessToken(guid, depth + 1);
+                try {
+                    if (processRefreshTokenGrant(guid, refreshToken)) {
+                        return getValidAccessToken(guid, depth + 1);
+                    }
+                } catch (final TheKeyApiError ignored) {
                 }
 
                 // the refresh_token isn't valid anymore
@@ -487,7 +492,8 @@ public abstract class TheKeyImpl implements TheKey {
     @Override
     @WorkerThread
     public final String processCodeGrant(@NonNull final String code, @NonNull final Uri redirectUri,
-                                         @Nullable final String state) throws TheKeySocketException {
+                                         @Nullable final String state)
+            throws TheKeyApiError, TheKeySocketException {
         // build the request params
         final Map<String, String> params = new HashMap<>();
         params.put(PARAM_GRANT_TYPE, GRANT_TYPE_AUTHORIZATION_CODE);
@@ -517,9 +523,36 @@ public abstract class TheKeyImpl implements TheKey {
         return null;
     }
 
+    @Nullable
+    @Override
+    @WorkerThread
+    public final String processPasswordGrant(@NonNull final String username, @NonNull final String password)
+            throws TheKeyApiError, TheKeySocketException  {
+        // build the request params
+        final Map<String, String> params = new HashMap<>();
+        params.put(PARAM_GRANT_TYPE, GRANT_TYPE_PASSWORD);
+        params.put(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId));
+        params.put(PARAM_USERNAME, username);
+        params.put(PARAM_PASSWORD, password);
+
+        // perform the token api request and process the response
+        final JSONObject resp = sendTokenApiRequest(params);
+        if (resp != null) {
+            final String guid = resp.optString(JSON_THEKEY_GUID, null);
+            if (guid != null) {
+                if (storeGrants(guid, resp)) {
+                    // return the guid this grant was for
+                    return guid;
+                }
+            }
+        }
+
+        return null;
+    }
+
     @WorkerThread
     private boolean processRefreshTokenGrant(@NonNull final String guid, @NonNull final String refreshToken)
-            throws TheKeySocketException {
+            throws TheKeyApiError, TheKeySocketException {
         // build the request params
         final Map<String, String> params = new HashMap<>();
         params.put(PARAM_GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN);
@@ -535,7 +568,8 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @Nullable
-    private JSONObject sendTokenApiRequest(@NonNull final Map<String, String> params) throws TheKeySocketException {
+    private JSONObject sendTokenApiRequest(@NonNull final Map<String, String> params)
+            throws TheKeyApiError, TheKeySocketException {
         final Uri tokenUri = getCasUri("api", "oauth", "token");
         HttpsURLConnection conn = null;
         try {
@@ -556,6 +590,8 @@ public abstract class TheKeyImpl implements TheKey {
             // if it's a successful request, return the parsed JSON
             if (conn.getResponseCode() == HTTP_OK) {
                 return parseJsonResponse(conn.getInputStream());
+            } else if (conn.getResponseCode() == HTTP_BAD_REQUEST) {
+                throw TheKeyApiError.parse(conn.getResponseCode(), parseJsonResponse(conn.getErrorStream()));
             }
         } catch (final MalformedURLException e) {
             throw new RuntimeException("invalid CAS URL", e);
@@ -661,7 +697,11 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @NonNull
-    private JSONObject parseJsonResponse(final InputStream response) throws IOException {
+    private JSONObject parseJsonResponse(@Nullable final InputStream response) throws IOException {
+        if (response == null) {
+            throw new IOException("no data in response from The Key");
+        }
+
         // read response into string builder
         final BufferedReader reader = new BufferedReader(new InputStreamReader(response, "UTF-8"));
         final StringBuilder json = new StringBuilder();
@@ -674,8 +714,8 @@ public abstract class TheKeyImpl implements TheKey {
         try {
             return new JSONObject(json.toString());
         } catch (final JSONException e) {
-            // return an empty object on error
-            return new JSONObject();
+            // throw an IOException on error
+            throw new IOException("Invalid JSON response from The Key", e);
         }
     }
 
