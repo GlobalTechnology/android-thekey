@@ -3,6 +3,7 @@ package me.thekey.android.lib.support.v4.content;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -13,6 +14,8 @@ import me.thekey.android.TheKey;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.localbroadcast.TheKeyBroadcastReceiver;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+
 public final class AttributesLoader extends AsyncTaskLoader<Attributes> {
     private static final long DEFAULT_MAX_AGE = 24 * 60 * 60 * 1000; /* 1 day */
 
@@ -21,7 +24,8 @@ public final class AttributesLoader extends AsyncTaskLoader<Attributes> {
     @NonNull
     private final TheKeyBroadcastReceiver mReceiver;
     @Nullable
-    private final String mGuid;
+    @RestrictTo(LIBRARY)
+    final String mGuid;
     private final long mMaxAge = DEFAULT_MAX_AGE;
     private boolean mRefresh = false;
 
