@@ -16,10 +16,12 @@ import static me.thekey.android.localbroadcast.Constants.ACTION_LOGOUT;
 public final class BroadcastUtils {
     private static final Uri URI_THEKEY = Uri.parse("thekey://");
 
+    @NonNull
     private static Uri theKeyUri() {
         return URI_THEKEY;
     }
 
+    @NonNull
     @RestrictTo(LIBRARY)
     static Uri theKeyUri(@NonNull final String guid) {
         return URI_THEKEY.buildUpon().appendPath(guid).build();
@@ -40,6 +42,7 @@ public final class BroadcastUtils {
         }
     }
 
+    @NonNull
     private static IntentFilter genericFilter(@NonNull final String action, @Nullable final String guid) {
         final IntentFilter filter = new IntentFilter(action);
         if (guid == null) {
@@ -50,18 +53,22 @@ public final class BroadcastUtils {
         return filter;
     }
 
+    @NonNull
     public static IntentFilter loginFilter(@Nullable final String guid) {
         return genericFilter(ACTION_LOGIN, guid);
     }
 
+    @NonNull
     public static IntentFilter logoutFilter(@Nullable final String guid) {
         return genericFilter(ACTION_LOGOUT, guid);
     }
 
+    @NonNull
     public static IntentFilter changeDefaultSessionFilter() {
         return genericFilter(ACTION_CHANGE_DEFAULT_SESSION, null);
     }
 
+    @NonNull
     public static IntentFilter attributesLoadedFilter(@Nullable final String guid) {
         return genericFilter(ACTION_ATTRIBUTES_LOADED, guid);
     }
