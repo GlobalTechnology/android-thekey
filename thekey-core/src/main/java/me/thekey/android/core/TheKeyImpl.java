@@ -36,9 +36,10 @@ import me.thekey.android.Attributes;
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.TheKeySocketException;
+import me.thekey.android.core.events.NoopEventsManager;
 import me.thekey.android.events.EventsManager;
 import me.thekey.android.exception.TheKeyApiError;
-import me.thekey.android.lib.LocalBroadcastManagerEventsManager;
+import timber.log.Timber;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
@@ -109,7 +110,7 @@ public abstract class TheKeyImpl implements TheKey {
         mDefaultRedirectUri = mConfig.mDefaultRedirectUri != null ? mConfig.mDefaultRedirectUri :
                 getCasUri("oauth", "client", "public");
 
-        mEventsManager = new LocalBroadcastManagerEventsManager(mContext);
+        mEventsManager = resolveEventsManager(mContext, mConfig);
         if (mConfig.mMigrationSource != null) {
             mMigrationSource = createInstance(mContext, mConfig.mMigrationSource);
         }
@@ -136,6 +137,32 @@ public abstract class TheKeyImpl implements TheKey {
         instance.migrateAccounts();
 
         return instance;
+    }
+
+    @NonNull
+    @SuppressLint("BinaryOperationInTimber")
+    private static EventsManager resolveEventsManager(@NonNull final Context context,
+                                                      @NonNull final Configuration config) {
+        // use configured EventsManager
+        EventsManager manager = config.mEventsManager;
+
+        // try creating a default LocalBroadcastManagerEventsManager
+        if (manager == null) {
+            try {
+                manager = (EventsManager) Class.forName("me.thekey.android.content.LocalBroadcastManagerEventsManager")
+                        .getDeclaredConstructor(Context.class)
+                        .newInstance(context);
+            } catch (final Exception e) {
+                Timber.e(e, "Unable to initialize default EventsManager, try initializing one manually");
+            }
+        }
+
+        // create a NoopEventsManager if all else failed
+        if (manager == null) {
+            manager = new NoopEventsManager();
+        }
+
+        return manager;
     }
 
     public static void configure(@NonNull final Configuration config) {
@@ -766,20 +793,25 @@ public abstract class TheKeyImpl implements TheKey {
         final Uri mDefaultRedirectUri;
 
         @Nullable
+        final EventsManager mEventsManager;
+
+        @Nullable
         final Configuration mMigrationSource;
 
         private Configuration(@Nullable final Uri server, final long id, @Nullable final String accountType,
-                              @Nullable final Uri redirectUri, @Nullable final Configuration migrationSource) {
+                              @Nullable final Uri redirectUri, @Nullable final EventsManager eventsManager,
+                              @Nullable final Configuration migrationSource) {
             mServer = server != null ? server : CAS_SERVER;
             mClientId = id;
             mAccountType = accountType;
             mDefaultRedirectUri = redirectUri;
+            mEventsManager = eventsManager;
             mMigrationSource = migrationSource;
         }
 
         @NonNull
         public static Configuration base() {
-            return new Configuration(null, INVALID_CLIENT_ID, null, null, null);
+            return new Configuration(null, INVALID_CLIENT_ID, null, null, null, null);
         }
 
         @NonNull
@@ -789,17 +821,18 @@ public abstract class TheKeyImpl implements TheKey {
 
         @NonNull
         public Configuration server(@Nullable final Uri uri) {
-            return new Configuration(uri, mClientId, mAccountType, mDefaultRedirectUri, mMigrationSource);
+            return new Configuration(uri, mClientId, mAccountType, mDefaultRedirectUri, mEventsManager,
+                                     mMigrationSource);
         }
 
         @NonNull
         public Configuration accountType(@Nullable final String type) {
-            return new Configuration(mServer, mClientId, type, mDefaultRedirectUri, mMigrationSource);
+            return new Configuration(mServer, mClientId, type, mDefaultRedirectUri, mEventsManager, mMigrationSource);
         }
 
         @NonNull
         public Configuration clientId(final long id) {
-            return new Configuration(mServer, id, mAccountType, mDefaultRedirectUri, mMigrationSource);
+            return new Configuration(mServer, id, mAccountType, mDefaultRedirectUri, mEventsManager, mMigrationSource);
         }
 
         @NonNull
@@ -809,12 +842,17 @@ public abstract class TheKeyImpl implements TheKey {
 
         @NonNull
         public Configuration redirectUri(@Nullable final Uri uri) {
-            return new Configuration(mServer, mClientId, mAccountType, uri, mMigrationSource);
+            return new Configuration(mServer, mClientId, mAccountType, uri, mEventsManager, mMigrationSource);
+        }
+
+        @NonNull
+        public Configuration eventsManager(@Nullable final EventsManager manager) {
+            return new Configuration(mServer, mClientId, mAccountType, mDefaultRedirectUri, manager, mMigrationSource);
         }
 
         @NonNull
         public Configuration migrationSource(@Nullable final Configuration source) {
-            return new Configuration(mServer, mClientId, mAccountType, mDefaultRedirectUri, source);
+            return new Configuration(mServer, mClientId, mAccountType, mDefaultRedirectUri, mEventsManager, source);
         }
 
         @Override
@@ -826,8 +864,15 @@ public abstract class TheKeyImpl implements TheKey {
                 return false;
             }
             final Configuration that = (Configuration) o;
-            return mClientId == that.mClientId && mServer.equals(that.mServer) &&
-                    TextUtils.equals(mAccountType, that.mAccountType);
+            return mServer.equals(that.mServer) &&
+                    mClientId == that.mClientId &&
+                    TextUtils.equals(mAccountType, that.mAccountType) &&
+                    (mDefaultRedirectUri != null ? mDefaultRedirectUri.equals(that.mDefaultRedirectUri) :
+                            that.mDefaultRedirectUri == null) &&
+                    (mEventsManager != null ? mEventsManager.equals(that.mEventsManager) :
+                            that.mEventsManager == null) &&
+                    (mMigrationSource != null ? mMigrationSource.equals(that.mMigrationSource) :
+                            that.mMigrationSource == null);
         }
 
         @Override
