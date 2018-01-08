@@ -1,0 +1,11 @@
+android {
+    defaultConfig {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+}
+
+dependencies {
+    api project(':thekey-api')
+
+    implementation "com.android.support:support-core-utils:${deps.androidSupport}"
+}

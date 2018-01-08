@@ -1,4 +1,4 @@
-package me.thekey.android;
+package me.thekey.android.events;
 
 import android.support.annotation.NonNull;
 
