@@ -7,12 +7,12 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import me.thekey.android.events.EventsManager;
 
-import static me.thekey.android.TheKey.ACTION_ATTRIBUTES_LOADED;
-import static me.thekey.android.TheKey.ACTION_CHANGE_DEFAULT_SESSION;
-import static me.thekey.android.TheKey.ACTION_LOGIN;
-import static me.thekey.android.TheKey.ACTION_LOGOUT;
-import static me.thekey.android.TheKey.EXTRA_CHANGING_USER;
-import static me.thekey.android.TheKey.EXTRA_GUID;
+import static me.thekey.android.localbroadcast.Constants.ACTION_ATTRIBUTES_LOADED;
+import static me.thekey.android.localbroadcast.Constants.ACTION_CHANGE_DEFAULT_SESSION;
+import static me.thekey.android.localbroadcast.Constants.ACTION_LOGIN;
+import static me.thekey.android.localbroadcast.Constants.ACTION_LOGOUT;
+import static me.thekey.android.localbroadcast.Constants.EXTRA_CHANGING_USER;
+import static me.thekey.android.localbroadcast.Constants.EXTRA_GUID;
 
 public class LocalBroadcastManagerEventsManager implements EventsManager {
     @NonNull

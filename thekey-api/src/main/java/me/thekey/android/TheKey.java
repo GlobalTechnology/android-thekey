@@ -8,14 +8,6 @@ import android.support.annotation.Nullable;
 import java.util.Collection;
 
 public interface TheKey extends TheKeyAttributeApi, TheKeyTicketApi, TheKeyTokenApi {
-    String ACTION_LOGIN = "thekey.action_login";
-    String ACTION_LOGOUT = "thekey.action_logout";
-    String ACTION_CHANGE_DEFAULT_SESSION = "thekey.action_change_default_session";
-    String ACTION_ATTRIBUTES_LOADED = "thekey.action_attributes_loaded";
-
-    String EXTRA_GUID = "guid";
-    String EXTRA_CHANGING_USER = "changing_user";
-
     long INVALID_CLIENT_ID = -1;
 
     // RFC-7636 PKCE

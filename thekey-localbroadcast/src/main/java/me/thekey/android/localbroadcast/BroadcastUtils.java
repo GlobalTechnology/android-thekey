@@ -5,11 +5,13 @@ import android.net.Uri;
 import android.os.PatternMatcher;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 
-import static me.thekey.android.TheKey.ACTION_ATTRIBUTES_LOADED;
-import static me.thekey.android.TheKey.ACTION_CHANGE_DEFAULT_SESSION;
-import static me.thekey.android.TheKey.ACTION_LOGIN;
-import static me.thekey.android.TheKey.ACTION_LOGOUT;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+import static me.thekey.android.localbroadcast.Constants.ACTION_ATTRIBUTES_LOADED;
+import static me.thekey.android.localbroadcast.Constants.ACTION_CHANGE_DEFAULT_SESSION;
+import static me.thekey.android.localbroadcast.Constants.ACTION_LOGIN;
+import static me.thekey.android.localbroadcast.Constants.ACTION_LOGOUT;
 
 public final class BroadcastUtils {
     private static final Uri URI_THEKEY = Uri.parse("thekey://");
@@ -18,6 +20,7 @@ public final class BroadcastUtils {
         return URI_THEKEY;
     }
 
+    @RestrictTo(LIBRARY)
     static Uri theKeyUri(@NonNull final String guid) {
         return URI_THEKEY.buildUpon().appendPath(guid).build();
     }
