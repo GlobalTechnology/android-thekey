@@ -1,4 +1,4 @@
-package me.thekey.android.lib;
+package me.thekey.android.localbroadcast;
 
 import android.content.IntentFilter;
 import android.net.Uri;

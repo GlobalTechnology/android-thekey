@@ -149,7 +149,8 @@ public abstract class TheKeyImpl implements TheKey {
         // try creating a default LocalBroadcastManagerEventsManager
         if (manager == null) {
             try {
-                manager = (EventsManager) Class.forName("me.thekey.android.content.LocalBroadcastManagerEventsManager")
+                manager = (EventsManager) Class
+                        .forName("me.thekey.android.localbroadcast.LocalBroadcastManagerEventsManager")
                         .getDeclaredConstructor(Context.class)
                         .newInstance(context);
             } catch (final Exception e) {

@@ -1,4 +1,4 @@
-package me.thekey.android.lib;
+package me.thekey.android.localbroadcast;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +13,6 @@ import static me.thekey.android.TheKey.ACTION_LOGIN;
 import static me.thekey.android.TheKey.ACTION_LOGOUT;
 import static me.thekey.android.TheKey.EXTRA_CHANGING_USER;
 import static me.thekey.android.TheKey.EXTRA_GUID;
-import static me.thekey.android.lib.BroadcastUtils.theKeyUri;
 
 public class LocalBroadcastManagerEventsManager implements EventsManager {
     @NonNull
@@ -25,24 +24,25 @@ public class LocalBroadcastManagerEventsManager implements EventsManager {
 
     @Override
     public void loginEvent(@NonNull final String guid) {
-        mBroadcastManager.sendBroadcast(new Intent(ACTION_LOGIN, theKeyUri(guid)).putExtra(EXTRA_GUID, guid));
+        mBroadcastManager.sendBroadcast(new Intent(ACTION_LOGIN, BroadcastUtils.theKeyUri(guid)).putExtra(EXTRA_GUID, guid));
     }
 
     @Override
     public void logoutEvent(@NonNull final String guid, final boolean changingUser) {
-        mBroadcastManager.sendBroadcast(new Intent(ACTION_LOGOUT, theKeyUri(guid)).putExtra(EXTRA_GUID, guid)
+        mBroadcastManager.sendBroadcast(new Intent(ACTION_LOGOUT, BroadcastUtils.theKeyUri(guid)).putExtra(EXTRA_GUID, guid)
                                                 .putExtra(EXTRA_CHANGING_USER, changingUser));
     }
 
     @Override
     public void changeDefaultSessionEvent(@NonNull final String guid) {
         mBroadcastManager
-                .sendBroadcast(new Intent(ACTION_CHANGE_DEFAULT_SESSION, theKeyUri(guid)).putExtra(EXTRA_GUID, guid));
+                .sendBroadcast(new Intent(ACTION_CHANGE_DEFAULT_SESSION, BroadcastUtils
+                        .theKeyUri(guid)).putExtra(EXTRA_GUID, guid));
     }
 
     @Override
     public void attributesUpdatedEvent(@NonNull final String guid) {
         mBroadcastManager
-                .sendBroadcast(new Intent(ACTION_ATTRIBUTES_LOADED, theKeyUri(guid)).putExtra(EXTRA_GUID, guid));
+                .sendBroadcast(new Intent(ACTION_ATTRIBUTES_LOADED, BroadcastUtils.theKeyUri(guid)).putExtra(EXTRA_GUID, guid));
     }
 }

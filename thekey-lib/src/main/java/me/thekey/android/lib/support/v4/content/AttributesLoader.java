@@ -8,10 +8,10 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import java.util.Date;
 
-import me.thekey.android.TheKey;
 import me.thekey.android.Attributes;
+import me.thekey.android.TheKey;
 import me.thekey.android.TheKeySocketException;
-import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
+import me.thekey.android.localbroadcast.TheKeyBroadcastReceiver;
 
 public final class AttributesLoader extends AsyncTaskLoader<Attributes> {
     private static final long DEFAULT_MAX_AGE = 24 * 60 * 60 * 1000; /* 1 day */

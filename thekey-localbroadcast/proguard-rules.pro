@@ -1,0 +1,1 @@
+-keep class me.thekey.android.localbroadcast.LocalBroadcastManagerEventsManager { <init>(...); }
