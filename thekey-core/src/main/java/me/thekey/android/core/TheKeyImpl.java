@@ -195,12 +195,6 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @NonNull
-    public static TheKeyImpl getInstance(@NonNull final Context context, @NonNull final Configuration config) {
-        configure(config);
-        return getInstance(context);
-    }
-
-    @NonNull
     private SharedPreferences getPrefs() {
         return mContext.getSharedPreferences(PREFFILE_THEKEY, Context.MODE_PRIVATE);
     }
