@@ -55,7 +55,7 @@ subprojects {
         }
 
         dependencies {
-            implementation "com.android.support:support-annotations:${deps.androidSupport}"
+            compileOnly "com.android.support:support-annotations:${deps.androidSupport}"
         }
     }
 
