@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
+import me.thekey.android.exception.TheKeySocketException;
+
 interface TheKeyTicketApi {
     String PARAM_SERVICE = "service";
     String JSON_TICKET = "ticket";

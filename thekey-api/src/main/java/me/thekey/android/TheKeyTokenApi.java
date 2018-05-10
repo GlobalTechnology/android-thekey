@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
 import me.thekey.android.exception.TheKeyApiError;
+import me.thekey.android.exception.TheKeySocketException;
 
 interface TheKeyTokenApi {
     String PARAM_GRANT_TYPE = "grant_type";

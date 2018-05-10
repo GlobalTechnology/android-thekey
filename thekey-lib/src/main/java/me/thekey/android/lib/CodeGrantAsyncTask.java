@@ -5,8 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import me.thekey.android.TheKey;
-import me.thekey.android.TheKeySocketException;
 import me.thekey.android.exception.TheKeyApiError;
+import me.thekey.android.exception.TheKeySocketException;
 
 public abstract class CodeGrantAsyncTask extends AsyncTask<Void, Void, String> {
     @NonNull

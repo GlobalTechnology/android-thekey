@@ -19,8 +19,8 @@ import java.util.Date;
 import java.util.HashSet;
 
 import me.thekey.android.Attributes;
-import me.thekey.android.TheKeyInvalidSessionException;
 import me.thekey.android.accounts.AccountUtils;
+import me.thekey.android.exception.TheKeyInvalidSessionException;
 
 import static android.Manifest.permission.GET_ACCOUNTS;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;

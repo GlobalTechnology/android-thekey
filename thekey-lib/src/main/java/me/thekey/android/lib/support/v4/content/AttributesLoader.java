@@ -11,7 +11,7 @@ import java.util.Date;
 
 import me.thekey.android.Attributes;
 import me.thekey.android.TheKey;
-import me.thekey.android.TheKeySocketException;
+import me.thekey.android.exception.TheKeySocketException;
 import me.thekey.android.localbroadcast.TheKeyBroadcastReceiver;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;

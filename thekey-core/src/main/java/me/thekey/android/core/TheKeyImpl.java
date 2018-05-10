@@ -34,11 +34,11 @@ import javax.net.ssl.HttpsURLConnection;
 
 import me.thekey.android.Attributes;
 import me.thekey.android.TheKey;
-import me.thekey.android.TheKeyInvalidSessionException;
-import me.thekey.android.TheKeySocketException;
 import me.thekey.android.core.events.NoopEventsManager;
 import me.thekey.android.events.EventsManager;
 import me.thekey.android.exception.TheKeyApiError;
+import me.thekey.android.exception.TheKeyInvalidSessionException;
+import me.thekey.android.exception.TheKeySocketException;
 import timber.log.Timber;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;

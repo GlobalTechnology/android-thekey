@@ -7,6 +7,8 @@ import android.support.annotation.Nullable;
 
 import java.util.Collection;
 
+import me.thekey.android.exception.TheKeyInvalidSessionException;
+
 public interface TheKey extends TheKeyAttributeApi, TheKeyTicketApi, TheKeyTokenApi {
     long INVALID_CLIENT_ID = -1;
 

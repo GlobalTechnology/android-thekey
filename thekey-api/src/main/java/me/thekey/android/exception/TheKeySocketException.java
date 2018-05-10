@@ -1,4 +1,4 @@
-package me.thekey.android;
+package me.thekey.android.exception;
 
 import java.io.IOException;
 
