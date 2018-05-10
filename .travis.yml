@@ -5,6 +5,7 @@ jdk:
 env:
   global:
     - DEPLOY_USERNAME=travis-ci-android-thekey
+    - secure: aLfXbQByDdqNcOzuzH1EqMQVuaNOQKFqsGROMc2Vo3yShAYsVcn4bB5sQithXAFvVVcAM6Os2IG9cU7oum5fzpSmmmxrlM+kSdQlonWwPlUEt2J+/lHyMBIRznyYLjcAT9V6rMfvJqPi4OohFtPAUKKYbSGj4yj14aqc0+EWY3Q=
     - DEPLOY_SNAPSHOT=true
 #  matrix:
 #    - ANDROID_TARGET=android-15 ANDROID_ABI=armeabi-v7a
