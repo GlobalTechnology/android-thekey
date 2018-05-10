@@ -2,12 +2,10 @@ language: android
 sudo: false
 jdk:
   - oraclejdk8
-#env:
-#  global:
-#    # wait up to 10 minutes for adb to connect to emulator
-#    - ADB_INSTALL_TIMEOUT=10
-#    - DEPLOY_USERNAME=travis-android-thekey
-#    - DEPLOY_PASSWORD=
+env:
+  global:
+    - DEPLOY_USERNAME=travis-ci-android-thekey
+    - DEPLOY_SNAPSHOT=true
 #  matrix:
 #    - ANDROID_TARGET=android-15 ANDROID_ABI=armeabi-v7a
 #    - ANDROID_TARGET=android-21 ANDROID_ABI=armeabi-v7a
@@ -64,6 +62,20 @@ after_failure:
 #    branch: master
 #    jdk: oraclejdk8
 #    condition: $DEPLOY_SNAPSHOT = true
+
+before_deploy:
+  - echo cruGlobalMavenRepositoryUsername=$DEPLOY_USERNAME >> $HOME/.gradle/gradle.properties
+  - echo cruGlobalMavenRepositoryPassword=$DEPLOY_PASSWORD >> $HOME/.gradle/gradle.properties
+
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: ./gradlew publish --parallel
+  on:
+    repo: GlobalTechnology/android-thekey
+    branch: master
+    jdk: oraclejdk8
+    condition: $DEPLOY_SNAPSHOT = true
 
 notifications:
   email: false
