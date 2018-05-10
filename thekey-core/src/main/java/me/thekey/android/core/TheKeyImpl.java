@@ -300,12 +300,13 @@ public abstract class TheKeyImpl implements TheKey {
         return mDefaultRedirectUri;
     }
 
-    @RestrictTo(LIBRARY_GROUP)
-    public final Uri getAuthorizeUri() {
-        return getAuthorizeUri(getDefaultRedirectUri(), null);
-    }
-
-    private Uri getAuthorizeUri(@NonNull final Uri redirectUri, @Nullable String state) {
+    @NonNull
+    @Override
+    @AnyThread
+    public final Uri getAuthorizeUri(@Nullable Uri redirectUri, @Nullable String state) {
+        if (redirectUri == null) {
+            redirectUri = getDefaultRedirectUri();
+        }
         if (state == null) {
             state = generateUrlSafeBase64String(16);
         }
