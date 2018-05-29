@@ -5,8 +5,6 @@ import android.support.annotation.RestrictTo;
 
 import org.json.JSONObject;
 
-import me.thekey.android.TheKeyException;
-
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.exception.InvalidGrantApiError.ERROR_INVALID_GRANT;
 import static me.thekey.android.exception.InvalidGrantApiError.parseInvalidGrantError;

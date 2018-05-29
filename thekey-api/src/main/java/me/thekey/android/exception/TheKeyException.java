@@ -1,4 +1,4 @@
-package me.thekey.android;
+package me.thekey.android.exception;
 
 public class TheKeyException extends Exception {
     private static final long serialVersionUID = -5964985435313974517L;
