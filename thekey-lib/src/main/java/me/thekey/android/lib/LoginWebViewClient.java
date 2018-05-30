@@ -14,10 +14,10 @@ import android.webkit.WebViewClient;
 
 import me.thekey.android.core.TheKeyImpl;
 
+import static me.thekey.android.TheKey.PARAM_STATE;
 import static me.thekey.android.core.Constants.ARG_SELF_SERVICE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_CODE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ERROR;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_STATE;
 
 public abstract class LoginWebViewClient extends WebViewClient {
     private final Context mContext;
@@ -47,7 +47,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
         // response redirect
         if (this.isRedirectUri(parsedUri)) {
             final String code = parsedUri.getQueryParameter(OAUTH_PARAM_CODE);
-            final String state = parsedUri.getQueryParameter(OAUTH_PARAM_STATE);
+            final String state = parsedUri.getQueryParameter(PARAM_STATE);
             if (code != null) {
                 onAuthorizeSuccess(parsedUri, code, state);
             } else {

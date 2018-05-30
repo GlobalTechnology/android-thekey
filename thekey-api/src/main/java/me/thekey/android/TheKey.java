@@ -7,6 +7,10 @@ import android.support.annotation.NonNull;
 public interface TheKey extends TheKeySessions, TheKeyAttributeApi, TheKeyTicketApi, TheKeyTokenApi {
     long INVALID_CLIENT_ID = -1;
 
+    // OAuth params
+    String PARAM_SCOPE = "scope";
+    String PARAM_STATE = "state";
+
     // RFC-7636 PKCE
     String PARAM_CODE_CHALLENGE_METHOD = "code_challenge_method";
     String PARAM_CODE_CHALLENGE = "code_challenge";

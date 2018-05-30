@@ -12,8 +12,6 @@ public final class Constants {
     public static final String OAUTH_PARAM_ERROR = "error";
     public static final String OAUTH_PARAM_REDIRECT_URI = "redirect_uri";
     public static final String OAUTH_PARAM_RESPONSE_TYPE = "response_type";
-    public static final String PARAM_SCOPE = "scope";
-    public static final String OAUTH_PARAM_STATE = "state";
     public static final String OAUTH_PARAM_THEKEY_USERNAME = "thekey_username";
 
     // OAuth response types

@@ -54,9 +54,7 @@ import static me.thekey.android.core.Constants.OAUTH_PARAM_CODE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ERROR;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_REDIRECT_URI;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_RESPONSE_TYPE;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_STATE;
 import static me.thekey.android.core.Constants.OAUTH_RESPONSE_TYPE_CODE;
-import static me.thekey.android.core.Constants.PARAM_SCOPE;
 import static me.thekey.android.core.PkceUtils.encodeS256Challenge;
 import static me.thekey.android.core.PkceUtils.generateUrlSafeBase64String;
 import static me.thekey.android.core.PkceUtils.generateVerifier;
@@ -874,7 +872,7 @@ public abstract class TheKeyImpl implements TheKey {
                     .appendQueryParameter(OAUTH_PARAM_RESPONSE_TYPE, OAUTH_RESPONSE_TYPE_CODE)
                     .appendQueryParameter(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId))
                     .appendQueryParameter(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString())
-                    .appendQueryParameter(OAUTH_PARAM_STATE, state)
+                    .appendQueryParameter(PARAM_STATE, state)
                     .appendQueryParameter(PARAM_CODE_CHALLENGE_METHOD, CODE_CHALLENGE_METHOD_S256)
                     .appendQueryParameter(PARAM_CODE_CHALLENGE, challenge);
 
