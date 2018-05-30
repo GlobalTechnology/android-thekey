@@ -13,7 +13,7 @@
         android:name="android.permission.AUTHENTICATE_ACCOUNTS"
         android:maxSdkVersion="22" />
 
-    <!-- may be required for API >= 23, see: http://developer.android.com/reference/android/accounts/AccountManager.html#getAccountsByType(java.lang.String) -->
+    <!-- may be required for API >= 23, see: https://developer.android.com/reference/android/accounts/AccountManager.html#getAccountsByType(java.lang.String) -->
     <uses-permission
         android:name="android.permission.MANAGE_ACCOUNTS"
         android:maxSdkVersion="22" />
