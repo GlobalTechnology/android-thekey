@@ -18,4 +18,11 @@ public interface TheKey extends TheKeySessions, TheKeyAttributeApi, TheKeyTicket
     @NonNull
     @AnyThread
     Uri getDefaultRedirectUri();
+
+    /**
+     * @return a builder that will generate a login URI.
+     */
+    @NonNull
+    @AnyThread
+    LoginUriBuilder loginUriBuilder();
 }

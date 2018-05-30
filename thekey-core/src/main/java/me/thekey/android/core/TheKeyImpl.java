@@ -33,6 +33,7 @@ import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 
 import me.thekey.android.Attributes;
+import me.thekey.android.LoginUriBuilder;
 import me.thekey.android.TheKey;
 import me.thekey.android.core.events.NoopEventsManager;
 import me.thekey.android.events.EventsManager;
@@ -55,6 +56,7 @@ import static me.thekey.android.core.Constants.OAUTH_PARAM_REDIRECT_URI;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_RESPONSE_TYPE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_STATE;
 import static me.thekey.android.core.Constants.OAUTH_RESPONSE_TYPE_CODE;
+import static me.thekey.android.core.Constants.PARAM_SCOPE;
 import static me.thekey.android.core.PkceUtils.encodeS256Challenge;
 import static me.thekey.android.core.PkceUtils.generateUrlSafeBase64String;
 import static me.thekey.android.core.PkceUtils.generateVerifier;
@@ -89,7 +91,7 @@ public abstract class TheKeyImpl implements TheKey {
     private TheKeyImpl mMigrationSource;
     @NonNull
     private final Uri mServer;
-    private final long mClientId;
+    final long mClientId;
 
     @NonNull
     private final Uri mDefaultRedirectUri;
@@ -300,27 +302,10 @@ public abstract class TheKeyImpl implements TheKey {
         return mDefaultRedirectUri;
     }
 
-    @RestrictTo(LIBRARY_GROUP)
-    public final Uri getAuthorizeUri() {
-        return getAuthorizeUri(getDefaultRedirectUri(), null);
-    }
-
-    private Uri getAuthorizeUri(@NonNull final Uri redirectUri, @Nullable String state) {
-        if (state == null) {
-            state = generateUrlSafeBase64String(16);
-        }
-        final String challenge = encodeS256Challenge(generateAndStoreCodeVerifier(state));
-
-        // build oauth authorize url
-        final Builder uri = getCasUri("login").buildUpon()
-                .appendQueryParameter(OAUTH_PARAM_RESPONSE_TYPE, OAUTH_RESPONSE_TYPE_CODE)
-                .appendQueryParameter(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId))
-                .appendQueryParameter(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString())
-                .appendQueryParameter(OAUTH_PARAM_STATE, state)
-                .appendQueryParameter(PARAM_CODE_CHALLENGE_METHOD, CODE_CHALLENGE_METHOD_S256)
-                .appendQueryParameter(PARAM_CODE_CHALLENGE, challenge);
-
-        return uri.build();
+    @NonNull
+    @Override
+    public LoginUriBuilder loginUriBuilder() {
+        return new LoginUriBuilderImpl();
     }
 
     @Override
@@ -678,7 +663,7 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @NonNull
-    private String generateAndStoreCodeVerifier(@NonNull final String state) {
+    String generateAndStoreCodeVerifier(@NonNull final String state) {
         final String verifier = generateVerifier();
         getPrefs().edit().putString(codeVerifierKey(state), verifier).apply();
         return verifier;
@@ -873,6 +858,32 @@ public abstract class TheKeyImpl implements TheKey {
         @Override
         public int hashCode() {
             return Arrays.hashCode(new Object[] {mServer, mClientId, mAccountType});
+        }
+    }
+
+    final class LoginUriBuilderImpl extends LoginUriBuilder {
+        @NonNull
+        @Override
+        public Uri build() {
+            final Uri redirectUri = mRedirectUri != null ? mRedirectUri : getDefaultRedirectUri();
+            final String state = mState != null ? mState : generateUrlSafeBase64String(16);
+            final String challenge = encodeS256Challenge(generateAndStoreCodeVerifier(state));
+
+            // build oauth login url
+            final Builder uri = getCasUri("login").buildUpon()
+                    .appendQueryParameter(OAUTH_PARAM_RESPONSE_TYPE, OAUTH_RESPONSE_TYPE_CODE)
+                    .appendQueryParameter(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId))
+                    .appendQueryParameter(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString())
+                    .appendQueryParameter(OAUTH_PARAM_STATE, state)
+                    .appendQueryParameter(PARAM_CODE_CHALLENGE_METHOD, CODE_CHALLENGE_METHOD_S256)
+                    .appendQueryParameter(PARAM_CODE_CHALLENGE, challenge);
+
+            // attach the scope if it is specified
+            if (!mScope.isEmpty()) {
+                uri.appendQueryParameter(PARAM_SCOPE, TextUtils.join(" ", mScope));
+            }
+
+            return uri.build();
         }
     }
 }
