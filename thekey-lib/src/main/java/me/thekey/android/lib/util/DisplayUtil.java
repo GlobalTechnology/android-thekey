@@ -42,7 +42,7 @@ public final class DisplayUtil {
         settings.setLoadsImagesAutomatically(true);
 
         // clear SSO cookies if needed
-        final String authorizeUrl = thekey.getAuthorizeUriBuilder().build().toString();
+        final String authorizeUrl = thekey.loginUriBuilder().build().toString();
         final CookieManager cookieManager = CookieManager.getInstance();
         final String cookies = cookieManager.getCookie(authorizeUrl);
         if (cookies != null && cookies.length() > 0) {

@@ -33,7 +33,7 @@ import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 
 import me.thekey.android.Attributes;
-import me.thekey.android.AuthorizeUriBuilder;
+import me.thekey.android.LoginUriBuilder;
 import me.thekey.android.TheKey;
 import me.thekey.android.core.events.NoopEventsManager;
 import me.thekey.android.events.EventsManager;
@@ -304,8 +304,8 @@ public abstract class TheKeyImpl implements TheKey {
 
     @NonNull
     @Override
-    public AuthorizeUriBuilder getAuthorizeUriBuilder() {
-        return new AuthorizeUriBuilderImpl();
+    public LoginUriBuilder loginUriBuilder() {
+        return new LoginUriBuilderImpl();
     }
 
     @Override
@@ -861,7 +861,7 @@ public abstract class TheKeyImpl implements TheKey {
         }
     }
 
-    final class AuthorizeUriBuilderImpl extends AuthorizeUriBuilder {
+    final class LoginUriBuilderImpl extends LoginUriBuilder {
         @NonNull
         @Override
         public Uri build() {
@@ -869,7 +869,7 @@ public abstract class TheKeyImpl implements TheKey {
             final String state = mState != null ? mState : generateUrlSafeBase64String(16);
             final String challenge = encodeS256Challenge(generateAndStoreCodeVerifier(state));
 
-            // build oauth authorize url
+            // build oauth login url
             final Builder uri = getCasUri("login").buildUpon()
                     .appendQueryParameter(OAUTH_PARAM_RESPONSE_TYPE, OAUTH_RESPONSE_TYPE_CODE)
                     .appendQueryParameter(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId))

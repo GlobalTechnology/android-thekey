@@ -20,9 +20,9 @@ public interface TheKey extends TheKeySessions, TheKeyAttributeApi, TheKeyTicket
     Uri getDefaultRedirectUri();
 
     /**
-     * @return a builder that will generate an authorize URI.
+     * @return a builder that will generate a login URI.
      */
     @NonNull
     @AnyThread
-    AuthorizeUriBuilder getAuthorizeUriBuilder();
+    LoginUriBuilder loginUriBuilder();
 }
