@@ -14,7 +14,7 @@ import android.widget.FrameLayout;
 import java.lang.ref.WeakReference;
 
 import me.thekey.android.TheKey;
-import me.thekey.android.lib.CodeGrantAsyncTask;
+import me.thekey.android.core.CodeGrantAsyncTask;
 import me.thekey.android.lib.LoginWebViewClient;
 import me.thekey.android.lib.R;
 import me.thekey.android.lib.util.DisplayUtil;
@@ -111,7 +111,7 @@ public class LoginActivity extends Activity {
 
         ActivityCodeGrantAsyncTask(@NonNull final LoginActivity activity, @NonNull final TheKey theKey,
                                    @NonNull final String code, @Nullable final String state) {
-            super(theKey, code, state);
+            super(theKey, null, code, state);
             mActivity = new WeakReference<>(activity);
         }
 

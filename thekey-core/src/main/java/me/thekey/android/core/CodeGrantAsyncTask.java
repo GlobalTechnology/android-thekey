@@ -1,5 +1,6 @@
-package me.thekey.android.lib;
+package me.thekey.android.core;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,13 +14,21 @@ public abstract class CodeGrantAsyncTask extends AsyncTask<Void, Void, String> {
     protected final TheKey mTheKey;
 
     @NonNull
+    private final Uri mRedirectUri;
+    @NonNull
     private final String mCode;
     @Nullable
     private final String mState;
 
     protected CodeGrantAsyncTask(@NonNull final TheKey thekey, @NonNull final String code,
                                  @Nullable final String state) {
+        this(thekey, null, code, state);
+    }
+
+    protected CodeGrantAsyncTask(@NonNull final TheKey thekey, @Nullable final Uri redirectUri,
+                                 @NonNull final String code, @Nullable final String state) {
         mTheKey = thekey;
+        mRedirectUri = redirectUri != null ? redirectUri : mTheKey.getDefaultRedirectUri();
         mCode = code;
         mState = state;
     }
@@ -31,7 +40,7 @@ public abstract class CodeGrantAsyncTask extends AsyncTask<Void, Void, String> {
     @Override
     protected final String doInBackground(final Void... params) {
         try {
-            return mTheKey.processCodeGrant(mCode, mTheKey.getDefaultRedirectUri(), mState);
+            return mTheKey.processCodeGrant(mCode, mRedirectUri, mState);
         } catch (final TheKeyApiError | TheKeySocketException e) {
             return null;
         }
