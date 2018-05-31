@@ -16,7 +16,7 @@ import me.thekey.android.core.TheKeyImpl;
 
 import static me.thekey.android.TheKey.PARAM_STATE;
 import static me.thekey.android.core.Constants.ARG_SELF_SERVICE;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_CODE;
+import static me.thekey.android.TheKey.PARAM_CODE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ERROR;
 
 public abstract class LoginWebViewClient extends WebViewClient {
@@ -46,7 +46,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
 
         // response redirect
         if (this.isRedirectUri(parsedUri)) {
-            final String code = parsedUri.getQueryParameter(OAUTH_PARAM_CODE);
+            final String code = parsedUri.getQueryParameter(PARAM_CODE);
             final String state = parsedUri.getQueryParameter(PARAM_STATE);
             if (code != null) {
                 onAuthorizeSuccess(parsedUri, code, state);
@@ -116,7 +116,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
     }
 
     private boolean isRedirectUri(final Uri uri) {
-        return isBaseUriEqual(mRedirectUri, uri) && uri.getQueryParameter(OAUTH_PARAM_CODE) != null;
+        return isBaseUriEqual(mRedirectUri, uri) && uri.getQueryParameter(PARAM_CODE) != null;
     }
 
     private boolean isSelfServiceUri(final Uri uri) {

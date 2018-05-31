@@ -8,6 +8,7 @@ public interface TheKey extends TheKeySessions, TheKeyAttributeApi, TheKeyTicket
     long INVALID_CLIENT_ID = -1;
 
     // OAuth params
+    String PARAM_CODE = "code";
     String PARAM_SCOPE = "scope";
     String PARAM_STATE = "state";
 

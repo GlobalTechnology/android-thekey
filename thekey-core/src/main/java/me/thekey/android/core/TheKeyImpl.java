@@ -50,7 +50,6 @@ import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static me.thekey.android.core.Constants.CAS_SERVER;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_CLIENT_ID;
-import static me.thekey.android.core.Constants.OAUTH_PARAM_CODE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ERROR;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_REDIRECT_URI;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_RESPONSE_TYPE;
@@ -504,7 +503,7 @@ public abstract class TheKeyImpl implements TheKey {
         params.put(PARAM_GRANT_TYPE, GRANT_TYPE_AUTHORIZATION_CODE);
         params.put(OAUTH_PARAM_CLIENT_ID, Long.toString(mClientId));
         params.put(OAUTH_PARAM_REDIRECT_URI, redirectUri.toString());
-        params.put(OAUTH_PARAM_CODE, code);
+        params.put(PARAM_CODE, code);
         final String verifier = lookupCodeVerifier(state);
         if (verifier != null) {
             params.put(PARAM_CODE_VERIFIER, verifier);
