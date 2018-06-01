@@ -1,7 +1,11 @@
 package me.thekey.android.view.dialog;
 
+import android.app.Activity;
 import android.app.Dialog;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -9,11 +13,18 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 import me.thekey.android.view.Builder;
+import me.thekey.android.view.LoginWebViewClient;
 import me.thekey.android.view.support.fragment.FragmentBuilder;
 import me.thekey.android.view.util.DisplayUtil;
 import timber.log.Timber;
 
-public class LoginDialogFragment extends DialogFragment implements DialogFragmentCompat {
+public class LoginDialogFragment extends DialogFragment {
+    public interface Listener {
+        void onLoginSuccess(DialogFragment dialog, String guid);
+
+        void onLoginFailure(DialogFragment dialog);
+    }
+
     // login WebView
     private FrameLayout frame = null;
     private WebView mLoginView = null;
@@ -85,5 +96,29 @@ public class LoginDialogFragment extends DialogFragment implements DialogFragmen
         }
     }
 
-    public interface Listener extends LoginDialogListener<LoginDialogFragment> {}
+    class LoginDialogWebViewClient extends LoginWebViewClient {
+        LoginDialogWebViewClient(final DialogFragment dialog, final Bundle args) {
+            super(dialog.getActivity(), args);
+        }
+
+        @Override
+        protected void onAuthorizeSuccess(@NonNull final Uri uri, @NonNull final String code,
+                                          @Nullable final String state) {
+            new LoginDialogCodeGrantAsyncTask(LoginDialogFragment.this, mTheKey, code, state).execute();
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        protected void onAuthorizeError(final Uri uri, final String errorCode) {
+            final Activity activity = getActivity();
+            if (activity instanceof Listener) {
+                ((Listener) activity).onLoginFailure(LoginDialogFragment.this);
+            }
+
+            // close the dialog if it is still active (added to the activity)
+            if (isAdded()) {
+                dismissAllowingStateLoss();
+            }
+        }
+    }
 }

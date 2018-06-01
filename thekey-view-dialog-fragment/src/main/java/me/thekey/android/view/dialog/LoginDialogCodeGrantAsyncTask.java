@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.v4.app.DialogFragment;
 
 import me.thekey.android.core.CodeGrantAsyncTask;
 import me.thekey.android.core.TheKeyImpl;
@@ -12,9 +13,9 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 
 @RestrictTo(LIBRARY)
 public final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
-    private final DialogFragmentCompat mDialog;
+    private final DialogFragment mDialog;
 
-    public LoginDialogCodeGrantAsyncTask(final DialogFragmentCompat dialog, @NonNull final TheKeyImpl thekey,
+    public LoginDialogCodeGrantAsyncTask(final DialogFragment dialog, @NonNull final TheKeyImpl thekey,
                                          @NonNull final String code, @Nullable final String state) {
         super(thekey, null, code, state);
         mDialog = dialog;
@@ -26,12 +27,12 @@ public final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
         super.onPostExecute(guid);
 
         final Activity activity = mDialog.getActivity();
-        if (activity instanceof LoginDialogListener) {
+        if (activity instanceof LoginDialogFragment.Listener) {
             // trigger the correct callback
             if (guid != null) {
-                ((LoginDialogListener<DialogFragmentCompat>) activity).onLoginSuccess(mDialog, guid);
+                ((LoginDialogFragment.Listener) activity).onLoginSuccess(mDialog, guid);
             } else {
-                ((LoginDialogListener<DialogFragmentCompat>) activity).onLoginFailure(mDialog);
+                ((LoginDialogFragment.Listener) activity).onLoginFailure(mDialog);
             }
         }
 
