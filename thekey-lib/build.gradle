@@ -2,6 +2,7 @@ dependencies {
     compile project(':thekey-api')
     compile project(':thekey-core')
     compile project(':thekey-localbroadcast')
+    implementation project(':thekey-view-base')
 
     compile "com.android.support:appcompat-v7:${deps.androidSupport}"
     compile "com.android.support:support-v4:${deps.androidSupport}"

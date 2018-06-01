@@ -12,7 +12,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import me.thekey.android.core.TheKeyImpl;
-import me.thekey.android.lib.LoginWebViewClient;
+import me.thekey.android.view.LoginWebViewClient;
 
 public final class DisplayUtil {
     @SuppressLint("SetJavaScriptEnabled")

@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import me.thekey.android.lib.LoginWebViewClient;
 import me.thekey.android.lib.fragment.DialogFragment;
+import me.thekey.android.view.LoginWebViewClient;
 
 public class LoginDialogWebViewClient extends LoginWebViewClient {
     private final DialogFragment mDialog;
