@@ -6,13 +6,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import me.thekey.android.lib.fragment.DialogFragment;
 import me.thekey.android.view.LoginWebViewClient;
+import me.thekey.android.view.dialog.DialogFragmentCompat;
+import me.thekey.android.view.dialog.LoginDialogListener;
 
 public class LoginDialogWebViewClient extends LoginWebViewClient {
-    private final DialogFragment mDialog;
+    private final DialogFragmentCompat mDialog;
 
-    public LoginDialogWebViewClient(final DialogFragment dialog, final Bundle args) {
+    public LoginDialogWebViewClient(final DialogFragmentCompat dialog, final Bundle args) {
         super(dialog.getActivity(), args);
         mDialog = dialog;
     }
@@ -28,7 +29,7 @@ public class LoginDialogWebViewClient extends LoginWebViewClient {
     protected void onAuthorizeError(final Uri uri, final String errorCode) {
         final Activity activity = mDialog.getActivity();
         if (activity instanceof LoginDialogListener) {
-            ((LoginDialogListener<DialogFragment>) activity).onLoginFailure(mDialog);
+            ((LoginDialogListener<DialogFragmentCompat>) activity).onLoginFailure(mDialog);
         }
 
         // close the dialog if it is still active (added to the activity)

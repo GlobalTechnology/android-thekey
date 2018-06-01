@@ -6,15 +6,16 @@ import android.support.annotation.Nullable;
 
 import me.thekey.android.core.CodeGrantAsyncTask;
 import me.thekey.android.core.TheKeyImpl;
-import me.thekey.android.lib.fragment.DialogFragment;
+import me.thekey.android.view.dialog.DialogFragmentCompat;
+import me.thekey.android.view.dialog.LoginDialogListener;
 
 public final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
-    final DialogFragment dialog;
+    private final DialogFragmentCompat mDialog;
 
-    public LoginDialogCodeGrantAsyncTask(final DialogFragment dialog, @NonNull final TheKeyImpl thekey,
+    public LoginDialogCodeGrantAsyncTask(final DialogFragmentCompat dialog, @NonNull final TheKeyImpl thekey,
                                          @NonNull final String code, @Nullable final String state) {
         super(thekey, null, code, state);
-        this.dialog = dialog;
+        mDialog = dialog;
     }
 
     @SuppressWarnings("unchecked")
@@ -22,19 +23,19 @@ public final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
     protected void onPostExecute(final String guid) {
         super.onPostExecute(guid);
 
-        final Activity activity = this.dialog.getActivity();
+        final Activity activity = mDialog.getActivity();
         if (activity instanceof LoginDialogListener) {
             // trigger the correct callback
             if (guid != null) {
-                ((LoginDialogListener<DialogFragment>) activity).onLoginSuccess(dialog, guid);
+                ((LoginDialogListener<DialogFragmentCompat>) activity).onLoginSuccess(mDialog, guid);
             } else {
-                ((LoginDialogListener<DialogFragment>) activity).onLoginFailure(dialog);
+                ((LoginDialogListener<DialogFragmentCompat>) activity).onLoginFailure(mDialog);
             }
         }
 
-        // close the dialog if it is still active (added to the activity)
-        if (this.dialog.isAdded()) {
-            this.dialog.dismissAllowingStateLoss();
+        // close the mDialog if it is still active (added to the activity)
+        if (mDialog.isAdded()) {
+            mDialog.dismissAllowingStateLoss();
         }
     }
 }

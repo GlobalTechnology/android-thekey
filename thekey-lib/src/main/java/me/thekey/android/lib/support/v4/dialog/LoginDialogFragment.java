@@ -9,14 +9,15 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 import me.thekey.android.lib.R;
-import me.thekey.android.lib.dialog.LoginDialogListener;
 import me.thekey.android.lib.dialog.LoginDialogWebViewClient;
 import me.thekey.android.lib.util.DisplayUtil;
 import me.thekey.android.view.Builder;
+import me.thekey.android.view.dialog.DialogFragmentCompat;
+import me.thekey.android.view.dialog.LoginDialogListener;
 import me.thekey.android.view.support.fragment.FragmentBuilder;
 import timber.log.Timber;
 
-public class LoginDialogFragment extends DialogFragment implements me.thekey.android.lib.fragment.DialogFragment {
+public class LoginDialogFragment extends DialogFragment implements DialogFragmentCompat {
     // login WebView
     private FrameLayout frame = null;
     private WebView mLoginView = null;
@@ -88,6 +89,5 @@ public class LoginDialogFragment extends DialogFragment implements me.thekey.and
         }
     }
 
-    public interface Listener extends LoginDialogListener<LoginDialogFragment> {
-    }
+    public interface Listener extends LoginDialogListener<LoginDialogFragment> {}
 }
