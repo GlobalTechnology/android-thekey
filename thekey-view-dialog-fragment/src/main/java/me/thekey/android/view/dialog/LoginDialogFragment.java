@@ -12,6 +12,8 @@ import android.view.LayoutInflater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
+import me.thekey.android.core.CodeGrantAsyncTask;
+import me.thekey.android.core.TheKeyImpl;
 import me.thekey.android.view.Builder;
 import me.thekey.android.view.LoginWebViewClient;
 import me.thekey.android.view.fragment.FragmentBuilder;
@@ -118,6 +120,37 @@ public class LoginDialogFragment extends DialogFragment {
             // close the dialog if it is still active (added to the activity)
             if (isAdded()) {
                 dismissAllowingStateLoss();
+            }
+        }
+    }
+
+    static final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
+        private final DialogFragment mDialog;
+
+        LoginDialogCodeGrantAsyncTask(final DialogFragment dialog, @NonNull final TheKeyImpl thekey,
+                                      @NonNull final String code, @Nullable final String state) {
+            super(thekey, null, code, state);
+            mDialog = dialog;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        protected void onPostExecute(final String guid) {
+            super.onPostExecute(guid);
+
+            final Activity activity = mDialog.getActivity();
+            if (activity instanceof Listener) {
+                // trigger the correct callback
+                if (guid != null) {
+                    ((Listener) activity).onLoginSuccess(mDialog, guid);
+                } else {
+                    ((Listener) activity).onLoginFailure(mDialog);
+                }
+            }
+
+            // close the mDialog if it is still active (added to the activity)
+            if (mDialog.isAdded()) {
+                mDialog.dismissAllowingStateLoss();
             }
         }
     }
