@@ -1,6 +1,6 @@
 package me.thekey.android.lib.activity;
 
-import me.thekey.android.lib.AbstractBuilder;
+import me.thekey.android.view.AbstractBuilder;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;

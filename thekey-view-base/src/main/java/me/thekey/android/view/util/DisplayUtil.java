@@ -1,9 +1,9 @@
-package me.thekey.android.lib.util;
+package me.thekey.android.view.util;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.RestrictTo;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -12,11 +12,13 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import me.thekey.android.core.TheKeyImpl;
-import me.thekey.android.lib.LoginWebViewClient;
+import me.thekey.android.view.LoginWebViewClient;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
+@RestrictTo(LIBRARY_GROUP)
 public final class DisplayUtil {
     @SuppressLint("SetJavaScriptEnabled")
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public static WebView createLoginWebView(final Context context, final LoginWebViewClient client) {
         final TheKeyImpl thekey = TheKeyImpl.getInstance(context);
 
