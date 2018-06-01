@@ -1,3 +1,5 @@
 dependencies {
     implementation project(':thekey-core')
+
+    compileOnly "com.android.support:support-fragment:${deps.androidSupport}"
 }

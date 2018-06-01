@@ -1,6 +1,6 @@
-package me.thekey.android.lib.fragment;
+package me.thekey.android.view.support.fragment;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 
 import me.thekey.android.view.AbstractBuilder;
 

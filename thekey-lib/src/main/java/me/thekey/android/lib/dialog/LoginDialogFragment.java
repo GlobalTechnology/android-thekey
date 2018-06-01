@@ -11,9 +11,9 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 import me.thekey.android.lib.R;
-import me.thekey.android.lib.fragment.FragmentBuilder;
 import me.thekey.android.lib.util.DisplayUtil;
 import me.thekey.android.view.Builder;
+import me.thekey.android.view.fragment.FragmentBuilder;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class LoginDialogFragment extends DialogFragment implements me.thekey.android.lib.fragment.DialogFragment {
