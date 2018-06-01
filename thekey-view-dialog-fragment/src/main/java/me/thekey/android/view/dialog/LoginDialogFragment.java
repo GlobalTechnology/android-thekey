@@ -14,7 +14,7 @@ import android.widget.FrameLayout;
 
 import me.thekey.android.view.Builder;
 import me.thekey.android.view.LoginWebViewClient;
-import me.thekey.android.view.support.fragment.FragmentBuilder;
+import me.thekey.android.view.fragment.FragmentBuilder;
 import me.thekey.android.view.util.DisplayUtil;
 import timber.log.Timber;
 
