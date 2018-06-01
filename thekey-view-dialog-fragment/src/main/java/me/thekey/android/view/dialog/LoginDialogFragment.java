@@ -12,8 +12,10 @@ import android.view.LayoutInflater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
+import java.lang.ref.WeakReference;
+
+import me.thekey.android.TheKey;
 import me.thekey.android.core.CodeGrantAsyncTask;
-import me.thekey.android.core.TheKeyImpl;
 import me.thekey.android.view.Builder;
 import me.thekey.android.view.LoginWebViewClient;
 import me.thekey.android.view.fragment.FragmentBuilder;
@@ -22,9 +24,9 @@ import timber.log.Timber;
 
 public class LoginDialogFragment extends DialogFragment {
     public interface Listener {
-        void onLoginSuccess(DialogFragment dialog, String guid);
+        void onLoginSuccess(LoginDialogFragment dialog, String guid);
 
-        void onLoginFailure(DialogFragment dialog);
+        void onLoginFailure(LoginDialogFragment dialog);
     }
 
     // login WebView
@@ -125,12 +127,12 @@ public class LoginDialogFragment extends DialogFragment {
     }
 
     static final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
-        private final DialogFragment mDialog;
+        private final WeakReference<LoginDialogFragment> mDialog;
 
-        LoginDialogCodeGrantAsyncTask(final DialogFragment dialog, @NonNull final TheKeyImpl thekey,
+        LoginDialogCodeGrantAsyncTask(@NonNull final LoginDialogFragment dialog, @NonNull final TheKey thekey,
                                       @NonNull final String code, @Nullable final String state) {
             super(thekey, null, code, state);
-            mDialog = dialog;
+            mDialog = new WeakReference<>(dialog);
         }
 
         @SuppressWarnings("unchecked")
@@ -138,19 +140,22 @@ public class LoginDialogFragment extends DialogFragment {
         protected void onPostExecute(final String guid) {
             super.onPostExecute(guid);
 
-            final Activity activity = mDialog.getActivity();
-            if (activity instanceof Listener) {
-                // trigger the correct callback
-                if (guid != null) {
-                    ((Listener) activity).onLoginSuccess(mDialog, guid);
-                } else {
-                    ((Listener) activity).onLoginFailure(mDialog);
+            final LoginDialogFragment dialog = mDialog.get();
+            if (dialog != null) {
+                final Activity activity = dialog.getActivity();
+                if (activity instanceof Listener) {
+                    // trigger the correct callback
+                    if (guid != null) {
+                        ((Listener) activity).onLoginSuccess(dialog, guid);
+                    } else {
+                        ((Listener) activity).onLoginFailure(dialog);
+                    }
                 }
-            }
 
-            // close the mDialog if it is still active (added to the activity)
-            if (mDialog.isAdded()) {
-                mDialog.dismissAllowingStateLoss();
+                // close the dialog if it is still active (added to the activity)
+                if (dialog.isAdded()) {
+                    dialog.dismissAllowingStateLoss();
+                }
             }
         }
     }
