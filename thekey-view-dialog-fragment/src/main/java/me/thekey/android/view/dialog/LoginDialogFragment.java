@@ -1,4 +1,4 @@
-package me.thekey.android.lib.dialog;
+package me.thekey.android.view.dialog;
 
 import android.annotation.TargetApi;
 import android.app.Dialog;
@@ -10,11 +10,7 @@ import android.view.LayoutInflater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
-import me.thekey.android.lib.R;
 import me.thekey.android.view.Builder;
-import me.thekey.android.view.dialog.DialogFragmentCompat;
-import me.thekey.android.view.dialog.LoginDialogListener;
-import me.thekey.android.view.dialog.LoginDialogWebViewClient;
 import me.thekey.android.view.fragment.FragmentBuilder;
 import me.thekey.android.view.util.DisplayUtil;
 
