@@ -8,12 +8,12 @@ import android.view.LayoutInflater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
-import me.thekey.android.lib.Builder;
 import me.thekey.android.lib.R;
 import me.thekey.android.lib.dialog.LoginDialogListener;
 import me.thekey.android.lib.dialog.LoginDialogWebViewClient;
 import me.thekey.android.lib.support.v4.fragment.FragmentBuilder;
 import me.thekey.android.lib.util.DisplayUtil;
+import me.thekey.android.view.Builder;
 import timber.log.Timber;
 
 public class LoginDialogFragment extends DialogFragment implements me.thekey.android.lib.fragment.DialogFragment {
