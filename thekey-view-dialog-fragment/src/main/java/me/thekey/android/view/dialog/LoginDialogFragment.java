@@ -1,24 +1,22 @@
 package me.thekey.android.view.dialog;
 
-import android.annotation.TargetApi;
 import android.app.Dialog;
-import android.app.DialogFragment;
-import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 import me.thekey.android.view.Builder;
-import me.thekey.android.view.fragment.FragmentBuilder;
+import me.thekey.android.view.support.fragment.FragmentBuilder;
 import me.thekey.android.view.util.DisplayUtil;
+import timber.log.Timber;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class LoginDialogFragment extends DialogFragment implements DialogFragmentCompat {
     // login WebView
     private FrameLayout frame = null;
-    private WebView loginView = null;
+    private WebView mLoginView = null;
 
     public static Builder<LoginDialogFragment> builder() {
         return new FragmentBuilder<>(LoginDialogFragment.class);
@@ -34,7 +32,7 @@ public class LoginDialogFragment extends DialogFragment implements DialogFragmen
 
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+        final AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
 
         // build dialog
         final FrameLayout frame =
@@ -62,25 +60,30 @@ public class LoginDialogFragment extends DialogFragment implements DialogFragmen
     private void attachLoginView(final FrameLayout frame) {
         this.detachLoginView();
 
-        // create a loginView if it doesn't exist already
-        if (this.loginView == null) {
+        // create a Login WebView if one doesn't exist already
+        if (mLoginView == null) {
             final Bundle args = getArguments();
-            this.loginView = DisplayUtil.createLoginWebView(getActivity(), new LoginDialogWebViewClient(this, args));
+            mLoginView = DisplayUtil.createLoginWebView(getActivity(), new LoginDialogWebViewClient(this, args));
         }
 
         // attach the login view to the current frame
         this.frame = frame;
-        this.frame.addView(this.loginView);
+        this.frame.addView(mLoginView);
     }
 
     private void detachLoginView() {
         // remove the login view from any existing frame
         if (this.frame != null) {
-            this.frame.removeView(this.loginView);
+            try {
+                this.frame.removeView(mLoginView);
+            } catch (final IllegalArgumentException e) {
+                // XXX: KEYAND-12 IllegalArgumentException: Receiver not registered: android.webkit.WebViewClassic
+                Timber.e(e, "error removing Login WebView, let's just reset the login view");
+                mLoginView = null;
+            }
             this.frame = null;
         }
     }
 
-    public interface Listener extends LoginDialogListener<LoginDialogFragment> {
-    }
+    public interface Listener extends LoginDialogListener<LoginDialogFragment> {}
 }
