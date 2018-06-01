@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewParent;
@@ -15,11 +16,13 @@ import android.webkit.WebViewClient;
 import me.thekey.android.core.TheKeyImpl;
 import me.thekey.android.view.base.R;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static me.thekey.android.TheKey.PARAM_CODE;
 import static me.thekey.android.TheKey.PARAM_STATE;
 import static me.thekey.android.core.Constants.ARG_SELF_SERVICE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ERROR;
 
+@RestrictTo(LIBRARY_GROUP)
 public abstract class LoginWebViewClient extends WebViewClient {
     private final Context mContext;
     private final Bundle mArgs;

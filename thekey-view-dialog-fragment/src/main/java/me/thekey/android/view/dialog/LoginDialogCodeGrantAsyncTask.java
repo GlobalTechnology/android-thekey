@@ -1,14 +1,16 @@
-package me.thekey.android.lib.dialog;
+package me.thekey.android.view.dialog;
 
 import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 
 import me.thekey.android.core.CodeGrantAsyncTask;
 import me.thekey.android.core.TheKeyImpl;
-import me.thekey.android.view.dialog.DialogFragmentCompat;
-import me.thekey.android.view.dialog.LoginDialogListener;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+
+@RestrictTo(LIBRARY)
 public final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
     private final DialogFragmentCompat mDialog;
 

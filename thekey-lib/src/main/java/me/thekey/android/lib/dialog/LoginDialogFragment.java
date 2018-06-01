@@ -15,6 +15,7 @@ import me.thekey.android.lib.util.DisplayUtil;
 import me.thekey.android.view.Builder;
 import me.thekey.android.view.dialog.DialogFragmentCompat;
 import me.thekey.android.view.dialog.LoginDialogListener;
+import me.thekey.android.view.dialog.LoginDialogWebViewClient;
 import me.thekey.android.view.fragment.FragmentBuilder;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
