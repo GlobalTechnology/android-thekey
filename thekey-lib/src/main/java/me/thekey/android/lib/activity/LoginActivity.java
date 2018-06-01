@@ -16,8 +16,8 @@ import java.lang.ref.WeakReference;
 import me.thekey.android.TheKey;
 import me.thekey.android.core.CodeGrantAsyncTask;
 import me.thekey.android.lib.R;
-import me.thekey.android.lib.util.DisplayUtil;
 import me.thekey.android.view.LoginWebViewClient;
+import me.thekey.android.view.util.DisplayUtil;
 
 import static me.thekey.android.lib.activity.ActivityBuilder.EXTRA_ARGS;
 

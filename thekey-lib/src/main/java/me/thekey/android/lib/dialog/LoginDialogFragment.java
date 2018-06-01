@@ -11,12 +11,12 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 import me.thekey.android.lib.R;
-import me.thekey.android.lib.util.DisplayUtil;
 import me.thekey.android.view.Builder;
 import me.thekey.android.view.dialog.DialogFragmentCompat;
 import me.thekey.android.view.dialog.LoginDialogListener;
 import me.thekey.android.view.dialog.LoginDialogWebViewClient;
 import me.thekey.android.view.fragment.FragmentBuilder;
+import me.thekey.android.view.util.DisplayUtil;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class LoginDialogFragment extends DialogFragment implements DialogFragmentCompat {
