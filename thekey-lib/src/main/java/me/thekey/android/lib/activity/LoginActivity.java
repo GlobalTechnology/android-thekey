@@ -24,7 +24,8 @@ import static me.thekey.android.lib.activity.ActivityBuilder.EXTRA_ARGS;
 public class LoginActivity extends Activity {
     public static final String EXTRA_GUID = LoginActivity.class.getName() + ".EXTRA_GUID";
 
-    private Bundle mArgs;
+    @NonNull
+    /*final*/ Bundle mArgs;
 
     // login WebView
     private FrameLayout frame = null;
@@ -72,7 +73,7 @@ public class LoginActivity extends Activity {
 
         // create a loginView if it doesn't exist already
         if (this.loginView == null) {
-            this.loginView = DisplayUtil.createLoginWebView(this, new ActivityLoginWebViewClient());
+            this.loginView = DisplayUtil.createLoginWebView(this, new ActivityLoginWebViewClient(), mArgs);
         }
 
         // attach the login view to the current frame

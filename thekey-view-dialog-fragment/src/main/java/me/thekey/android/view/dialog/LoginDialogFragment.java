@@ -78,7 +78,7 @@ public class LoginDialogFragment extends DialogFragment {
         // create a Login WebView if one doesn't exist already
         if (mLoginView == null) {
             final Bundle args = getArguments();
-            mLoginView = DisplayUtil.createLoginWebView(frame.getContext(), new LoginDialogWebViewClient(args));
+            mLoginView = DisplayUtil.createLoginWebView(frame.getContext(), new LoginDialogWebViewClient(args), args);
         }
 
         // attach the login view to the current frame
