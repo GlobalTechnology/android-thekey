@@ -1,0 +1,5 @@
+dependencies {
+    api project(':thekey-api')
+
+    implementation "org.greenrobot:eventbus:${deps.eventbus}"
+}

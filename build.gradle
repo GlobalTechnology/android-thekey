@@ -2,6 +2,7 @@ buildscript {
     // define dependency versions for this project
     ext.deps = [
             androidSupport: '27.1.1',
+            eventbus      : '3.0.0',
             timber        : '4.7.0'
     ]
 
