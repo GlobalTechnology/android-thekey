@@ -1,8 +1,13 @@
 package me.thekey.android;
 
+import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
+
+import java.lang.reflect.InvocationTargetException;
+
+import timber.log.Timber;
 
 public interface TheKey extends TheKeySessions, TheKeyAttributeApi, TheKeyTicketApi, TheKeyTokenApi {
     long INVALID_CLIENT_ID = -1;
@@ -30,4 +35,25 @@ public interface TheKey extends TheKeySessions, TheKeyAttributeApi, TheKeyTicket
     @NonNull
     @AnyThread
     LoginUriBuilder loginUriBuilder();
+
+    @NonNull
+    @AnyThread
+    static TheKey getInstance(@NonNull final Context context) {
+        TheKey instance = null;
+        try {
+            instance = (TheKey) Class
+                    .forName("me.thekey.android.core.TheKeyImpl")
+                    .getMethod("getInstance", Context.class)
+                    .invoke(null, context);
+        } catch (final RuntimeException e) {
+            throw e;
+        } catch (final InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (final Exception e) {
+            Timber.tag("TheKey")
+                    .d(e, "Unable to get instance of TheKeyImpl");
+        }
+
+        return instance != null ? instance : NoOpTheKey.INSTANCE;
+    }
 }
