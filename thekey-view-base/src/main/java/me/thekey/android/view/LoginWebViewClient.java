@@ -13,13 +13,13 @@ import android.view.ViewParent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import me.thekey.android.core.ArgumentUtils;
 import me.thekey.android.core.TheKeyImpl;
 import me.thekey.android.view.base.R;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static me.thekey.android.TheKey.PARAM_CODE;
 import static me.thekey.android.TheKey.PARAM_STATE;
-import static me.thekey.android.core.Constants.ARG_SELF_SERVICE;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ERROR;
 
 @RestrictTo(LIBRARY_GROUP)
@@ -30,17 +30,17 @@ public abstract class LoginWebViewClient extends WebViewClient {
     protected final TheKeyImpl mTheKey;
 
     /* various Uris used internally */
-    private final Uri mOauthUri;
+    private final Uri mLoginUri;
     private final Uri mSelfServiceUri;
     private final Uri mRedirectUri;
 
-    protected LoginWebViewClient(final Context context, final Bundle args) {
-        mContext = context;
+    protected LoginWebViewClient(@NonNull final Context context, @Nullable final Bundle args) {
+        mContext = context.getApplicationContext();
+        mTheKey = TheKeyImpl.getInstance(mContext);
         mArgs = args;
-        mTheKey = TheKeyImpl.getInstance(context);
-        mOauthUri = mTheKey.getCasUri("login");
+        mLoginUri = mTheKey.getCasUri("login");
         mSelfServiceUri = mTheKey.getCasUri("service", "selfservice");
-        mRedirectUri = mTheKey.getDefaultRedirectUri();
+        mRedirectUri = ArgumentUtils.getRedirectUri(mArgs, mTheKey.getDefaultRedirectUri());
     }
 
     @Override
@@ -55,7 +55,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
             if (code != null) {
                 onAuthorizeSuccess(parsedUri, code, state);
             } else {
-                this.onAuthorizeError(parsedUri, parsedUri.getQueryParameter(OAUTH_PARAM_ERROR));
+                onAuthorizeError(parsedUri, parsedUri.getQueryParameter(OAUTH_PARAM_ERROR));
             }
             return true;
         }
@@ -64,7 +64,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
             return false;
         }
         // CAS self service
-        else if (mArgs.getBoolean(ARG_SELF_SERVICE, false) && this.isSelfServiceUri(parsedUri)) {
+        else if (ArgumentUtils.isSelfServiceEnabled(mArgs) && isSelfServiceUri(parsedUri)) {
             return false;
         }
         // external link, launch default Android activity
@@ -116,7 +116,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
     }
 
     private boolean isOAuthUri(final Uri uri) {
-        return isBaseUriEqual(mOauthUri, uri);
+        return isBaseUriEqual(mLoginUri, uri);
     }
 
     private boolean isRedirectUri(final Uri uri) {

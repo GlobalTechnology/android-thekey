@@ -3,6 +3,9 @@ package me.thekey.android.view.util;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +14,7 @@ import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import me.thekey.android.core.ArgumentUtils;
 import me.thekey.android.core.TheKeyImpl;
 import me.thekey.android.view.LoginWebViewClient;
 
@@ -19,7 +23,8 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 @RestrictTo(LIBRARY_GROUP)
 public final class DisplayUtil {
     @SuppressLint("SetJavaScriptEnabled")
-    public static WebView createLoginWebView(final Context context, final LoginWebViewClient client) {
+    public static WebView createLoginWebView(@NonNull final Context context, @NonNull final LoginWebViewClient client,
+                                             @Nullable final Bundle args) {
         final TheKeyImpl thekey = TheKeyImpl.getInstance(context);
 
         final WebView webView = new WebView(context);
@@ -44,7 +49,9 @@ public final class DisplayUtil {
         settings.setLoadsImagesAutomatically(true);
 
         // clear SSO cookies if needed
-        final String authorizeUrl = thekey.loginUriBuilder().build().toString();
+        final String authorizeUrl = thekey.loginUriBuilder()
+                .redirectUri(ArgumentUtils.getRedirectUri(args, null))
+                .build().toString();
         final CookieManager cookieManager = CookieManager.getInstance();
         final String cookies = cookieManager.getCookie(authorizeUrl);
         if (cookies != null && cookies.length() > 0) {

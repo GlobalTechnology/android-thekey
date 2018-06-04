@@ -1,5 +1,6 @@
 package me.thekey.android.lib.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -16,27 +17,31 @@ import java.lang.ref.WeakReference;
 import me.thekey.android.TheKey;
 import me.thekey.android.core.CodeGrantAsyncTask;
 import me.thekey.android.lib.R;
+import me.thekey.android.view.Builder;
 import me.thekey.android.view.LoginWebViewClient;
 import me.thekey.android.view.util.DisplayUtil;
+import timber.log.Timber;
 
 import static me.thekey.android.lib.activity.ActivityBuilder.EXTRA_ARGS;
 
 public class LoginActivity extends Activity {
     public static final String EXTRA_GUID = LoginActivity.class.getName() + ".EXTRA_GUID";
 
-    private Bundle mArgs;
+    @NonNull
+    /*final*/ Bundle mArgs;
 
     // login WebView
     private FrameLayout frame = null;
     private WebView loginView = null;
 
-    public static ActivityBuilder builder(final Context context) {
+    public static Builder<Activity> builder(final Context context) {
         return new ActivityBuilder(context, LoginActivity.class);
     }
 
     /* BEGIN lifecycle */
 
     @Override
+    @SuppressLint("BinaryOperationInTimber")
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.thekey_login);
@@ -44,6 +49,9 @@ public class LoginActivity extends Activity {
         // get the arguments necessary for creation of TheKey object
         mArgs = getIntent().getBundleExtra(EXTRA_ARGS);
         if (mArgs == null) {
+            Timber.tag("LoginActivity")
+                    .e("Error creating LoginActivity, make sure to use LoginActivity.builder(Context) " +
+                               "to create the activity.");
             finish();
             return;
         }
@@ -72,7 +80,7 @@ public class LoginActivity extends Activity {
 
         // create a loginView if it doesn't exist already
         if (this.loginView == null) {
-            this.loginView = DisplayUtil.createLoginWebView(this, new ActivityLoginWebViewClient());
+            this.loginView = DisplayUtil.createLoginWebView(this, new ActivityLoginWebViewClient(), mArgs);
         }
 
         // attach the login view to the current frame
