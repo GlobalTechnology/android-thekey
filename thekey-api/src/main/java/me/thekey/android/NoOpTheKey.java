@@ -84,7 +84,7 @@ final class NoOpTheKey implements TheKey {
     static class NoOpAttributes implements Attributes {
         static final NoOpAttributes INSTANCE = new NoOpAttributes();
 
-        private static final Date mEpoch = new Date(0);
+        private final Date mEpoch = new Date(0);
 
         @Nullable
         @Override
