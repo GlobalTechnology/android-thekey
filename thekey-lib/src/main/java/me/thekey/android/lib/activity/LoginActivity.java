@@ -1,5 +1,6 @@
 package me.thekey.android.lib.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +41,7 @@ public class LoginActivity extends Activity {
     /* BEGIN lifecycle */
 
     @Override
+    @SuppressLint("BinaryOperationInTimber")
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.thekey_login);
@@ -48,7 +50,8 @@ public class LoginActivity extends Activity {
         mArgs = getIntent().getBundleExtra(EXTRA_ARGS);
         if (mArgs == null) {
             Timber.tag("LoginActivity")
-                    .e("Error creating LoginActivity, make sure to use LoginActivity.builder(Context) to create the activity.");
+                    .e("Error creating LoginActivity, make sure to use LoginActivity.builder(Context) " +
+                               "to create the activity.");
             finish();
             return;
         }
