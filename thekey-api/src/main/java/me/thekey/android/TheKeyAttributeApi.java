@@ -7,7 +7,7 @@ import android.support.annotation.WorkerThread;
 
 import me.thekey.android.exception.TheKeySocketException;
 
-interface TheKeyAttributeApi {
+interface TheKeyAttributeApi extends TheKeySessions {
     String JSON_ATTR_GUID = "ssoGuid";
     String JSON_ATTR_EMAIL = "email";
     String JSON_ATTR_FIRST_NAME = "firstName";
@@ -21,7 +21,9 @@ interface TheKeyAttributeApi {
      * @return whether or not attributes were loaded
      */
     @WorkerThread
-    boolean loadAttributes() throws TheKeySocketException;
+    default boolean loadAttributes() throws TheKeySocketException {
+        return loadAttributes(getDefaultSessionGuid());
+    }
 
     /**
      * This method will load the attributes for the specified OAuth session from
@@ -44,7 +46,9 @@ interface TheKeyAttributeApi {
      */
     @NonNull
     @AnyThread
-    Attributes getAttributes();
+    default Attributes getAttributes() {
+        return getAttributes(getDefaultSessionGuid());
+    }
 
     /**
      * This method will return the most recently loaded attributes for the

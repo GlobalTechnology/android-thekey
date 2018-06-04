@@ -254,34 +254,6 @@ public abstract class TheKeyImpl implements TheKey {
         }
     }
 
-    @NonNull
-    @Override
-    public final Attributes getAttributes() {
-        return getAttributes(getDefaultSessionGuid());
-    }
-
-    @Override
-    public final boolean loadAttributes() throws TheKeySocketException {
-        return loadAttributes(getDefaultSessionGuid());
-    }
-
-    @Nullable
-    @Override
-    @WorkerThread
-    public final String getTicket(@NonNull final String service) throws TheKeySocketException {
-        final String guid = getDefaultSessionGuid();
-        return guid != null ? getTicket(guid, service) : null;
-    }
-
-    @Override
-    @AnyThread
-    public final void logout() {
-        final String guid = getDefaultSessionGuid();
-        if (guid != null) {
-            logout(guid);
-        }
-    }
-
     @AnyThread
     @RestrictTo(LIBRARY_GROUP)
     public final Uri getCasUri(final String... segments) {
