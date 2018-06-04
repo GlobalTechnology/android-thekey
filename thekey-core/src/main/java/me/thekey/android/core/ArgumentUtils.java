@@ -13,10 +13,6 @@ import static me.thekey.android.core.Constants.ARG_SELF_SERVICE;
 
 @RestrictTo(LIBRARY_GROUP)
 public final class ArgumentUtils {
-//    public static Uri getRedirectUri(@Nullable final Bundle args) {
-//        return getRedirectUri(args, null);
-//    }
-//
     @Nullable
     @Contract("_, !null -> !null")
     public static Uri getRedirectUri(@Nullable final Bundle args, @Nullable final Uri defValue) {
