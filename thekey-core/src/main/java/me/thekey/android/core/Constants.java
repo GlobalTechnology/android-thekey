@@ -17,5 +17,6 @@ public final class Constants {
     public static final String OAUTH_RESPONSE_TYPE_CODE = "code";
 
     // configuration arguments
-    public static final String ARG_SELF_SERVICE = "enable.self_service";
+    public static final String ARG_SELF_SERVICE = "thekey.enable_self_service";
+    public static final String ARG_REDIRECT_URI = "thekey.redirect_uri";
 }

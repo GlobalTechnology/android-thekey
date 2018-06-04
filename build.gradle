@@ -50,6 +50,7 @@ subprojects {
 
         dependencies {
             compileOnly "com.android.support:support-annotations:${deps.androidSupport}"
+            compileOnly "org.jetbrains:annotations:15.0"
         }
     }
 
