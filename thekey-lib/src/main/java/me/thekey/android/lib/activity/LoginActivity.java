@@ -16,8 +16,10 @@ import java.lang.ref.WeakReference;
 import me.thekey.android.TheKey;
 import me.thekey.android.core.CodeGrantAsyncTask;
 import me.thekey.android.lib.R;
+import me.thekey.android.view.Builder;
 import me.thekey.android.view.LoginWebViewClient;
 import me.thekey.android.view.util.DisplayUtil;
+import timber.log.Timber;
 
 import static me.thekey.android.lib.activity.ActivityBuilder.EXTRA_ARGS;
 
@@ -31,7 +33,7 @@ public class LoginActivity extends Activity {
     private FrameLayout frame = null;
     private WebView loginView = null;
 
-    public static ActivityBuilder builder(final Context context) {
+    public static Builder<Activity> builder(final Context context) {
         return new ActivityBuilder(context, LoginActivity.class);
     }
 
@@ -45,6 +47,8 @@ public class LoginActivity extends Activity {
         // get the arguments necessary for creation of TheKey object
         mArgs = getIntent().getBundleExtra(EXTRA_ARGS);
         if (mArgs == null) {
+            Timber.tag("LoginActivity")
+                    .e("Error creating LoginActivity, make sure to use LoginActivity.builder(Context) to create the activity.");
             finish();
             return;
         }
