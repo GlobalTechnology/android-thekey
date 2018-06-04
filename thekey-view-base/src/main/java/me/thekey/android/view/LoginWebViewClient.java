@@ -30,17 +30,17 @@ public abstract class LoginWebViewClient extends WebViewClient {
     protected final TheKeyImpl mTheKey;
 
     /* various Uris used internally */
-    private final Uri mOauthUri;
+    private final Uri mLoginUri;
     private final Uri mSelfServiceUri;
     private final Uri mRedirectUri;
 
-    protected LoginWebViewClient(final Context context, final Bundle args) {
-        mContext = context;
+    protected LoginWebViewClient(@NonNull final Context context, @Nullable final Bundle args) {
+        mContext = context.getApplicationContext();
+        mTheKey = TheKeyImpl.getInstance(mContext);
         mArgs = args;
-        mTheKey = TheKeyImpl.getInstance(context);
-        mOauthUri = mTheKey.getCasUri("login");
+        mLoginUri = mTheKey.getCasUri("login");
         mSelfServiceUri = mTheKey.getCasUri("service", "selfservice");
-        mRedirectUri = mTheKey.getDefaultRedirectUri();
+        mRedirectUri = ArgumentUtils.getRedirectUri(mArgs, mTheKey.getDefaultRedirectUri());
     }
 
     @Override
@@ -55,7 +55,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
             if (code != null) {
                 onAuthorizeSuccess(parsedUri, code, state);
             } else {
-                this.onAuthorizeError(parsedUri, parsedUri.getQueryParameter(OAUTH_PARAM_ERROR));
+                onAuthorizeError(parsedUri, parsedUri.getQueryParameter(OAUTH_PARAM_ERROR));
             }
             return true;
         }
@@ -116,7 +116,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
     }
 
     private boolean isOAuthUri(final Uri uri) {
-        return isBaseUriEqual(mOauthUri, uri);
+        return isBaseUriEqual(mLoginUri, uri);
     }
 
     private boolean isRedirectUri(final Uri uri) {
