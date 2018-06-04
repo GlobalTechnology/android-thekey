@@ -139,7 +139,6 @@ public abstract class TheKeyImpl implements TheKey {
     }
 
     @NonNull
-    @SuppressLint("BinaryOperationInTimber")
     private static EventsManager resolveEventsManager(@NonNull final Context context,
                                                       @NonNull final Configuration config) {
         // use configured EventsManager
