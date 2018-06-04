@@ -78,7 +78,7 @@ public class LoginDialogFragment extends DialogFragment {
         // create a Login WebView if one doesn't exist already
         if (mLoginView == null) {
             final Bundle args = getArguments();
-            mLoginView = DisplayUtil.createLoginWebView(getActivity(), new LoginDialogWebViewClient(this, args));
+            mLoginView = DisplayUtil.createLoginWebView(frame.getContext(), new LoginDialogWebViewClient(args));
         }
 
         // attach the login view to the current frame
@@ -101,14 +101,14 @@ public class LoginDialogFragment extends DialogFragment {
     }
 
     class LoginDialogWebViewClient extends LoginWebViewClient {
-        LoginDialogWebViewClient(final DialogFragment dialog, final Bundle args) {
-            super(dialog.getActivity(), args);
+        LoginDialogWebViewClient(@Nullable final Bundle args) {
+            super(requireContext(), args);
         }
 
         @Override
         protected void onAuthorizeSuccess(@NonNull final Uri uri, @NonNull final String code,
                                           @Nullable final String state) {
-            new LoginDialogCodeGrantAsyncTask(LoginDialogFragment.this, mTheKey, code, state).execute();
+            new LoginDialogCodeGrantAsyncTask(LoginDialogFragment.this, mTheKey, uri).execute();
         }
 
         @Override
@@ -130,8 +130,8 @@ public class LoginDialogFragment extends DialogFragment {
         private final WeakReference<LoginDialogFragment> mDialog;
 
         LoginDialogCodeGrantAsyncTask(@NonNull final LoginDialogFragment dialog, @NonNull final TheKey thekey,
-                                      @NonNull final String code, @Nullable final String state) {
-            super(thekey, null, code, state);
+                                      @NonNull final Uri dataUri) {
+            super(thekey, dataUri);
             mDialog = new WeakReference<>(dialog);
         }
 
