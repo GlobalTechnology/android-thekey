@@ -53,7 +53,12 @@ interface TheKeySessions {
      * and may be called on the UI thread.
      */
     @AnyThread
-    void logout();
+    default void logout() {
+        final String guid = getDefaultSessionGuid();
+        if (guid != null) {
+            logout(guid);
+        }
+    }
 
     /**
      * This method will logout the specified user. This is a non-blocking method

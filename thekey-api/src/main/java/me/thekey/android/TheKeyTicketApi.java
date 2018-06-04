@@ -6,7 +6,7 @@ import android.support.annotation.WorkerThread;
 
 import me.thekey.android.exception.TheKeySocketException;
 
-interface TheKeyTicketApi {
+interface TheKeyTicketApi extends TheKeySessions {
     String PARAM_SERVICE = "service";
     String JSON_TICKET = "ticket";
 
@@ -19,7 +19,10 @@ interface TheKeyTicketApi {
      */
     @Nullable
     @WorkerThread
-    String getTicket(@NonNull String service) throws TheKeySocketException;
+    default String getTicket(@NonNull String service) throws TheKeySocketException {
+        final String guid = getDefaultSessionGuid();
+        return guid != null ? getTicket(guid, service) : null;
+    }
 
     /**
      * This method returns a ticket for the specified service for the specified session. This method is a
