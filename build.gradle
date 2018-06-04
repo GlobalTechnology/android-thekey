@@ -1,4 +1,10 @@
 buildscript {
+    // define dependency versions for this project
+    ext.deps = [
+            androidSupport: '27.1.1',
+            timber        : '4.7.0'
+    ]
+
     repositories {
         mavenLocal()
         jcenter()
@@ -11,12 +17,6 @@ buildscript {
 plugins {
     id 'digital.wup.android-maven-publish' version '3.3.0' apply false
 }
-
-// define dependency versions for this project
-ext.deps = [
-        androidSupport: '27.1.1',
-        timber        : '4.7.0'
-]
 
 subprojects {
     apply plugin: 'com.android.library'
