@@ -14,8 +14,8 @@ import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import me.thekey.android.TheKey;
 import me.thekey.android.core.ArgumentUtils;
-import me.thekey.android.core.TheKeyImpl;
 import me.thekey.android.view.LoginWebViewClient;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
@@ -25,7 +25,7 @@ public final class DisplayUtil {
     @SuppressLint("SetJavaScriptEnabled")
     public static WebView createLoginWebView(@NonNull final Context context, @NonNull final LoginWebViewClient client,
                                              @Nullable final Bundle args) {
-        final TheKeyImpl thekey = TheKeyImpl.getInstance(context);
+        final TheKey thekey = TheKey.getInstance(context);
 
         final WebView webView = new WebView(context);
         webView.setVisibility(View.GONE);
