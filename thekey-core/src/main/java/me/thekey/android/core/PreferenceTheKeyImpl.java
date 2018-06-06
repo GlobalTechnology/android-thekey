@@ -289,7 +289,7 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             mAttrs.remove(PREF_EXPIRE_TIME);
 
             // determine if the attributes are valid
-            final String guid = (String) this.mAttrs.get(PREF_GUID);
+            final String guid = (String) mAttrs.get(PREF_GUID);
             mValid = mAttrs.containsKey(PREF_ATTR_LOAD_TIME) && guid != null && guid.equals(mAttrs.get(PREF_ATTR_GUID));
         }
 
