@@ -14,12 +14,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import me.thekey.android.Attributes;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
+import static me.thekey.android.Attributes.ATTR_SSO_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
 
@@ -32,9 +36,15 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     static final String PREF_GUID = "guid";
     static final String PREF_REFRESH_TOKEN = "refresh_token";
     static final String PREF_ATTR_LOAD_TIME = "attr_load_time";
+    static final String PREF_ATTR_PREFIX = "attr.";
+
+    @Deprecated
     static final String PREF_ATTR_GUID = "attr_guid";
+    @Deprecated
     static final String PREF_ATTR_EMAIL = "attr_email";
+    @Deprecated
     static final String PREF_ATTR_FIRST_NAME = "attr_firstName";
+    @Deprecated
     static final String PREF_ATTR_LAST_NAME = "attr_lastName";
 
     private final Object mLockPrefs = new Object();
@@ -193,10 +203,11 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     void storeAttributes(@NonNull final String guid, @NonNull final JSONObject json) {
         final SharedPreferences.Editor prefs = getPrefs().edit();
         prefs.putLong(PREF_ATTR_LOAD_TIME, System.currentTimeMillis());
-        prefs.putString(PREF_ATTR_GUID, json.optString(JSON_ATTR_GUID, null));
-        prefs.putString(PREF_ATTR_EMAIL, json.optString(JSON_ATTR_EMAIL, null));
-        prefs.putString(PREF_ATTR_FIRST_NAME, json.optString(JSON_ATTR_FIRST_NAME, null));
-        prefs.putString(PREF_ATTR_LAST_NAME, json.optString(JSON_ATTR_LAST_NAME, null));
+        final Iterator<String> attrs = json.keys();
+        while (attrs.hasNext()) {
+            final String key = attrs.next();
+            prefs.putString(PREF_ATTR_PREFIX + key, json.optString(key, null));
+        }
 
         // we synchronize this to prevent race conditions with getAttributes
         synchronized (mLockPrefs) {
@@ -205,19 +216,15 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
                 return;
             }
 
-            // store updates
+            // apply updates
+            removeOldAttributes(prefs);
             prefs.apply();
         }
     }
 
     @Override
     void removeAttributes(@NonNull final String guid) {
-        final SharedPreferences.Editor prefs = this.getPrefs().edit();
-        prefs.remove(PREF_ATTR_GUID);
-        prefs.remove(PREF_ATTR_EMAIL);
-        prefs.remove(PREF_ATTR_FIRST_NAME);
-        prefs.remove(PREF_ATTR_LAST_NAME);
-        prefs.remove(PREF_ATTR_LOAD_TIME);
+        final SharedPreferences.Editor prefs = getPrefs().edit();
 
         // we synchronize this to prevent race conditions with getAttributes
         synchronized (mLockPrefs) {
@@ -226,9 +233,26 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
                 return;
             }
 
-            // store updates
+            // apply updates
+            removeOldAttributes(prefs);
             prefs.apply();
         }
+    }
+
+    private void removeOldAttributes(final SharedPreferences.Editor prefs) {
+        // remove all stored attributes
+        prefs.remove(PREF_ATTR_LOAD_TIME);
+        for (final String key : getPrefs().getAll().keySet()) {
+            if (key.startsWith(PREF_ATTR_PREFIX)) {
+                prefs.remove(key);
+            }
+        }
+
+        // legacy attributes, no longer used
+        prefs.remove(PREF_ATTR_GUID);
+        prefs.remove(PREF_ATTR_EMAIL);
+        prefs.remove(PREF_ATTR_FIRST_NAME);
+        prefs.remove(PREF_ATTR_LAST_NAME);
     }
 
     @Override
@@ -265,10 +289,10 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             prefs.putString(PREF_REFRESH_TOKEN, account.refreshToken);
 
             prefs.putLong(PREF_ATTR_LOAD_TIME, account.attributes.getLoadedTime().getTime());
-            prefs.putString(PREF_ATTR_GUID, account.guid);
-            prefs.putString(PREF_ATTR_EMAIL, account.attributes.getEmail());
-            prefs.putString(PREF_ATTR_FIRST_NAME, account.attributes.getFirstName());
-            prefs.putString(PREF_ATTR_LAST_NAME, account.attributes.getLastName());
+            prefs.putString(PREF_ATTR_PREFIX + ATTR_SSO_GUID, account.guid);
+            for (final String name : account.attributes.getAttributeNames()) {
+                prefs.putString(PREF_ATTR_PREFIX + name, account.attributes.getAttribute(name));
+            }
 
             prefs.apply();
 
@@ -282,6 +306,9 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
         private final Map<String, ?> mAttrs;
         private final boolean mValid;
 
+        @Nullable
+        private transient Set<String> mAttrNames;
+
         AttributesImpl(final Map<String, ?> prefsMap) {
             mAttrs = new HashMap<String, Object>(prefsMap);
             mAttrs.remove(PREF_ACCESS_TOKEN);
@@ -290,7 +317,8 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
 
             // determine if the attributes are valid
             final String guid = (String) mAttrs.get(PREF_GUID);
-            mValid = mAttrs.containsKey(PREF_ATTR_LOAD_TIME) && guid != null && guid.equals(mAttrs.get(PREF_ATTR_GUID));
+            mValid = mAttrs.containsKey(PREF_ATTR_LOAD_TIME) &&
+                    guid != null && guid.equalsIgnoreCase((String) mAttrs.get(PREF_ATTR_PREFIX + ATTR_SSO_GUID));
         }
 
         @Nullable
@@ -318,22 +346,30 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             return new Date(time != null ? time : 0);
         }
 
-        @Nullable
+        @NonNull
         @Override
-        public String getEmail() {
-            return mValid ? (String) mAttrs.get(PREF_ATTR_EMAIL) : null;
+        public Collection<String> getAttributeNames() {
+            if (mAttrNames == null) {
+                mAttrNames = Collections.unmodifiableSet(extractAttributeNames());
+            }
+
+            return mAttrNames;
         }
 
         @Nullable
-        @Override
-        public String getFirstName() {
-            return mValid ? (String) mAttrs.get(PREF_ATTR_FIRST_NAME) : null;
+        public String getAttribute(@NonNull final String name) {
+            return mValid ? (String) mAttrs.get(PREF_ATTR_PREFIX + name) : null;
         }
 
-        @Nullable
-        @Override
-        public String getLastName() {
-            return mValid ? (String) mAttrs.get(PREF_ATTR_LAST_NAME) : null;
+        @NonNull
+        private Set<String> extractAttributeNames() {
+            final Set<String> names = new HashSet<>();
+            for (final String key : mAttrs.keySet()) {
+                if (key.startsWith(PREF_ATTR_PREFIX)) {
+                    names.add(key.substring(PREF_ATTR_PREFIX.length()));
+                }
+            }
+            return names;
         }
     }
 }
