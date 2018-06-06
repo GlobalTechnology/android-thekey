@@ -280,7 +280,7 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
 
     private static final class AttributesImpl implements Attributes {
         private final Map<String, ?> attrs;
-        private final boolean valid;
+        private final boolean mValid;
 
         AttributesImpl(final Map<String, ?> prefsMap) {
             this.attrs = new HashMap<String, Object>(prefsMap);
@@ -290,7 +290,7 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
 
             // determine if the attributes are valid
             final String guid = (String) this.attrs.get(PREF_GUID);
-            this.valid = this.attrs.containsKey(PREF_ATTR_LOAD_TIME) && guid != null &&
+            mValid = this.attrs.containsKey(PREF_ATTR_LOAD_TIME) && guid != null &&
                     guid.equals(this.attrs.get(PREF_ATTR_GUID));
         }
 
@@ -309,32 +309,32 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
 
         @Override
         public boolean areValid() {
-            return this.valid;
+            return mValid;
         }
 
         @NonNull
         @Override
         public Date getLoadedTime() {
-            final Long time = this.valid ? (Long) this.attrs.get(PREF_ATTR_LOAD_TIME) : null;
+            final Long time = mValid ? (Long) this.attrs.get(PREF_ATTR_LOAD_TIME) : null;
             return new Date(time != null ? time : 0);
         }
 
         @Nullable
         @Override
         public String getEmail() {
-            return this.valid ? (String) this.attrs.get(PREF_ATTR_EMAIL) : null;
+            return mValid ? (String) this.attrs.get(PREF_ATTR_EMAIL) : null;
         }
 
         @Nullable
         @Override
         public String getFirstName() {
-            return this.valid ? (String) this.attrs.get(PREF_ATTR_FIRST_NAME) : null;
+            return mValid ? (String) this.attrs.get(PREF_ATTR_FIRST_NAME) : null;
         }
 
         @Nullable
         @Override
         public String getLastName() {
-            return this.valid ? (String) this.attrs.get(PREF_ATTR_LAST_NAME) : null;
+            return mValid ? (String) this.attrs.get(PREF_ATTR_LAST_NAME) : null;
         }
     }
 }
