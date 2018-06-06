@@ -8,6 +8,7 @@ import java.util.Date;
 
 public interface Attributes {
     String ATTR_SSO_GUID = "ssoGuid";
+    String ATTR_GR_MASTER_PERSON_ID = "grMasterPersonId";
     String ATTR_EMAIL = "email";
     String ATTR_FIRST_NAME = "firstName";
     String ATTR_LAST_NAME = "lastName";
