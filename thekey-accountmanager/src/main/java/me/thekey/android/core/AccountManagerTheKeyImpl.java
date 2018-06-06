@@ -15,14 +15,19 @@ import android.text.TextUtils;
 import org.json.JSONObject;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 
 import me.thekey.android.Attributes;
 import me.thekey.android.accounts.AccountUtils;
 import me.thekey.android.exception.TheKeyInvalidSessionException;
 
 import static android.Manifest.permission.GET_ACCOUNTS;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.accounts.Constants.DATA_GUID;
@@ -31,16 +36,23 @@ import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
 
 @RestrictTo(LIBRARY_GROUP)
 final class AccountManagerTheKeyImpl extends TheKeyImpl {
-    private static final String DATA_ATTR_LOAD_TIME = "attr_load_time";
-    private static final String DATA_ATTR_EMAIL = "attr_email";
-    private static final String DATA_ATTR_FIRST_NAME = "attr_first_name";
-    private static final String DATA_ATTR_LAST_NAME = "attr_last_name";
-
     private static final String AUTH_TOKEN_ACCESS_TOKEN = "access_token";
     private static final String AUTH_TOKEN_REFRESH_TOKEN = "refresh_token";
 
+    private static final String DATA_ATTR_LOAD_TIME = "attr_load_time";
+    private static final String DATA_ATTR_NAMES = "attr_names";
+    private static final String DATA_ATTR_PREFIX = "attr.";
+
+    @Deprecated
+    private static final String DATA_ATTR_EMAIL = "attr_email";
+    @Deprecated
+    private static final String DATA_ATTR_FIRST_NAME = "attr_first_name";
+    @Deprecated
+    private static final String DATA_ATTR_LAST_NAME = "attr_last_name";
+
     @NonNull
-    private final AccountManager mAccountManager;
+    @RestrictTo(LIBRARY)
+    final AccountManager mAccountManager;
 
     @NonNull
     private final String mAccountType;
@@ -69,7 +81,8 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
     }
 
     @Nullable
-    private String getGuid(@Nullable final Account account) {
+    @RestrictTo(LIBRARY)
+    String getGuid(@Nullable final Account account) {
         return AccountUtils.getGuid(mAccountManager, account);
     }
 
@@ -108,10 +121,17 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
     void storeAttributes(@NonNull final String guid, @NonNull final JSONObject json) {
         final Account account = findAccount(guid);
         if (account != null) {
+            removeAttributes(account);
             mAccountManager.setUserData(account, DATA_ATTR_LOAD_TIME, Long.toString(System.currentTimeMillis()));
-            mAccountManager.setUserData(account, DATA_ATTR_EMAIL, json.optString(JSON_ATTR_EMAIL, null));
-            mAccountManager.setUserData(account, DATA_ATTR_FIRST_NAME, json.optString(JSON_ATTR_FIRST_NAME, null));
-            mAccountManager.setUserData(account, DATA_ATTR_LAST_NAME, json.optString(JSON_ATTR_LAST_NAME, null));
+
+            String names = null;
+            final Iterator<String> attrs = json.keys();
+            while (attrs.hasNext()) {
+                final String key = attrs.next();
+                mAccountManager.setUserData(account, DATA_ATTR_PREFIX + key, json.optString(key, null));
+                names = (names != null ? names + "," : "") + key;
+            }
+            mAccountManager.setUserData(account, DATA_ATTR_NAMES, names);
         }
     }
 
@@ -119,11 +139,23 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
     void removeAttributes(@NonNull final String guid) {
         final Account account = findAccount(guid);
         if (account != null) {
-            mAccountManager.setUserData(account, DATA_ATTR_LOAD_TIME, null);
-            mAccountManager.setUserData(account, DATA_ATTR_EMAIL, null);
-            mAccountManager.setUserData(account, DATA_ATTR_FIRST_NAME, null);
-            mAccountManager.setUserData(account, DATA_ATTR_LAST_NAME, null);
+            removeAttributes(account);
         }
+    }
+
+    private void removeAttributes(@NonNull final Account account) {
+        mAccountManager.setUserData(account, DATA_ATTR_LOAD_TIME, null);
+        final String names = mAccountManager.getUserData(account, DATA_ATTR_NAMES);
+        if (names != null) {
+            for (final String key : TextUtils.split(names, ",")) {
+                mAccountManager.setUserData(account, DATA_ATTR_PREFIX + key, null);
+            }
+        }
+
+        // legacy attributes, no longer used
+        mAccountManager.setUserData(account, DATA_ATTR_EMAIL, null);
+        mAccountManager.setUserData(account, DATA_ATTR_FIRST_NAME, null);
+        mAccountManager.setUserData(account, DATA_ATTR_LAST_NAME, null);
     }
 
     @Override
@@ -271,11 +303,13 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
         mAccountManager.setAuthToken(newAccount, AUTH_TOKEN_REFRESH_TOKEN, account.refreshToken);
 
         // set all attributes
+        mAccountManager.setUserData(newAccount, DATA_ATTR_NAMES,
+                                    TextUtils.join(",", account.attributes.getAttributeNames()));
         mAccountManager.setUserData(newAccount, DATA_ATTR_LOAD_TIME,
                                     Long.toString(account.attributes.getLoadedTime().getTime()));
-        mAccountManager.setUserData(newAccount, DATA_ATTR_EMAIL, account.attributes.getEmail());
-        mAccountManager.setUserData(newAccount, DATA_ATTR_FIRST_NAME, account.attributes.getFirstName());
-        mAccountManager.setUserData(newAccount, DATA_ATTR_LAST_NAME, account.attributes.getLastName());
+        for (final String key : account.attributes.getAttributeNames()) {
+            mAccountManager.setUserData(newAccount, DATA_ATTR_PREFIX + key, account.attributes.getAttribute(key));
+        }
 
         // return success
         return true;
@@ -310,18 +344,14 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
         private final boolean mValid;
         @NonNull
         private final Date mLoadedTime;
-        @Nullable
-        private final String mEmail;
-        @Nullable
-        private final String mFirstName;
-        @Nullable
-        private final String mLastName;
+        @NonNull
+        private final Map<String, String> mAttributes;
 
         AttributesImpl(@NonNull final AccountManagerTheKeyImpl theKey, @Nullable final Account account) {
             mUsername = account != null ? account.name : null;
             mGuid = theKey.getGuid(account);
-            mValid = account != null;
-            if (mValid) {
+
+            if (account != null) {
                 final AccountManager manager = theKey.mAccountManager;
                 long loadedTime;
                 try {
@@ -330,14 +360,23 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
                     loadedTime = 0;
                 }
                 mLoadedTime = new Date(loadedTime);
-                mEmail = manager.getUserData(account, DATA_ATTR_EMAIL);
-                mFirstName = manager.getUserData(account, DATA_ATTR_FIRST_NAME);
-                mLastName = manager.getUserData(account, DATA_ATTR_LAST_NAME);
+
+                // load attributes
+                final String names = manager.getUserData(account, DATA_ATTR_NAMES);
+                final Map<String, String> attributes = new HashMap<>();
+                if (names != null) {
+                    for (final String key : TextUtils.split(names, ",")) {
+                        attributes.put(key, manager.getUserData(account, DATA_ATTR_PREFIX + key));
+                    }
+                }
+                mAttributes = Collections.unmodifiableMap(attributes);
+
+                // attributes are valid if we have a load time and names
+                mValid = loadedTime > 0 && names != null;
             } else {
                 mLoadedTime = new Date(0);
-                mEmail = null;
-                mFirstName = null;
-                mLastName = null;
+                mAttributes = Collections.emptyMap();
+                mValid = false;
             }
         }
 
@@ -364,22 +403,16 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
             return mLoadedTime;
         }
 
-        @Nullable
+        @NonNull
         @Override
-        public String getEmail() {
-            return mEmail;
+        public Collection<String> getAttributeNames() {
+            return mAttributes.keySet();
         }
 
         @Nullable
         @Override
-        public String getFirstName() {
-            return mFirstName;
-        }
-
-        @Nullable
-        @Override
-        public String getLastName() {
-            return mLastName;
+        public String getAttribute(@NonNull final String name) {
+            return mValid ? mAttributes.get(name) : null;
         }
     }
 
@@ -417,22 +450,16 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
             return mAttributes.areValid();
         }
 
-        @Nullable
+        @NonNull
         @Override
-        public String getEmail() {
-            return mAttributes.getEmail();
+        public Collection<String> getAttributeNames() {
+            return mAttributes.getAttributeNames();
         }
 
         @Nullable
         @Override
-        public String getFirstName() {
-            return mAttributes.getFirstName();
-        }
-
-        @Nullable
-        @Override
-        public String getLastName() {
-            return mAttributes.getLastName();
+        public String getAttribute(@NonNull final String name) {
+            return mAttributes.getAttribute(name);
         }
     }
 }
