@@ -47,7 +47,7 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     @Override
     public Collection<String> getSessions() {
         final String guid = getSessionGuid();
-        return guid != null ? Collections.singleton(guid) : Collections.<String>emptySet();
+        return guid != null ? Collections.singleton(guid) : Collections.emptySet();
     }
 
     @Nullable
