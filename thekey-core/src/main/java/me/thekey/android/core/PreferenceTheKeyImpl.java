@@ -279,32 +279,31 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     }
 
     private static final class AttributesImpl implements Attributes {
-        private final Map<String, ?> attrs;
+        private final Map<String, ?> mAttrs;
         private final boolean mValid;
 
         AttributesImpl(final Map<String, ?> prefsMap) {
-            this.attrs = new HashMap<String, Object>(prefsMap);
-            this.attrs.remove(PREF_ACCESS_TOKEN);
-            this.attrs.remove(PREF_REFRESH_TOKEN);
-            this.attrs.remove(PREF_EXPIRE_TIME);
+            mAttrs = new HashMap<String, Object>(prefsMap);
+            mAttrs.remove(PREF_ACCESS_TOKEN);
+            mAttrs.remove(PREF_REFRESH_TOKEN);
+            mAttrs.remove(PREF_EXPIRE_TIME);
 
             // determine if the attributes are valid
-            final String guid = (String) this.attrs.get(PREF_GUID);
-            mValid = this.attrs.containsKey(PREF_ATTR_LOAD_TIME) && guid != null &&
-                    guid.equals(this.attrs.get(PREF_ATTR_GUID));
+            final String guid = (String) this.mAttrs.get(PREF_GUID);
+            mValid = mAttrs.containsKey(PREF_ATTR_LOAD_TIME) && guid != null && guid.equals(mAttrs.get(PREF_ATTR_GUID));
         }
 
         @Nullable
         @Override
         public String getUsername() {
-            final Object username = this.attrs.get(PREF_USERNAME);
+            final Object username = mAttrs.get(PREF_USERNAME);
             return username instanceof String ? (String) username : getEmail();
         }
 
         @Nullable
         @Override
         public String getGuid() {
-            return (String) this.attrs.get(PREF_GUID);
+            return (String) mAttrs.get(PREF_GUID);
         }
 
         @Override
@@ -315,26 +314,26 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
         @NonNull
         @Override
         public Date getLoadedTime() {
-            final Long time = mValid ? (Long) this.attrs.get(PREF_ATTR_LOAD_TIME) : null;
+            final Long time = mValid ? (Long) mAttrs.get(PREF_ATTR_LOAD_TIME) : null;
             return new Date(time != null ? time : 0);
         }
 
         @Nullable
         @Override
         public String getEmail() {
-            return mValid ? (String) this.attrs.get(PREF_ATTR_EMAIL) : null;
+            return mValid ? (String) mAttrs.get(PREF_ATTR_EMAIL) : null;
         }
 
         @Nullable
         @Override
         public String getFirstName() {
-            return mValid ? (String) this.attrs.get(PREF_ATTR_FIRST_NAME) : null;
+            return mValid ? (String) mAttrs.get(PREF_ATTR_FIRST_NAME) : null;
         }
 
         @Nullable
         @Override
         public String getLastName() {
-            return mValid ? (String) this.attrs.get(PREF_ATTR_LAST_NAME) : null;
+            return mValid ? (String) mAttrs.get(PREF_ATTR_LAST_NAME) : null;
         }
     }
 }
