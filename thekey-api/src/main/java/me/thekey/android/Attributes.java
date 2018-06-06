@@ -4,7 +4,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 
 public interface Attributes {
@@ -24,17 +23,11 @@ public interface Attributes {
 
     boolean areValid();
 
-    //TODO: this shouldn't be default
     @NonNull
-    default Collection<String> getAttributeNames() {
-        return Collections.emptyList();
-    }
+    Collection<String> getAttributeNames();
 
-    //TODO: this shouldn't be default
     @Nullable
-    default String getAttribute(@NonNull final String name) {
-        return null;
-    }
+    String getAttribute(@NonNull final String name);
 
     @Nullable
     default String getEmail() {
