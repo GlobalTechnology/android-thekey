@@ -144,11 +144,6 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
                 mAccountManager.setUserData(account, DATA_ATTR_PREFIX + key, null);
             }
         }
-
-        // legacy attributes, no longer used
-        mAccountManager.setUserData(account, "attr_email", null);
-        mAccountManager.setUserData(account, "attr_first_name", null);
-        mAccountManager.setUserData(account, "attr_last_name", null);
     }
 
     @Override
