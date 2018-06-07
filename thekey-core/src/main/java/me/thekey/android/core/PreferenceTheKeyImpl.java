@@ -23,7 +23,6 @@ import me.thekey.android.Attributes;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
-import static me.thekey.android.Attributes.ATTR_SSO_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
 
@@ -281,7 +280,6 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             prefs.putString(PREF_REFRESH_TOKEN, account.refreshToken);
 
             prefs.putLong(PREF_ATTR_LOAD_TIME, account.attributes.getLoadedTime().getTime());
-            prefs.putString(PREF_ATTR_PREFIX + ATTR_SSO_GUID, account.guid);
             for (final String name : account.attributes.getAttributeNames()) {
                 prefs.putString(PREF_ATTR_PREFIX + name, account.attributes.getAttribute(name));
             }
