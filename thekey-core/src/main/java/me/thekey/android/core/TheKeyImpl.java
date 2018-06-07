@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.net.Uri.Builder;
+import android.os.AsyncTask;
 import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -446,12 +447,7 @@ public abstract class TheKeyImpl implements TheKey {
     @AnyThread
     public final void logout(@NonNull final String guid) {
         // clearAuthState() may block on synchronization, so process the call on a background thread
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                clearAuthState(guid, true);
-            }
-        }).start();
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> clearAuthState(guid, true));
     }
 
     @RestrictTo(SUBCLASSES)
