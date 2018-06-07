@@ -109,21 +109,15 @@ final class NoOpTheKey implements TheKey {
             return false;
         }
 
-        @Nullable
+        @NonNull
         @Override
-        public String getEmail() {
-            return null;
+        public Collection<String> getAttributeNames() {
+            return Collections.emptySet();
         }
 
         @Nullable
         @Override
-        public String getFirstName() {
-            return null;
-        }
-
-        @Nullable
-        @Override
-        public String getLastName() {
+        public String getAttribute(@NonNull final String name) {
             return null;
         }
     }
