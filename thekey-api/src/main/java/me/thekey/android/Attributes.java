@@ -38,7 +38,7 @@ public interface Attributes {
     Collection<String> getAttributeNames();
 
     @Nullable
-    String getAttribute(@NonNull final String name);
+    String getAttribute(@NonNull String name);
 
     @Nullable
     default String getEmail() {

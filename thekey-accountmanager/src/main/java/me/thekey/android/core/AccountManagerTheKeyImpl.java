@@ -43,13 +43,6 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
     private static final String DATA_ATTR_NAMES = "attr_names";
     private static final String DATA_ATTR_PREFIX = "attr.";
 
-    @Deprecated
-    private static final String DATA_ATTR_EMAIL = "attr_email";
-    @Deprecated
-    private static final String DATA_ATTR_FIRST_NAME = "attr_first_name";
-    @Deprecated
-    private static final String DATA_ATTR_LAST_NAME = "attr_last_name";
-
     @NonNull
     @RestrictTo(LIBRARY)
     final AccountManager mAccountManager;
@@ -153,9 +146,9 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
         }
 
         // legacy attributes, no longer used
-        mAccountManager.setUserData(account, DATA_ATTR_EMAIL, null);
-        mAccountManager.setUserData(account, DATA_ATTR_FIRST_NAME, null);
-        mAccountManager.setUserData(account, DATA_ATTR_LAST_NAME, null);
+        mAccountManager.setUserData(account, "attr_email", null);
+        mAccountManager.setUserData(account, "attr_first_name", null);
+        mAccountManager.setUserData(account, "attr_last_name", null);
     }
 
     @Override

@@ -38,15 +38,6 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     static final String PREF_ATTR_LOAD_TIME = "attr_load_time";
     static final String PREF_ATTR_PREFIX = "attr.";
 
-    @Deprecated
-    static final String PREF_ATTR_GUID = "attr_guid";
-    @Deprecated
-    static final String PREF_ATTR_EMAIL = "attr_email";
-    @Deprecated
-    static final String PREF_ATTR_FIRST_NAME = "attr_firstName";
-    @Deprecated
-    static final String PREF_ATTR_LAST_NAME = "attr_lastName";
-
     private final Object mLockPrefs = new Object();
 
     PreferenceTheKeyImpl(@NonNull final Context context, @NonNull final Configuration config) {
@@ -249,10 +240,10 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
         }
 
         // legacy attributes, no longer used
-        prefs.remove(PREF_ATTR_GUID);
-        prefs.remove(PREF_ATTR_EMAIL);
-        prefs.remove(PREF_ATTR_FIRST_NAME);
-        prefs.remove(PREF_ATTR_LAST_NAME);
+        prefs.remove("attr_guid");
+        prefs.remove("attr_email");
+        prefs.remove("attr_firstName");
+        prefs.remove("attr_lastName");
     }
 
     @Override
