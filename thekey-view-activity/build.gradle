@@ -1,0 +1,6 @@
+dependencies {
+    implementation project(':thekey-core')
+    api project(':thekey-view-base')
+
+    implementation "com.jakewharton.timber:timber:${deps.timber}"
+}

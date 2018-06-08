@@ -1,4 +1,4 @@
-package me.thekey.android.lib.activity;
+package me.thekey.android.view.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -16,13 +16,12 @@ import java.lang.ref.WeakReference;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.core.CodeGrantAsyncTask;
-import me.thekey.android.lib.R;
 import me.thekey.android.view.Builder;
 import me.thekey.android.view.LoginWebViewClient;
 import me.thekey.android.view.util.DisplayUtil;
 import timber.log.Timber;
 
-import static me.thekey.android.lib.activity.ActivityBuilder.EXTRA_ARGS;
+import static me.thekey.android.view.activity.ActivityBuilder.EXTRA_ARGS;
 
 public class LoginActivity extends Activity {
     public static final String EXTRA_GUID = LoginActivity.class.getName() + ".EXTRA_GUID";
