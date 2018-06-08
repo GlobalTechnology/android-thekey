@@ -19,10 +19,11 @@ import me.thekey.android.core.CodeGrantAsyncTask;
 import me.thekey.android.lib.R;
 import me.thekey.android.view.Builder;
 import me.thekey.android.view.LoginWebViewClient;
+import me.thekey.android.view.activity.ActivityBuilder;
 import me.thekey.android.view.util.DisplayUtil;
 import timber.log.Timber;
 
-import static me.thekey.android.lib.activity.ActivityBuilder.EXTRA_ARGS;
+import static me.thekey.android.view.activity.ActivityBuilder.EXTRA_ARGS;
 
 public class LoginActivity extends Activity {
     public static final String EXTRA_GUID = LoginActivity.class.getName() + ".EXTRA_GUID";

@@ -1,12 +1,17 @@
-package me.thekey.android.lib.activity;
+package me.thekey.android.view.activity;
 
-import me.thekey.android.view.AbstractBuilder;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.RestrictTo;
+
+import me.thekey.android.view.AbstractBuilder;
+
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 public final class ActivityBuilder extends AbstractBuilder<Activity> {
-    static final String EXTRA_ARGS = ActivityBuilder.class.getName() + ".EXTRA_ARGS";
+    @RestrictTo(LIBRARY_GROUP)
+    public static final String EXTRA_ARGS = ActivityBuilder.class.getName() + ".EXTRA_ARGS";
 
     private final Context mContext;
     private final Intent mIntent;
