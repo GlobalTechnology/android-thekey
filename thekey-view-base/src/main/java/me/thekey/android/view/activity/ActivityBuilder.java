@@ -11,7 +11,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 public final class ActivityBuilder extends AbstractBuilder<Activity> {
     @RestrictTo(LIBRARY_GROUP)
-    public static final String EXTRA_ARGS = ActivityBuilder.class.getName() + ".EXTRA_ARGS";
+    static final String EXTRA_ARGS = ActivityBuilder.class.getName() + ".EXTRA_ARGS";
 
     private final Context mContext;
     private final Intent mIntent;

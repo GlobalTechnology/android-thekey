@@ -2,6 +2,7 @@ dependencies {
     compile project(':thekey-api')
     compile project(':thekey-core')
     compile project(':thekey-localbroadcast')
+    implementation project(':thekey-view-activity')
     implementation project(':thekey-view-dialog-fragment')
 
     compile "com.android.support:appcompat-v7:${deps.androidSupport}"
