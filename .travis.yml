@@ -50,20 +50,6 @@ script:
 after_failure:
   - cat /home/travis/build/GlobalTechnology/android-thekey/*/build/outputs/lint-results.xml
 
-#before_deploy:
-#  - echo gcxMavenRepositoryUsername=$DEPLOY_USERNAME >> $HOME/.gradle/gradle.properties
-#  - echo gcxMavenRepositoryPassword=$DEPLOY_PASSWORD >> $HOME/.gradle/gradle.properties
-#
-#deploy:
-#  provider: script
-#  skip_cleanup: true
-#  script: ./gradlew uploadArchives --parallel
-#  on:
-#    repo: GlobalTechnology/android-thekey
-#    branch: master
-#    jdk: oraclejdk8
-#    condition: $DEPLOY_SNAPSHOT = true
-
 before_deploy:
   - echo cruGlobalMavenRepositoryUsername=$DEPLOY_USERNAME >> $HOME/.gradle/gradle.properties
   - echo cruGlobalMavenRepositoryPassword=$DEPLOY_PASSWORD >> $HOME/.gradle/gradle.properties
