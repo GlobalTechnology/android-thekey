@@ -159,7 +159,7 @@ public abstract class TheKeyImpl implements TheKey {
 
         // create a NoopEventsManager if all else failed
         if (manager == null) {
-            manager = new NoopEventsManager();
+            manager = NoopEventsManager.INSTANCE;
         }
 
         return manager;
