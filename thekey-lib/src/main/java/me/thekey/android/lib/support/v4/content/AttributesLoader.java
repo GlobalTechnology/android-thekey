@@ -44,7 +44,7 @@ public final class AttributesLoader extends AsyncTaskLoader<Attributes> {
         mReceiver.registerReceiver(LocalBroadcastManager.getInstance(getContext()));
 
         // deliver any cached attributes
-        final Attributes attrs = mTheKey.getAttributes(getGuid());
+        final Attributes attrs = mTheKey.getCachedAttributes(getGuid());
         deliverResult(attrs);
 
         // trigger a load if we need a refresh of the attributes
@@ -64,13 +64,13 @@ public final class AttributesLoader extends AsyncTaskLoader<Attributes> {
     @Override
     public Attributes loadInBackground() {
         final String guid = getGuid();
-        Attributes attrs = mTheKey.getAttributes(guid);
+        Attributes attrs = mTheKey.getCachedAttributes(guid);
 
         // check to see if the current attributes are stale
         if (needRefresh(attrs)) {
             try {
                 mTheKey.loadAttributes(guid);
-                attrs = mTheKey.getAttributes(guid);
+                attrs = mTheKey.getCachedAttributes(guid);
             } catch (final TheKeySocketException ignored) {
             }
         }

@@ -59,7 +59,7 @@ final class NoOpTheKey implements TheKey {
 
     @NonNull
     @Override
-    public Attributes getAttributes(@Nullable final String guid) {
+    public Attributes getCachedAttributes(@Nullable final String guid) {
         return NoOpAttributes.INSTANCE;
     }
 

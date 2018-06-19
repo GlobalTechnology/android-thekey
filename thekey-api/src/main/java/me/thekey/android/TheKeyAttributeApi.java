@@ -46,8 +46,8 @@ interface TheKeyAttributeApi extends TheKeySessions {
      */
     @NonNull
     @AnyThread
-    default Attributes getAttributes() {
-        return getAttributes(getDefaultSessionGuid());
+    default Attributes getCachedAttributes() {
+        return getCachedAttributes(getDefaultSessionGuid());
     }
 
     /**
@@ -61,5 +61,5 @@ interface TheKeyAttributeApi extends TheKeySessions {
      */
     @NonNull
     @AnyThread
-    Attributes getAttributes(@Nullable String guid);
+    Attributes getCachedAttributes(@Nullable String guid);
 }
