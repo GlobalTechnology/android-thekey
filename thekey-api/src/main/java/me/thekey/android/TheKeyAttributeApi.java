@@ -10,6 +10,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
 import me.thekey.android.exception.TheKeySocketException;
+import timber.log.Timber;
 
 interface TheKeyAttributeApi extends TheKeySessions {
     /**
@@ -79,7 +80,12 @@ interface TheKeyAttributeApi extends TheKeySessions {
 
             // refresh attributes if they aren't valid or are stale
             if (!attributes.areValid() || attributes.areStale()) {
-                loadAttributes(guid);
+                try {
+                    loadAttributes(guid);
+                } catch (final TheKeySocketException e) {
+                    Timber.tag("TheKey")
+                            .d(e, "error loading fresh attributes for getAttributes()");
+                }
                 return getCachedAttributes(guid);
             }
 
