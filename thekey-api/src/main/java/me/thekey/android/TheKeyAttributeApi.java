@@ -63,7 +63,7 @@ interface TheKeyAttributeApi extends TheKeySessions {
     /**
      * This method will return attributes for the specified user.
      * This method attempts to use the cached attributes, if the cached attributes are not valid or are stale we attempt
-     * to load fresh attributes before populating the returned future.
+     * to load fresh attributes before returning the attributes.
      * This method is blocking, and should never be called directly on the UI thread.
      *
      * @param guid The user we are looking for attributes for.
