@@ -6,13 +6,9 @@ import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
 import me.thekey.android.exception.TheKeySocketException;
+import timber.log.Timber;
 
 interface TheKeyAttributeApi extends TheKeySessions {
-    String JSON_ATTR_GUID = "ssoGuid";
-    String JSON_ATTR_EMAIL = "email";
-    String JSON_ATTR_FIRST_NAME = "firstName";
-    String JSON_ATTR_LAST_NAME = "lastName";
-
     /**
      * This method will load the attributes for the default OAuth session from
      * The Key. This method is a blocking method and should never be called
@@ -42,12 +38,12 @@ interface TheKeyAttributeApi extends TheKeySessions {
      * {@link TheKey#loadAttributes()}. This is a non-blocking method and may be
      * called on the UI thread.
      *
-     * @return The attributes for the current OAuth session
+     * @return The attributes for the current default user
      */
     @NonNull
     @AnyThread
-    default Attributes getAttributes() {
-        return getAttributes(getDefaultSessionGuid());
+    default Attributes getCachedAttributes() {
+        return getCachedAttributes(getDefaultSessionGuid());
     }
 
     /**
@@ -57,9 +53,38 @@ interface TheKeyAttributeApi extends TheKeySessions {
      * {@link TheKey#loadAttributes()}. This is a non-blocking method and may be
      * called on the UI thread.
      *
-     * @return The attributes for the current OAuth session
+     * @param guid The user we are getting cached attributes for
+     * @return The attributes for the specified user
      */
     @NonNull
     @AnyThread
-    Attributes getAttributes(@Nullable String guid);
+    Attributes getCachedAttributes(@Nullable String guid);
+
+    /**
+     * This method will return attributes for the specified user.
+     * This method attempts to use the cached attributes, if the cached attributes are not valid or are stale we attempt
+     * to load fresh attributes before returning the attributes.
+     * This method is blocking, and should never be called directly on the UI thread.
+     *
+     * @param guid The user we are looking for attributes for.
+     * @return the user's attributes.
+     */
+    @NonNull
+    @WorkerThread
+    default Attributes getAttributes(@Nullable final String guid) {
+        final Attributes attributes = getCachedAttributes(guid);
+
+        // refresh attributes if they aren't valid or are stale
+        if (!attributes.areValid() || attributes.areStale()) {
+            try {
+                loadAttributes(guid);
+            } catch (final TheKeySocketException e) {
+                Timber.tag("TheKey")
+                        .d(e, "error loading fresh attributes for getAttributes()");
+            }
+            return getCachedAttributes(guid);
+        }
+
+        return attributes;
+    }
 }

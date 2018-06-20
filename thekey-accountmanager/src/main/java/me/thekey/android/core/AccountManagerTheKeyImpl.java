@@ -106,7 +106,7 @@ final class AccountManagerTheKeyImpl extends TheKeyImpl {
 
     @NonNull
     @Override
-    public Attributes getAttributes(@Nullable final String guid) {
+    public Attributes getCachedAttributes(@Nullable final String guid) {
         return new AttributesImpl(this, findAccount(guid));
     }
 

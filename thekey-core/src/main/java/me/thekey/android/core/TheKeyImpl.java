@@ -609,7 +609,7 @@ public abstract class TheKeyImpl implements TheKey {
         final MigratingAccount account = new MigratingAccount(guid);
         account.accessToken = getAccessToken(guid);
         account.refreshToken = getRefreshToken(guid);
-        account.attributes = getAttributes(guid);
+        account.attributes = getCachedAttributes(guid);
         return account;
     }
 

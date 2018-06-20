@@ -62,14 +62,13 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
 
     @NonNull
     @Override
-    public Attributes getAttributes(@Nullable final String guid) {
+    public Attributes getCachedAttributes(@Nullable final String guid) {
         synchronized (mLockPrefs) {
             if (TextUtils.equals(guid, getSessionGuid())) {
                 // return the attributes for the current OAuth session
                 return new AttributesImpl(getPrefs().getAll());
             } else {
-                throw new UnsupportedOperationException(
-                        "cannot get attributes for users other than the active session");
+                return new AttributesImpl(Collections.emptyMap());
             }
         }
     }
@@ -199,7 +198,7 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             prefs.putString(PREF_ATTR_PREFIX + key, json.optString(key, null));
         }
 
-        // we synchronize this to prevent race conditions with getAttributes
+        // we synchronize this to prevent race conditions with getCachedAttributes
         synchronized (mLockPrefs) {
             // short-circuit if the specified guid is different from the stored session
             if (!TextUtils.equals(guid, getSessionGuid())) {
@@ -216,7 +215,7 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
     void removeAttributes(@NonNull final String guid) {
         final SharedPreferences.Editor prefs = getPrefs().edit();
 
-        // we synchronize this to prevent race conditions with getAttributes
+        // we synchronize this to prevent race conditions with getCachedAttributes
         synchronized (mLockPrefs) {
             // short-circuit if the specified guid is different from the stored session
             if (!TextUtils.equals(guid, getSessionGuid())) {
