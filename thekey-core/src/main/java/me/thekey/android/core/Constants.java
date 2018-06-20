@@ -1,8 +1,14 @@
 package me.thekey.android.core;
 
 import android.net.Uri;
+import android.support.annotation.RestrictTo;
+
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 
 public final class Constants {
+    @RestrictTo(LIBRARY)
+    public static final int DEFAULT_TRAFFIC_STATS_TAG = 815358825;
+
     public static final Uri CAS_SERVER = Uri.parse("https://thekey.me/cas/");
 
     // OAuth request/response params
