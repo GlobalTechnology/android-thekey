@@ -882,6 +882,11 @@ public abstract class TheKeyImpl implements TheKey {
                 uri.appendQueryParameter(PARAM_SCOPE, TextUtils.join(" ", mScope));
             }
 
+            // deeplink to the signup form if requested
+            if (mSignup) {
+                uri.appendQueryParameter(PARAM_ACTION, ACTION_SIGNUP);
+            }
+
             return uri.build();
         }
     }

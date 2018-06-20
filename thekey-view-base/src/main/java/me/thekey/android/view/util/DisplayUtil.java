@@ -51,6 +51,7 @@ public final class DisplayUtil {
         // clear SSO cookies if needed
         final String authorizeUrl = thekey.loginUriBuilder()
                 .redirectUri(ArgumentUtils.getRedirectUri(args, null))
+                .signup(ArgumentUtils.isSignup(args))
                 .build().toString();
         final CookieManager cookieManager = CookieManager.getInstance();
         final String cookies = cookieManager.getCookie(authorizeUrl);

@@ -12,6 +12,9 @@ public interface Builder<T> {
     Builder<T> selfService(boolean enable);
 
     @NonNull
+    Builder<T> signup(boolean enable);
+
+    @NonNull
     default T build() {
         throw new UnsupportedOperationException("Cannot call build() on this Builder");
     }
