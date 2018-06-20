@@ -25,4 +25,5 @@ public final class Constants {
     // configuration arguments
     public static final String ARG_SELF_SERVICE = "thekey.enable_self_service";
     public static final String ARG_REDIRECT_URI = "thekey.redirect_uri";
+    public static final String ARG_SIGNUP = "thekey.signup";
 }
