@@ -3,6 +3,7 @@ package me.thekey.android.core;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.TrafficStats;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.AsyncTask;
@@ -74,6 +75,8 @@ public abstract class TheKeyImpl implements TheKey {
     private static TheKeyImpl sInstance = null;
 
     private final Map<String, Object> mLockAuth = new HashMap<>();
+
+    private final int mTrafficTag = 815358825;
 
     @NonNull
     @RestrictTo(SUBCLASSES)
@@ -286,6 +289,9 @@ public abstract class TheKeyImpl implements TheKey {
 
         String accessToken;
         while ((accessToken = getValidAccessToken(guid, 0)) != null) {
+            final int currTrafficTag = TrafficStats.getThreadStatsTag();
+            TrafficStats.setThreadStatsTag(mTrafficTag);
+
             // request the attributes from CAS
             HttpsURLConnection conn = null;
             try {
@@ -333,6 +339,7 @@ public abstract class TheKeyImpl implements TheKey {
                 if (conn != null) {
                     conn.disconnect();
                 }
+                TrafficStats.setThreadStatsTag(currTrafficTag);
             }
 
             // the access token didn't work, remove it and restart processing
@@ -373,6 +380,9 @@ public abstract class TheKeyImpl implements TheKey {
     @WorkerThread
     private String getTicketWithAccessToken(@NonNull final String accessToken, @NonNull final String service)
             throws TheKeySocketException {
+        final int currTrafficTag = TrafficStats.getThreadStatsTag();
+        TrafficStats.setThreadStatsTag(mTrafficTag);
+
         HttpsURLConnection conn = null;
         try {
             // generate & send request
@@ -394,6 +404,8 @@ public abstract class TheKeyImpl implements TheKey {
             if (conn != null) {
                 conn.disconnect();
             }
+
+            TrafficStats.setThreadStatsTag(currTrafficTag);
         }
 
         return null;
@@ -542,6 +554,10 @@ public abstract class TheKeyImpl implements TheKey {
     private JSONObject sendTokenApiRequest(@NonNull final Map<String, String> params)
             throws TheKeyApiError, TheKeySocketException {
         final Uri tokenUri = getCasUri("api", "oauth", "token");
+
+        final int currTrafficTag = TrafficStats.getThreadStatsTag();
+        TrafficStats.setThreadStatsTag(mTrafficTag);
+
         HttpsURLConnection conn = null;
         try {
             // convert params into request data
@@ -574,6 +590,8 @@ public abstract class TheKeyImpl implements TheKey {
             if (conn != null) {
                 conn.disconnect();
             }
+
+            TrafficStats.setThreadStatsTag(currTrafficTag);
         }
 
         return null;
