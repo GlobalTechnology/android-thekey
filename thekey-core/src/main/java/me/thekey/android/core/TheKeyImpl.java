@@ -50,6 +50,7 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static me.thekey.android.core.Constants.CAS_SERVER;
+import static me.thekey.android.core.Constants.DEFAULT_TRAFFIC_STATS_TAG;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_CLIENT_ID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ERROR;
@@ -75,8 +76,6 @@ public abstract class TheKeyImpl implements TheKey {
     private static TheKeyImpl sInstance = null;
 
     private final Map<String, Object> mLockAuth = new HashMap<>();
-
-    private final int mTrafficTag = 815358825;
 
     @NonNull
     @RestrictTo(SUBCLASSES)
@@ -290,7 +289,7 @@ public abstract class TheKeyImpl implements TheKey {
         String accessToken;
         while ((accessToken = getValidAccessToken(guid, 0)) != null) {
             final int currTrafficTag = TrafficStats.getThreadStatsTag();
-            TrafficStats.setThreadStatsTag(mTrafficTag);
+            TrafficStats.setThreadStatsTag(mConfig.mTrafficTag);
 
             // request the attributes from CAS
             HttpsURLConnection conn = null;
@@ -381,7 +380,7 @@ public abstract class TheKeyImpl implements TheKey {
     private String getTicketWithAccessToken(@NonNull final String accessToken, @NonNull final String service)
             throws TheKeySocketException {
         final int currTrafficTag = TrafficStats.getThreadStatsTag();
-        TrafficStats.setThreadStatsTag(mTrafficTag);
+        TrafficStats.setThreadStatsTag(mConfig.mTrafficTag);
 
         HttpsURLConnection conn = null;
         try {
@@ -556,7 +555,7 @@ public abstract class TheKeyImpl implements TheKey {
         final Uri tokenUri = getCasUri("api", "oauth", "token");
 
         final int currTrafficTag = TrafficStats.getThreadStatsTag();
-        TrafficStats.setThreadStatsTag(mTrafficTag);
+        TrafficStats.setThreadStatsTag(mConfig.mTrafficTag);
 
         HttpsURLConnection conn = null;
         try {
@@ -754,6 +753,8 @@ public abstract class TheKeyImpl implements TheKey {
         @RestrictTo(SUBCLASSES)
         final Uri mDefaultRedirectUri;
 
+        final int mTrafficTag;
+
         @Nullable
         final EventsManager mEventsManager;
 
@@ -761,19 +762,21 @@ public abstract class TheKeyImpl implements TheKey {
         final Configuration mMigrationSource;
 
         private Configuration(@Nullable final Uri server, final long id, @Nullable final String accountType,
-                              @Nullable final Uri redirectUri, @Nullable final EventsManager eventsManager,
+                              @Nullable final Uri redirectUri, final int trafficTag,
+                              @Nullable final EventsManager eventsManager,
                               @Nullable final Configuration migrationSource) {
             mServer = server != null ? server : CAS_SERVER;
             mClientId = id;
             mAccountType = accountType;
             mDefaultRedirectUri = redirectUri;
+            mTrafficTag = trafficTag;
             mEventsManager = eventsManager;
             mMigrationSource = migrationSource;
         }
 
         @NonNull
         public static Configuration base() {
-            return new Configuration(null, INVALID_CLIENT_ID, null, null, null, null);
+            return new Configuration(null, INVALID_CLIENT_ID, null, null, DEFAULT_TRAFFIC_STATS_TAG, null, null);
         }
 
         @NonNull
@@ -783,18 +786,20 @@ public abstract class TheKeyImpl implements TheKey {
 
         @NonNull
         public Configuration server(@Nullable final Uri uri) {
-            return new Configuration(uri, mClientId, mAccountType, mDefaultRedirectUri, mEventsManager,
+            return new Configuration(uri, mClientId, mAccountType, mDefaultRedirectUri, mTrafficTag, mEventsManager,
                                      mMigrationSource);
         }
 
         @NonNull
         public Configuration accountType(@Nullable final String type) {
-            return new Configuration(mServer, mClientId, type, mDefaultRedirectUri, mEventsManager, mMigrationSource);
+            return new Configuration(mServer, mClientId, type, mDefaultRedirectUri, mTrafficTag, mEventsManager,
+                                     mMigrationSource);
         }
 
         @NonNull
         public Configuration clientId(final long id) {
-            return new Configuration(mServer, id, mAccountType, mDefaultRedirectUri, mEventsManager, mMigrationSource);
+            return new Configuration(mServer, id, mAccountType, mDefaultRedirectUri, mTrafficTag, mEventsManager,
+                                     mMigrationSource);
         }
 
         @NonNull
@@ -804,17 +809,26 @@ public abstract class TheKeyImpl implements TheKey {
 
         @NonNull
         public Configuration redirectUri(@Nullable final Uri uri) {
-            return new Configuration(mServer, mClientId, mAccountType, uri, mEventsManager, mMigrationSource);
+            return new Configuration(mServer, mClientId, mAccountType, uri, mTrafficTag, mEventsManager,
+                                     mMigrationSource);
         }
 
         @NonNull
         public Configuration eventsManager(@Nullable final EventsManager manager) {
-            return new Configuration(mServer, mClientId, mAccountType, mDefaultRedirectUri, manager, mMigrationSource);
+            return new Configuration(mServer, mClientId, mAccountType, mDefaultRedirectUri, mTrafficTag, manager,
+                                     mMigrationSource);
+        }
+
+        @NonNull
+        public Configuration trafficStatsTag(final int tag) {
+            return new Configuration(mServer, mClientId, mAccountType, mDefaultRedirectUri, tag, mEventsManager,
+                                     mMigrationSource);
         }
 
         @NonNull
         public Configuration migrationSource(@Nullable final Configuration source) {
-            return new Configuration(mServer, mClientId, mAccountType, mDefaultRedirectUri, mEventsManager, source);
+            return new Configuration(mServer, mClientId, mAccountType, mDefaultRedirectUri, mTrafficTag, mEventsManager,
+                                     source);
         }
 
         @Override
@@ -831,6 +845,7 @@ public abstract class TheKeyImpl implements TheKey {
                     TextUtils.equals(mAccountType, that.mAccountType) &&
                     (mDefaultRedirectUri != null ? mDefaultRedirectUri.equals(that.mDefaultRedirectUri) :
                             that.mDefaultRedirectUri == null) &&
+                    mTrafficTag == that.mTrafficTag &&
                     (mEventsManager != null ? mEventsManager.equals(that.mEventsManager) :
                             that.mEventsManager == null) &&
                     (mMigrationSource != null ? mMigrationSource.equals(that.mMigrationSource) :
@@ -839,7 +854,9 @@ public abstract class TheKeyImpl implements TheKey {
 
         @Override
         public int hashCode() {
-            return Arrays.hashCode(new Object[] {mServer, mClientId, mAccountType});
+            return Arrays.hashCode(
+                    new Object[] {mServer, mClientId, mAccountType, mDefaultRedirectUri, mTrafficTag, mEventsManager,
+                            mMigrationSource});
         }
     }
 
