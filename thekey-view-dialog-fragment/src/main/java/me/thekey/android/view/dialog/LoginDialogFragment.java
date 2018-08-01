@@ -60,8 +60,9 @@ public class LoginDialogFragment extends DialogFragment {
 
     @Override
     public void onDestroyView() {
-        // Work around bug:
-        // http://code.google.com/p/android/issues/detail?id=17423
+        // HACK: Work around bug
+        // HACK: http://code.google.com/p/android/issues/detail?id=17423
+        // HACK: https://issuetracker.google.com/issues/36929400
         final Dialog dialog = this.getDialog();
         if ((dialog != null) && this.getRetainInstance()) {
             dialog.setDismissMessage(null);
