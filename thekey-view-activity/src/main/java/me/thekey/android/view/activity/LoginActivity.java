@@ -31,7 +31,8 @@ public class LoginActivity extends Activity {
 
     // login WebView
     private FrameLayout frame = null;
-    private WebView loginView = null;
+    @Nullable
+    private WebView mLoginView;
 
     public static Builder<Activity> builder(final Context context) {
         return new ActivityBuilder(context, LoginActivity.class);
@@ -61,15 +62,11 @@ public class LoginActivity extends Activity {
 
     @Override
     public void onConfigurationChanged(final Configuration newConfig) {
-        this.detachLoginView();
-
+        // reload the view (but preserve the login view)
+        detachLoginView();
         super.onConfigurationChanged(newConfig);
-
-        // reload the view
         setContentView(R.layout.thekey_login);
-
-        // attach the loginView
-        this.attachLoginView();
+        attachLoginView();
     }
 
     /* END lifecycle */
@@ -77,20 +74,20 @@ public class LoginActivity extends Activity {
     private void attachLoginView() {
         this.detachLoginView();
 
-        // create a loginView if it doesn't exist already
-        if (this.loginView == null) {
-            this.loginView = DisplayUtil.createLoginWebView(this, new ActivityLoginWebViewClient(), mArgs);
+        // create a mLoginView if it doesn't exist already
+        if (mLoginView == null) {
+            mLoginView = DisplayUtil.createLoginWebView(this, new ActivityLoginWebViewClient(), mArgs);
         }
 
         // attach the login view to the current frame
         frame = findViewById(R.id.loginViewFrame);
-        this.frame.addView(this.loginView);
+        this.frame.addView(mLoginView);
     }
 
     private void detachLoginView() {
         // remove the login view from any existing frame
         if (this.frame != null) {
-            this.frame.removeView(this.loginView);
+            this.frame.removeView(mLoginView);
             this.frame = null;
         }
     }
