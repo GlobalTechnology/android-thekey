@@ -69,6 +69,14 @@ public class LoginActivity extends Activity {
         attachLoginView();
     }
 
+    @Override
+    public void onBackPressed() {
+        if (DisplayUtil.navigateBackIfPossible(mLoginView)) {
+            return;
+        }
+        super.onBackPressed();
+    }
+
     /* END lifecycle */
 
     private void attachLoginView() {

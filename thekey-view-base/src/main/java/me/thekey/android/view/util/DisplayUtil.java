@@ -68,4 +68,12 @@ public final class DisplayUtil {
 
         return webView;
     }
+
+    public static boolean navigateBackIfPossible(@Nullable final WebView webView) {
+        if (webView != null && webView.canGoBack()) {
+            webView.goBack();
+            return true;
+        }
+        return false;
+    }
 }
