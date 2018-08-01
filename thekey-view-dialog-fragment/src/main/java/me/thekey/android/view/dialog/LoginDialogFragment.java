@@ -73,6 +73,10 @@ public class LoginDialogFragment extends DialogFragment {
 
     /* END lifecycle */
 
+    public boolean navigateBackIfPossible() {
+        return DisplayUtil.navigateBackIfPossible(mLoginView);
+    }
+
     private void attachLoginView(final FrameLayout frame) {
         this.detachLoginView();
 
