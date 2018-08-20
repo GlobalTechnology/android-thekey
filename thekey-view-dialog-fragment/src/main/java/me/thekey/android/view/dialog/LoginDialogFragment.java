@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
@@ -55,6 +56,17 @@ public class LoginDialogFragment extends DialogFragment {
         this.attachLoginView(frame);
         builder.setView(frame);
 
+        // handle back button presses to navigate back in the WebView if possible
+        builder.setOnKeyListener((dialog, keyCode, event) -> {
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_BACK:
+                    if (event.getAction() == KeyEvent.ACTION_UP && event.isTracking() && !event.isCanceled()) {
+                        return DisplayUtil.navigateBackIfPossible(mLoginView);
+                    }
+            }
+            return false;
+        });
+
         return builder.create();
     }
 
@@ -72,10 +84,6 @@ public class LoginDialogFragment extends DialogFragment {
     }
 
     /* END lifecycle */
-
-    public boolean navigateBackIfPossible() {
-        return DisplayUtil.navigateBackIfPossible(mLoginView);
-    }
 
     private void attachLoginView(final FrameLayout frame) {
         this.detachLoginView();
