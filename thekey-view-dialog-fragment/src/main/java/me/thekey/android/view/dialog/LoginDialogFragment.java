@@ -58,11 +58,10 @@ public class LoginDialogFragment extends DialogFragment {
 
         // handle back button presses to navigate back in the WebView if possible
         builder.setOnKeyListener((dialog, keyCode, event) -> {
-            switch (keyCode) {
-                case KeyEvent.KEYCODE_BACK:
-                    if (event.getAction() == KeyEvent.ACTION_UP && event.isTracking() && !event.isCanceled()) {
-                        return DisplayUtil.navigateBackIfPossible(mLoginView);
-                    }
+            if (event.getAction() == KeyEvent.ACTION_UP &&
+                    keyCode == KeyEvent.KEYCODE_BACK &&
+                    event.isTracking() && !event.isCanceled()) {
+                return DisplayUtil.navigateBackIfPossible(mLoginView);
             }
             return false;
         });
