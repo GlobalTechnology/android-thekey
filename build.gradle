@@ -12,7 +12,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.2'
+        classpath 'com.android.tools.build:gradle:3.1.4'
     }
 }
 plugins {
@@ -23,7 +23,7 @@ subprojects {
     apply plugin: 'com.android.library'
 
     group 'me.thekey.android'
-    version = '2.0.0-SNAPSHOT'
+    version = '2.0.0'
 
     repositories {
         google()
