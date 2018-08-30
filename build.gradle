@@ -7,9 +7,9 @@ buildscript {
     ]
 
     repositories {
-        mavenLocal()
-        jcenter()
         google()
+        jcenter()
+        mavenLocal()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.1.2'
@@ -26,9 +26,9 @@ subprojects {
     version = '2.0.0-SNAPSHOT'
 
     repositories {
-        mavenLocal()
-        jcenter()
         google()
+        jcenter()
+        mavenLocal()
     }
 
     beforeEvaluate {
