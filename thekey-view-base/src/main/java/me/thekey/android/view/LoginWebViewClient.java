@@ -1,5 +1,6 @@
 package me.thekey.android.view;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -12,6 +13,9 @@ import android.view.View;
 import android.view.ViewParent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 
 import me.thekey.android.core.ArgumentUtils;
 import me.thekey.android.core.TheKeyImpl;
@@ -29,6 +33,9 @@ public abstract class LoginWebViewClient extends WebViewClient {
     @NonNull
     protected final TheKeyImpl mTheKey;
 
+    @Nullable
+    private Reference<Activity> mActivity;
+
     /* various Uris used internally */
     private final Uri mLoginUri;
     private final Uri mSelfServiceUri;
@@ -41,6 +48,10 @@ public abstract class LoginWebViewClient extends WebViewClient {
         mLoginUri = mTheKey.getCasUri("login");
         mSelfServiceUri = mTheKey.getCasUri("service", "selfservice");
         mRedirectUri = ArgumentUtils.getRedirectUri(mArgs, mTheKey.getDefaultRedirectUri());
+    }
+
+    public void setActivity(@Nullable final Activity activity) {
+        mActivity = activity != null ? new WeakReference<>(activity) : null;
     }
 
     @Override
@@ -69,7 +80,13 @@ public abstract class LoginWebViewClient extends WebViewClient {
         }
         // external link, launch default Android activity
         else {
-            mContext.startActivity(new Intent(Intent.ACTION_VIEW, parsedUri));
+            // prefer using the activity is possible, but fallback to the application context object
+            Context context = mActivity != null ? mActivity.get() : null;
+            if (context == null) {
+                context = mContext;
+            }
+
+            context.startActivity(new Intent(Intent.ACTION_VIEW, parsedUri));
             return true;
         }
     }

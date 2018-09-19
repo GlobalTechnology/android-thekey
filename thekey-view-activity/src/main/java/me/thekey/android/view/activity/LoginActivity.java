@@ -103,6 +103,7 @@ public class LoginActivity extends Activity {
     private class ActivityLoginWebViewClient extends LoginWebViewClient {
         ActivityLoginWebViewClient() {
             super(LoginActivity.this, mArgs);
+            setActivity(LoginActivity.this);
         }
 
         @Override
