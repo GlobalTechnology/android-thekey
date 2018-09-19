@@ -2,6 +2,7 @@ package me.thekey.android.view.dialog;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -33,12 +34,20 @@ public class LoginDialogFragment extends DialogFragment {
     // login WebView
     private FrameLayout frame = null;
     private WebView mLoginView = null;
+    @Nullable
+    private LoginWebViewClient mLoginWebViewClient = null;
 
     public static Builder<LoginDialogFragment> builder() {
         return new FragmentBuilder<>(LoginDialogFragment.class);
     }
 
     /* BEGIN lifecycle */
+
+    @Override
+    public void onAttach(final Context context) {
+        super.onAttach(context);
+        updateLoginWebViewClient();
+    }
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -87,15 +96,26 @@ public class LoginDialogFragment extends DialogFragment {
     private void attachLoginView(final FrameLayout frame) {
         this.detachLoginView();
 
+        // create the LoginWebViewClient if we don't have one yet
+        if (mLoginWebViewClient == null) {
+            mLoginWebViewClient = new LoginDialogWebViewClient(getArguments());
+            updateLoginWebViewClient();
+        }
+
         // create a Login WebView if one doesn't exist already
         if (mLoginView == null) {
-            final Bundle args = getArguments();
-            mLoginView = DisplayUtil.createLoginWebView(frame.getContext(), new LoginDialogWebViewClient(args), args);
+            mLoginView = DisplayUtil.createLoginWebView(frame.getContext(), mLoginWebViewClient, getArguments());
         }
 
         // attach the login view to the current frame
         this.frame = frame;
         this.frame.addView(mLoginView);
+    }
+
+    private void updateLoginWebViewClient() {
+        if (mLoginWebViewClient != null) {
+            mLoginWebViewClient.setActivity(getActivity());
+        }
     }
 
     private void detachLoginView() {
