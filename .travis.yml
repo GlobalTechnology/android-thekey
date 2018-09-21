@@ -48,7 +48,7 @@ script:
   - ./gradlew build -PdisablePreDex --parallel --continue --stacktrace
 
 after_failure:
-  - cat /home/travis/build/GlobalTechnology/android-thekey/*/build/outputs/lint-results.xml
+  - cat /home/travis/build/CruGlobal/android-thekey/*/build/outputs/lint-results.xml
 
 before_deploy:
   - echo cruGlobalMavenRepositoryUsername=$DEPLOY_USERNAME >> $HOME/.gradle/gradle.properties
@@ -59,7 +59,7 @@ deploy:
   skip_cleanup: true
   script: ./gradlew publish --parallel
   on:
-    repo: GlobalTechnology/android-thekey
+    repo: CruGlobal/android-thekey
     branch: master
     jdk: oraclejdk8
     condition: $DEPLOY_SNAPSHOT = true
