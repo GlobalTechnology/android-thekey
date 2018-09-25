@@ -28,7 +28,7 @@ subprojects {
     apply plugin: 'com.android.library'
 
     group 'me.thekey.android'
-    version = '2.0.1-SNAPSHOT'
+    version = '3.0.0-SNAPSHOT'
 
     repositories {
         google()
