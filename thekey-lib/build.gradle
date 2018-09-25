@@ -1,12 +1,11 @@
 dependencies {
-    compile project(':thekey-api')
-    compile project(':thekey-core')
-    compile project(':thekey-localbroadcast')
+    api project(':thekey-api')
+    implementation project(':thekey-core')
+    implementation project(':thekey-localbroadcast')
     implementation project(':thekey-view-activity')
     implementation project(':thekey-view-dialog-fragment')
 
-    compile "com.android.support:appcompat-v7:${deps.androidSupport}"
-    compile "com.android.support:support-v4:${deps.androidSupport}"
+    api "com.android.support:support-core-utils:${deps.androidSupport}"
 
     implementation "com.jakewharton.timber:timber:${deps.timber}"
 }
