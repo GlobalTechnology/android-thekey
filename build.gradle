@@ -1,10 +1,12 @@
 buildscript {
     // define dependency versions for this project
     ext.deps = [
-            androidSupport    : '27.1.1',
-            androidXAnnotation: '1.0.0',
-            eventbus          : '3.0.0',
-            timber            : '4.7.1'
+            androidSupport               : '27.1.1',
+            androidXAnnotation           : '1.0.0',
+            androidXLoader               : '1.0.0',
+            androidXLocalBroadcastManager: '1.0.0',
+            eventbus                     : '3.0.0',
+            timber                       : '4.7.1'
     ]
 
     repositories {

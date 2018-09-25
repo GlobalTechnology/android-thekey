@@ -1,14 +1,14 @@
 package me.thekey.android.lib.support.v4.content;
 
 import android.content.Context;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.LocalBroadcastManager;
 
 import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.loader.content.AsyncTaskLoader;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import me.thekey.android.Attributes;
 import me.thekey.android.TheKey;
 import me.thekey.android.exception.TheKeySocketException;
