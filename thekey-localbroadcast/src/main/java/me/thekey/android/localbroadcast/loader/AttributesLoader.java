@@ -1,4 +1,4 @@
-package me.thekey.android.lib.support.v4.content;
+package me.thekey.android.localbroadcast.loader;
 
 import android.content.Context;
 
