@@ -5,8 +5,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.webkit.WebView;
@@ -16,6 +14,8 @@ import java.lang.ref.WeakReference;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import me.thekey.android.TheKey;
 import me.thekey.android.core.CodeGrantAsyncTask;
 import me.thekey.android.view.Builder;

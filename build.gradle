@@ -3,6 +3,7 @@ buildscript {
     ext.deps = [
             androidSupport               : '27.1.1',
             androidXAnnotation           : '1.0.0',
+            androidXAppCompat            : '1.0.0',
             androidXFragment             : '1.0.0',
             androidXLoader               : '1.0.0',
             androidXLocalBroadcastManager: '1.0.0',
