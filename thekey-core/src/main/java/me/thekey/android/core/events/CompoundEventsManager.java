@@ -1,6 +1,6 @@
 package me.thekey.android.core.events;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;

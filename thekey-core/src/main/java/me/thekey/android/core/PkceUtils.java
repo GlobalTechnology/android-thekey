@@ -1,7 +1,7 @@
 package me.thekey.android.core;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import android.util.Base64;
 
 import java.nio.charset.Charset;
@@ -10,7 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Random;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static android.util.Base64.NO_PADDING;
 import static android.util.Base64.NO_WRAP;
 import static android.util.Base64.URL_SAFE;

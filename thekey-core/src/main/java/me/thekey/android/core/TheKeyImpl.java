@@ -7,11 +7,11 @@ import android.net.TrafficStats;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.AsyncTask;
-import android.support.annotation.AnyThread;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.WorkerThread;
+import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.WorkerThread;
 import android.text.TextUtils;
 
 import org.json.JSONException;
@@ -44,8 +44,8 @@ import me.thekey.android.exception.TheKeyInvalidSessionException;
 import me.thekey.android.exception.TheKeySocketException;
 import timber.log.Timber;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.SUBCLASSES;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;

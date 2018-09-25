@@ -1,6 +1,6 @@
 package me.thekey.android.events;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public interface EventsManager {
     void loginEvent(@NonNull String guid);

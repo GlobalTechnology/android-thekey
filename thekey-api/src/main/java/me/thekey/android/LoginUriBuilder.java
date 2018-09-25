@@ -1,13 +1,14 @@
 package me.thekey.android;
 
 import android.net.Uri;
-import android.support.annotation.AnyThread;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public abstract class LoginUriBuilder {
     private static final Pattern PATTERN_SCOPE = Pattern.compile("^[a-z]+$", Pattern.CASE_INSENSITIVE);

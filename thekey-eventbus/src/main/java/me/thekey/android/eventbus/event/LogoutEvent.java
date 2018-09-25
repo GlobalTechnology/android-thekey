@@ -1,6 +1,6 @@
 package me.thekey.android.eventbus.event;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public final class LogoutEvent extends TheKeyEvent {
     private final boolean mChangingUser;
