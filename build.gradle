@@ -1,9 +1,13 @@
 buildscript {
     // define dependency versions for this project
     ext.deps = [
-            androidSupport: '27.1.1',
-            eventbus      : '3.0.0',
-            timber        : '4.7.1'
+            androidXAnnotation           : '1.0.0',
+            androidXAppCompat            : '1.0.0',
+            androidXFragment             : '1.0.0',
+            androidXLoader               : '1.0.0',
+            androidXLocalBroadcastManager: '1.0.0',
+            eventbus                     : '3.0.0',
+            timber                       : '4.7.1'
     ]
 
     repositories {
@@ -23,7 +27,7 @@ subprojects {
     apply plugin: 'com.android.library'
 
     group 'me.thekey.android'
-    version = '2.0.1-SNAPSHOT'
+    version = '3.0.0-SNAPSHOT'
 
     repositories {
         google()
@@ -33,11 +37,11 @@ subprojects {
 
     beforeEvaluate {
         android {
-            compileSdkVersion 27
+            compileSdkVersion 28
 
             defaultConfig {
                 minSdkVersion 14
-                targetSdkVersion 27
+                targetSdkVersion 28
             }
 
             compileOptions {
@@ -50,7 +54,7 @@ subprojects {
         }
 
         dependencies {
-            compileOnly "com.android.support:support-annotations:${deps.androidSupport}"
+            compileOnly "androidx.annotation:annotation:${deps.androidXAnnotation}"
             compileOnly "org.jetbrains:annotations:16.0.1"
         }
     }

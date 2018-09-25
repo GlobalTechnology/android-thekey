@@ -1,6 +1,6 @@
 package me.thekey.android.eventbus;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.greenrobot.eventbus.EventBus;
 

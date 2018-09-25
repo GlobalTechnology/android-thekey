@@ -2,11 +2,11 @@ package me.thekey.android;
 
 import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.AnyThread;
-import android.support.annotation.NonNull;
 
 import java.lang.reflect.InvocationTargetException;
 
+import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
 import timber.log.Timber;
 
 public interface TheKey extends TheKeySessions, TheKeyAttributeApi, TheKeyTicketApi, TheKeyTokenApi {

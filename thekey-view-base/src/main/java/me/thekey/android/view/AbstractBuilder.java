@@ -2,8 +2,8 @@ package me.thekey.android.view;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import static me.thekey.android.core.Constants.ARG_REDIRECT_URI;
 import static me.thekey.android.core.Constants.ARG_SELF_SERVICE;

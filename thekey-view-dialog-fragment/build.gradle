@@ -2,7 +2,7 @@ dependencies {
     implementation project(':thekey-core')
     api project(':thekey-view-base')
 
-    implementation "com.android.support:appcompat-v7:${deps.androidSupport}"
+    implementation "androidx.appcompat:appcompat:${deps.androidXAppCompat}"
 
     implementation "com.jakewharton.timber:timber:${deps.timber}"
 }

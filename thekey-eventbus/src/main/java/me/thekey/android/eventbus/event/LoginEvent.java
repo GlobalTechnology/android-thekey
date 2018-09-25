@@ -1,6 +1,6 @@
 package me.thekey.android.eventbus.event;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public final class LoginEvent extends TheKeyEvent {
     public LoginEvent(@NonNull final String guid) {

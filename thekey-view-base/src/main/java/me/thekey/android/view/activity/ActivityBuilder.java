@@ -3,11 +3,11 @@ package me.thekey.android.view.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 
 import me.thekey.android.view.AbstractBuilder;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 public final class ActivityBuilder extends AbstractBuilder<Activity> {
     @RestrictTo(LIBRARY_GROUP)

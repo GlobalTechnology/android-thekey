@@ -2,9 +2,9 @@ package me.thekey.android.core;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import org.json.JSONException;
@@ -21,8 +21,8 @@ import java.util.Set;
 
 import me.thekey.android.Attributes;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY;
-import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;
 

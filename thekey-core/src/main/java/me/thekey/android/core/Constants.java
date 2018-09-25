@@ -1,9 +1,9 @@
 package me.thekey.android.core;
 
 import android.net.Uri;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 public final class Constants {
     @RestrictTo(LIBRARY)

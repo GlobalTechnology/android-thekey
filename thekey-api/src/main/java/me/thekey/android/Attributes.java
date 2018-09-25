@@ -1,13 +1,13 @@
 package me.thekey.android;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
-
 import java.util.Collection;
 import java.util.Date;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 public interface Attributes {
     String ATTR_SSO_GUID = "ssoGuid";

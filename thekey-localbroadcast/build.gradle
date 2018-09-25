@@ -7,5 +7,5 @@ android {
 dependencies {
     api project(':thekey-api')
 
-    implementation "com.android.support:support-core-utils:${deps.androidSupport}"
+    implementation "androidx.localbroadcastmanager:localbroadcastmanager:${deps.androidXLocalBroadcastManager}"
 }

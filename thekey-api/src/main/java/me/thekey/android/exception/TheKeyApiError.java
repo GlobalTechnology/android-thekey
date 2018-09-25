@@ -1,11 +1,11 @@
 package me.thekey.android.exception;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
-
 import org.json.JSONObject;
 
-import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+
+import static androidx.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.exception.InvalidGrantApiError.ERROR_INVALID_GRANT;
 import static me.thekey.android.exception.InvalidGrantApiError.parseInvalidGrantError;
 

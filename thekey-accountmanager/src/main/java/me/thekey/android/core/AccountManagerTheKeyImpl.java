@@ -6,10 +6,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresPermission;
-import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import org.json.JSONObject;
@@ -22,14 +18,18 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
+import androidx.annotation.RestrictTo;
 import me.thekey.android.Attributes;
 import me.thekey.android.accounts.AccountUtils;
 import me.thekey.android.exception.TheKeyInvalidSessionException;
 
 import static android.Manifest.permission.GET_ACCOUNTS;
-import static android.support.annotation.RestrictTo.Scope.LIBRARY;
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.accounts.Constants.DATA_GUID;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_ACCESS_TOKEN;
 import static me.thekey.android.core.Constants.OAUTH_PARAM_THEKEY_USERNAME;

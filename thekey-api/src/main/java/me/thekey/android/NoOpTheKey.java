@@ -1,15 +1,16 @@
 package me.thekey.android;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 @RestrictTo(LIBRARY)
 final class NoOpTheKey implements TheKey {

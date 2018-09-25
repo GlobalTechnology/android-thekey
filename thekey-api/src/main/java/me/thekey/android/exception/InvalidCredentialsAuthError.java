@@ -1,11 +1,11 @@
 package me.thekey.android.exception;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
-
 import org.json.JSONObject;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 public final class InvalidCredentialsAuthError extends InvalidGrantApiError {
     @RestrictTo(LIBRARY)
