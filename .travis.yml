@@ -16,36 +16,34 @@ branches:
   only:
     - master
 
-android:
-  components:
-    - tools
-    - tools
-    - platform-tools
-    - android-27
-
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
 cache:
   directories:
-    - $HOME/.gradle/caches
-    - $HOME/.gradle/daemon
-    - $HOME/.gradle/native
-    - $HOME/.gradle/wrapper
+    - $HOME/.android/build-cache
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
 
-before_script:
+before_install:
   # Install SDK license so Android Gradle plugin can install deps.
-  - mkdir -p ${ANDROID_HOME}licenses
+  - mkdir "$ANDROID_HOME/licenses" || true
   - echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > "$ANDROID_HOME/licenses/android-sdk-license"
   - echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> "$ANDROID_HOME/licenses/android-sdk-license"
+  # Install the rest of tools (e.g., avdmanager)
+  - sdkmanager tools
 
 # gradle options
 #  --parallel      : build/test multiple subprojects simultaneously
 #  --continue      : continue processing on an error to try and capture all errors
 #  --stacktrace    : output stacktraces for failures to aid in debugging
 #  -PdisablePreDex : disable library pre-dex to improve build server performance
+install:
+  - ./gradlew clean assemble --continue --stacktrace --parallel
+
 script:
-  - ./gradlew build -PdisablePreDex --parallel --continue --stacktrace
+  - ./gradlew check --continue --stacktrace --max-workers 2 --parallel
 
 after_failure:
   - cat /home/travis/build/CruGlobal/android-thekey/*/build/outputs/lint-results.xml
