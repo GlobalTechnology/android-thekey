@@ -3,7 +3,7 @@ buildscript {
     ext.deps = [
             androidSupport: '27.1.1',
             eventbus      : '3.0.0',
-            timber        : '4.7.0'
+            timber        : '4.7.1'
     ]
 
     repositories {
@@ -12,7 +12,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.4'
+        classpath 'com.android.tools.build:gradle:3.2.0'
     }
 }
 plugins {
@@ -51,7 +51,7 @@ subprojects {
 
         dependencies {
             compileOnly "com.android.support:support-annotations:${deps.androidSupport}"
-            compileOnly "org.jetbrains:annotations:15.0"
+            compileOnly "org.jetbrains:annotations:16.0.1"
         }
     }
 
