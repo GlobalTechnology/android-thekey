@@ -14,6 +14,7 @@ import java.lang.ref.WeakReference;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import me.thekey.android.TheKey;
@@ -32,7 +33,9 @@ public class LoginDialogFragment extends DialogFragment {
     }
 
     // login WebView
-    private FrameLayout frame = null;
+    @Nullable
+    private FrameLayout mFrame = null;
+    @Nullable
     private WebView mLoginView = null;
     @Nullable
     private LoginWebViewClient mLoginWebViewClient = null;
@@ -61,8 +64,8 @@ public class LoginDialogFragment extends DialogFragment {
 
         // build dialog
         final FrameLayout frame =
-                (FrameLayout) LayoutInflater.from(this.getActivity()).inflate(R.layout.thekey_login, null);
-        this.attachLoginView(frame);
+                (FrameLayout) LayoutInflater.from(requireContext()).inflate(R.layout.thekey_login, null);
+        attachLoginView(frame);
         builder.setView(frame);
 
         // handle back button presses to navigate back in the WebView if possible
@@ -93,8 +96,9 @@ public class LoginDialogFragment extends DialogFragment {
 
     /* END lifecycle */
 
-    private void attachLoginView(final FrameLayout frame) {
-        this.detachLoginView();
+    @UiThread
+    private void attachLoginView(@NonNull final FrameLayout frame) {
+        detachLoginView();
 
         // create the LoginWebViewClient if we don't have one yet
         if (mLoginWebViewClient == null) {
@@ -107,9 +111,9 @@ public class LoginDialogFragment extends DialogFragment {
             mLoginView = DisplayUtil.createLoginWebView(frame.getContext(), mLoginWebViewClient, getArguments());
         }
 
-        // attach the login view to the current frame
-        this.frame = frame;
-        this.frame.addView(mLoginView);
+        // attach the login view to the current mFrame
+        mFrame = frame;
+        mFrame.addView(mLoginView);
     }
 
     private void updateLoginWebViewClient() {
@@ -118,17 +122,19 @@ public class LoginDialogFragment extends DialogFragment {
         }
     }
 
+    @UiThread
     private void detachLoginView() {
-        // remove the login view from any existing frame
-        if (this.frame != null) {
+        // remove the login view from any existing mFrame
+        if (mFrame != null) {
             try {
-                this.frame.removeView(mLoginView);
+                mFrame.removeView(mLoginView);
             } catch (final IllegalArgumentException e) {
                 // XXX: KEYAND-12 IllegalArgumentException: Receiver not registered: android.webkit.WebViewClassic
                 Timber.e(e, "error removing Login WebView, let's just reset the login view");
                 mLoginView = null;
+                mLoginWebViewClient = null;
             }
-            this.frame = null;
+            mFrame = null;
         }
     }
 
