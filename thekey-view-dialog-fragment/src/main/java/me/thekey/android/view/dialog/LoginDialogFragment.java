@@ -148,7 +148,7 @@ public class LoginDialogFragment extends DialogFragment {
         } catch (final IllegalStateException suppressed) {
             // HACK: work around state loss exception if the dialog was added to the back stack
             Timber.tag(TAG)
-                    .d(suppressed, "Error dismissing the LoginDialogFragment, probably because of a Back Stack.");
+                    .e(suppressed, "Error dismissing the LoginDialogFragment, probably because of a Back Stack.");
             getFragmentManager().beginTransaction()
                     .remove(this)
                     .commitAllowingStateLoss();
