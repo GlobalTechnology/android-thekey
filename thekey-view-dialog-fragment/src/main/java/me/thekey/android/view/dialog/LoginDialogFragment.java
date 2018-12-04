@@ -26,6 +26,8 @@ import me.thekey.android.view.util.DisplayUtil;
 import timber.log.Timber;
 
 public class LoginDialogFragment extends DialogFragment {
+    private static final String TAG = "LoginDialogFragment";
+
     public interface Listener {
         void onLoginSuccess(LoginDialogFragment dialog, String guid);
 
@@ -44,7 +46,7 @@ public class LoginDialogFragment extends DialogFragment {
         return new FragmentBuilder<>(LoginDialogFragment.class);
     }
 
-    /* BEGIN lifecycle */
+    // region Lifecycle Events
 
     @Override
     public void onAttach(final Context context) {
@@ -94,7 +96,7 @@ public class LoginDialogFragment extends DialogFragment {
         super.onDestroyView();
     }
 
-    /* END lifecycle */
+    // endregion Lifecycle Events
 
     @UiThread
     private void attachLoginView(@NonNull final FrameLayout frame) {
@@ -130,11 +132,26 @@ public class LoginDialogFragment extends DialogFragment {
                 mFrame.removeView(mLoginView);
             } catch (final IllegalArgumentException e) {
                 // XXX: KEYAND-12 IllegalArgumentException: Receiver not registered: android.webkit.WebViewClassic
-                Timber.e(e, "error removing Login WebView, let's just reset the login view");
+                Timber.tag(TAG)
+                        .e(e, "error removing Login WebView, let's just reset the login view");
                 mLoginView = null;
                 mLoginWebViewClient = null;
             }
             mFrame = null;
+        }
+    }
+
+    @Override
+    public void dismissAllowingStateLoss() {
+        try {
+            super.dismissAllowingStateLoss();
+        } catch (final IllegalStateException suppressed) {
+            // HACK: work around state loss exception if the dialog was added to the back stack
+            Timber.tag(TAG)
+                    .d(suppressed, "Error dismissing the LoginDialogFragment, probably because of a Back Stack.");
+            getFragmentManager().beginTransaction()
+                    .remove(this)
+                    .commitAllowingStateLoss();
         }
     }
 
