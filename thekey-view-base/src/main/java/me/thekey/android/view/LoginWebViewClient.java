@@ -5,9 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewParent;
@@ -17,6 +14,9 @@ import android.webkit.WebViewClient;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import me.thekey.android.core.ArgumentUtils;
 import me.thekey.android.core.TheKeyImpl;
 import me.thekey.android.view.base.R;
@@ -129,7 +129,7 @@ public abstract class LoginWebViewClient extends WebViewClient {
     @Override
     public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
         super.onReceivedError(view, errorCode, description, failingUrl);
-        this.onAuthorizeError(Uri.parse(failingUrl), null);
+        onAuthorizeError(Uri.parse(failingUrl), null);
     }
 
     private boolean isOAuthUri(final Uri uri) {
