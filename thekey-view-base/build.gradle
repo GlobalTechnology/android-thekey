@@ -1,5 +1,5 @@
 dependencies {
     implementation project(':thekey-core')
 
-    compileOnly "androidx.fragment:fragment:${deps.androidXFragment}"
+    compileOnly "androidx.fragment:fragment:${deps.androidX.fragment}"
 }
