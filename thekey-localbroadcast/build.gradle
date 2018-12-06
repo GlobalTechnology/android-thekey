@@ -7,6 +7,6 @@ android {
 dependencies {
     api project(':thekey-api')
 
-    compileOnly "androidx.loader:loader:${deps.androidXLoader}"
-    implementation "androidx.localbroadcastmanager:localbroadcastmanager:${deps.androidXLocalBroadcastManager}"
+    compileOnly "androidx.loader:loader:${deps.androidX.loader}"
+    implementation "androidx.localbroadcastmanager:localbroadcastmanager:${deps.androidX.localBroadcastManager}"
 }
