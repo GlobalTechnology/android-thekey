@@ -113,7 +113,7 @@ public class LoginDialogFragment extends DialogFragment {
             mLoginView = DisplayUtil.createLoginWebView(frame.getContext(), mLoginWebViewClient, getArguments());
         }
 
-        // attach the login view to the current mFrame
+        // attach the login view to the current frame
         mFrame = frame;
         mFrame.addView(mLoginView);
     }
@@ -126,7 +126,7 @@ public class LoginDialogFragment extends DialogFragment {
 
     @UiThread
     private void detachLoginView() {
-        // remove the login view from any existing mFrame
+        // remove the login view from any existing frame
         if (mFrame != null) {
             try {
                 mFrame.removeView(mLoginView);
