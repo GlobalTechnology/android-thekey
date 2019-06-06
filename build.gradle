@@ -57,7 +57,7 @@ subprojects {
 
         dependencies {
             compileOnly "androidx.annotation:annotation:${deps.androidX.annotation}"
-            compileOnly "org.jetbrains:annotations:16.0.1"
+            compileOnly "org.jetbrains:annotations:17.0.0"
         }
     }
 
