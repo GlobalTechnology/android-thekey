@@ -8,7 +8,7 @@ buildscript {
             annotation           : '1.0.0',
             appCompat            : '1.0.2',
             fragment             : '1.0.0',
-            loader               : '1.0.0',
+            loader               : '1.1.0',
             localBroadcastManager: '1.0.0',
     ]
 
