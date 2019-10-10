@@ -6,7 +6,7 @@ import me.thekey.android.TheKey
 import me.thekey.android.core.CodeGrantAsyncTask
 import me.thekey.android.view.fragment.findListener
 
-internal class LoginDialogCodeGrantAsyncTask(dialog: LoginDialogFragment, thekey: TheKey, dataUri: Uri) :
+internal class LoginDialogCodeGrantAsyncTask(dialog: LoginDialogFragment?, thekey: TheKey, dataUri: Uri) :
     CodeGrantAsyncTask(thekey, dataUri) {
     private val dialog: LoginDialogFragment? by weak(dialog)
 

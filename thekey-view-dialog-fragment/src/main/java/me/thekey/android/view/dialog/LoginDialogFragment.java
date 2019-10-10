@@ -1,9 +1,7 @@
 package me.thekey.android.view.dialog;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -98,7 +96,7 @@ public class LoginDialogFragment extends DialogFragment {
 
         // create the LoginWebViewClient if we don't have one yet
         if (mLoginWebViewClient == null) {
-            mLoginWebViewClient = new LoginDialogWebViewClient(getArguments());
+            mLoginWebViewClient = new LoginDialogWebViewClient(this);
             updateLoginWebViewClient();
         }
 
@@ -146,32 +144,6 @@ public class LoginDialogFragment extends DialogFragment {
             getFragmentManager().beginTransaction()
                     .remove(this)
                     .commitAllowingStateLoss();
-        }
-    }
-
-    class LoginDialogWebViewClient extends LoginWebViewClient {
-        LoginDialogWebViewClient(@Nullable final Bundle args) {
-            super(requireContext(), args);
-        }
-
-        @Override
-        protected void onAuthorizeSuccess(@NonNull final Uri uri, @NonNull final String code,
-                                          @Nullable final String state) {
-            new LoginDialogCodeGrantAsyncTask(LoginDialogFragment.this, mTheKey, uri).execute();
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        protected void onAuthorizeError(final Uri uri, final String errorCode) {
-            final Activity activity = getActivity();
-            if (activity instanceof Listener) {
-                ((Listener) activity).onLoginFailure(LoginDialogFragment.this);
-            }
-
-            // close the dialog if it is still active (added to the activity)
-            if (isAdded()) {
-                dismissAllowingStateLoss();
-            }
         }
     }
 }
