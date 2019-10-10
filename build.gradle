@@ -5,7 +5,7 @@ buildscript {
             timber  : '4.7.1'
     ]
     ext.deps.androidX = [
-            annotation           : '1.0.0',
+            annotation           : '1.1.0',
             appCompat            : '1.1.0',
             fragment             : '1.1.0',
             loader               : '1.1.0',
