@@ -2,6 +2,7 @@ buildscript {
     // define dependency versions for this project
     ext.deps = [
             eventbus: '3.0.0',
+            kotlin  : '1.3.50',
             timber  : '4.7.1'
     ]
     ext.deps.androidX = [
@@ -19,6 +20,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${deps.kotlin}"
     }
 }
 plugins {
@@ -27,9 +29,10 @@ plugins {
 
 subprojects {
     apply plugin: 'com.android.library'
+    apply plugin: 'kotlin-android'
 
     group 'me.thekey.android'
-    version = '3.0.1-SNAPSHOT'
+    version = '4.0.0-SNAPSHOT'
 
     repositories {
         google()
@@ -53,9 +56,14 @@ subprojects {
             dexOptions {
                 preDexLibraries !project.hasProperty('disablePreDex')
             }
+            kotlinOptions {
+                jvmTarget = JavaVersion.VERSION_1_8.toString()
+            }
         }
 
         dependencies {
+            implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${deps.kotlin}"
+
             compileOnly "androidx.annotation:annotation:${deps.androidX.annotation}"
             compileOnly "org.jetbrains:annotations:17.0.0"
         }
