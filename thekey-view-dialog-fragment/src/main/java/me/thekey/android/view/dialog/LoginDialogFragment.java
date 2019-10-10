@@ -10,15 +10,11 @@ import android.view.LayoutInflater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
-import java.lang.ref.WeakReference;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import me.thekey.android.TheKey;
-import me.thekey.android.core.CodeGrantAsyncTask;
 import me.thekey.android.view.Builder;
 import me.thekey.android.view.LoginWebViewClient;
 import me.thekey.android.view.fragment.FragmentBuilder;
@@ -47,7 +43,6 @@ public class LoginDialogFragment extends DialogFragment {
     }
 
     // region Lifecycle Events
-
     @Override
     public void onAttach(final Context context) {
         super.onAttach(context);
@@ -86,8 +81,8 @@ public class LoginDialogFragment extends DialogFragment {
     @Override
     public void onDestroyView() {
         // HACK: Work around bug
-        // HACK: http://code.google.com/p/android/issues/detail?id=17423
-        // HACK: https://issuetracker.google.com/issues/36929400
+        //       http://code.google.com/p/android/issues/detail?id=17423
+        //       https://issuetracker.google.com/issues/36929400
         final Dialog dialog = this.getDialog();
         if ((dialog != null) && this.getRetainInstance()) {
             dialog.setDismissMessage(null);
@@ -95,7 +90,6 @@ public class LoginDialogFragment extends DialogFragment {
 
         super.onDestroyView();
     }
-
     // endregion Lifecycle Events
 
     @UiThread
@@ -177,40 +171,6 @@ public class LoginDialogFragment extends DialogFragment {
             // close the dialog if it is still active (added to the activity)
             if (isAdded()) {
                 dismissAllowingStateLoss();
-            }
-        }
-    }
-
-    static final class LoginDialogCodeGrantAsyncTask extends CodeGrantAsyncTask {
-        private final WeakReference<LoginDialogFragment> mDialog;
-
-        LoginDialogCodeGrantAsyncTask(@NonNull final LoginDialogFragment dialog, @NonNull final TheKey thekey,
-                                      @NonNull final Uri dataUri) {
-            super(thekey, dataUri);
-            mDialog = new WeakReference<>(dialog);
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        protected void onPostExecute(final String guid) {
-            super.onPostExecute(guid);
-
-            final LoginDialogFragment dialog = mDialog.get();
-            if (dialog != null) {
-                final Activity activity = dialog.getActivity();
-                if (activity instanceof Listener) {
-                    // trigger the correct callback
-                    if (guid != null) {
-                        ((Listener) activity).onLoginSuccess(dialog, guid);
-                    } else {
-                        ((Listener) activity).onLoginFailure(dialog);
-                    }
-                }
-
-                // close the dialog if it is still active (added to the activity)
-                if (dialog.isAdded()) {
-                    dialog.dismissAllowingStateLoss();
-                }
             }
         }
     }

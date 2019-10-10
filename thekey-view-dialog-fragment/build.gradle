@@ -4,5 +4,6 @@ dependencies {
 
     implementation "androidx.appcompat:appcompat:${deps.androidX.appCompat}"
 
+    implementation "com.github.Karumi:WeakDelegate:${deps.weakDelegate}"
     implementation "com.jakewharton.timber:timber:${deps.timber}"
 }
