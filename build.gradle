@@ -65,7 +65,7 @@ subprojects {
         }
 
         dependencies {
-            implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${deps.kotlin}"
+            implementation "org.jetbrains.kotlin:kotlin-stdlib:${deps.kotlin}"
 
             compileOnly "androidx.annotation:annotation:${deps.androidX.annotation}"
             compileOnly "org.jetbrains:annotations:17.0.0"
