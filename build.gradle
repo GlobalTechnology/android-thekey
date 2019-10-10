@@ -1,15 +1,15 @@
 buildscript {
     // define dependency versions for this project
     ext.deps = [
-            androidX: [
-                    annotation           : '1.0.0',
-                    appCompat            : '1.0.2',
-                    fragment             : '1.0.0',
-                    loader               : '1.0.0',
-                    localBroadcastManager: '1.0.0',
-            ],
             eventbus: '3.0.0',
             timber  : '4.7.1'
+    ]
+    ext.deps.androidX = [
+            annotation           : '1.0.0',
+            appCompat            : '1.0.2',
+            fragment             : '1.0.0',
+            loader               : '1.0.0',
+            localBroadcastManager: '1.0.0',
     ]
 
     repositories {
