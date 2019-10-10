@@ -720,16 +720,12 @@ public abstract class TheKeyImpl implements TheKey {
     @RestrictTo(LIBRARY_GROUP)
     static final class MigratingAccount {
         @NonNull
-        @RestrictTo(SUBCLASSES)
         final String guid;
         @Nullable
-        @RestrictTo(SUBCLASSES)
         String accessToken;
         @Nullable
-        @RestrictTo(SUBCLASSES)
         String refreshToken;
         @NonNull
-        @RestrictTo(SUBCLASSES)
         Attributes attributes;
 
         MigratingAccount(@NonNull final String guid) {
@@ -746,11 +742,11 @@ public abstract class TheKeyImpl implements TheKey {
         final Uri mServer;
         final long mClientId;
         @Nullable
-        @RestrictTo(SUBCLASSES)
+        @RestrictTo(LIBRARY_GROUP)
         final String mAccountType;
 
         @Nullable
-        @RestrictTo(SUBCLASSES)
+        @RestrictTo(LIBRARY_GROUP)
         final Uri mDefaultRedirectUri;
 
         final int mTrafficTag;
