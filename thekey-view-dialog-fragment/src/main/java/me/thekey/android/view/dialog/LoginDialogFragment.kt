@@ -2,6 +2,7 @@ package me.thekey.android.view.dialog
 
 import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -14,6 +15,7 @@ import androidx.fragment.app.commit
 import me.thekey.android.view.Builder
 import me.thekey.android.view.LoginWebViewClient
 import me.thekey.android.view.fragment.FragmentBuilder
+import me.thekey.android.view.fragment.findListener
 import me.thekey.android.view.util.DisplayUtil
 import timber.log.Timber
 
@@ -65,6 +67,11 @@ open class LoginDialogFragment : DialogFragment() {
                 false
             }
             .create()
+    }
+
+    override fun onCancel(dialog: DialogInterface) {
+        super.onCancel(dialog)
+        findListener<Listener>()?.onLoginCanceled(this)
     }
 
     override fun onDestroyView() {
