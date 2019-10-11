@@ -3,6 +3,8 @@ dependencies {
     api project(':thekey-view-base')
 
     implementation "androidx.appcompat:appcompat:${deps.androidX.appCompat}"
+    implementation "androidx.fragment:fragment-ktx:${deps.androidX.fragment}"
 
+    implementation "com.github.Karumi:WeakDelegate:${deps.weakDelegate}"
     implementation "com.jakewharton.timber:timber:${deps.timber}"
 }
