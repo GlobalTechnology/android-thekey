@@ -13,7 +13,7 @@ internal class LoginDialogWebViewClient(fragment: LoginDialogFragment) :
         LoginDialogCodeGrantAsyncTask(fragment, mTheKey, uri).execute()
     }
 
-    override fun onAuthorizeError(uri: Uri, errorCode: String) {
+    override fun onAuthorizeError(uri: Uri, errorCode: String?) {
         fragment?.apply {
             findListener<LoginDialogFragment.Listener>()?.onLoginFailure(this)
 

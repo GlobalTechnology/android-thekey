@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.net.http.SslError;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewParent;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -127,6 +129,15 @@ public abstract class LoginWebViewClient extends WebViewClient {
     }
 
     @Override
+    public void onReceivedSslError(final WebView view, final SslErrorHandler handler, final SslError error) {
+        super.onReceivedSslError(view, handler, error);
+        final Uri url = Uri.parse(error.getUrl());
+        if (isOAuthUri(url)) {
+            onAuthorizeError(url, null);
+        }
+    }
+
+    @Override
     public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
         super.onReceivedError(view, errorCode, description, failingUrl);
         onAuthorizeError(Uri.parse(failingUrl), null);
@@ -152,5 +163,5 @@ public abstract class LoginWebViewClient extends WebViewClient {
 
     protected abstract void onAuthorizeSuccess(@NonNull Uri uri, @NonNull String code, @Nullable String state);
 
-    protected abstract void onAuthorizeError(Uri uri, String errorCode);
+    protected abstract void onAuthorizeError(@NonNull Uri uri, @Nullable String errorCode);
 }
