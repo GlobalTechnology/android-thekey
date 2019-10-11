@@ -78,6 +78,11 @@ subprojects {
         resolutionStrategy {
             force "androidx.annotation:annotation:${deps.androidX.annotation}"
             force 'org.jetbrains:annotations:17.0.0'
+
+            dependencySubstitution {
+                substitute module('org.jetbrains.kotlin:kotlin-stdlib-jdk7') with module("org.jetbrains.kotlin:kotlin-stdlib:${deps.kotlin}")
+                substitute module('org.jetbrains.kotlin:kotlin-stdlib-jdk8') with module("org.jetbrains.kotlin:kotlin-stdlib:${deps.kotlin}")
+            }
         }
     }
 
