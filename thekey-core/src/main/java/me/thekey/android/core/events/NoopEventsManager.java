@@ -4,6 +4,10 @@ import androidx.annotation.NonNull;
 
 import me.thekey.android.events.EventsManager;
 
+/**
+ * @deprecated Since v4.0.0, there is no need to use this class.
+ */
+@Deprecated
 public final class NoopEventsManager implements EventsManager {
     public static final NoopEventsManager INSTANCE = new NoopEventsManager();
 

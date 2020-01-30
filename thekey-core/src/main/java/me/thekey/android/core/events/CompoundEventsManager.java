@@ -1,11 +1,11 @@
 package me.thekey.android.core.events;
 
-import androidx.annotation.NonNull;
-
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import androidx.annotation.NonNull;
+import me.thekey.android.TheKey;
 import me.thekey.android.events.EventsManager;
 
 public final class CompoundEventsManager implements EventsManager {
@@ -22,6 +22,9 @@ public final class CompoundEventsManager implements EventsManager {
     public void removeEventsManager(@NonNull final EventsManager manager) {
         mEventsManagers.remove(manager);
     }
+
+    @Override
+    public void init(@NonNull final TheKey thekey) { }
 
     @Override
     public void loginEvent(@NonNull final String guid) {
