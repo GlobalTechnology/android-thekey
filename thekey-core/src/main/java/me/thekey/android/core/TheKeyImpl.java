@@ -7,11 +7,6 @@ import android.net.TrafficStats;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.AsyncTask;
-import androidx.annotation.AnyThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.WorkerThread;
 import android.text.TextUtils;
 
 import org.json.JSONException;
@@ -34,9 +29,15 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.WorkerThread;
 import me.thekey.android.Attributes;
 import me.thekey.android.LoginUriBuilder;
 import me.thekey.android.TheKey;
+import me.thekey.android.TheKeyService;
 import me.thekey.android.core.events.NoopEventsManager;
 import me.thekey.android.events.EventsManager;
 import me.thekey.android.exception.TheKeyApiError;
@@ -194,6 +195,24 @@ public abstract class TheKeyImpl implements TheKey {
 
         throw new IllegalStateException("TheKeyImpl has not been configured yet!");
     }
+
+    // region TheKeyServices
+    private final Map<String, TheKeyService> mRegisteredServices = new HashMap<>();
+
+    @Override
+    @RestrictTo(LIBRARY_GROUP)
+    public void registerService(@NonNull final TheKeyService service, @NonNull final String key) {
+        mRegisteredServices.put(key, service);
+    }
+
+    @Nullable
+    @Override
+    @RestrictTo(LIBRARY_GROUP)
+    @SuppressWarnings("unchecked")
+    public TheKeyService getService(@NonNull final String key) {
+        return mRegisteredServices.get(key);
+    }
+    // endregion TheKeyServices
 
     @NonNull
     private SharedPreferences getPrefs() {

@@ -9,7 +9,7 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import timber.log.Timber;
 
-public interface TheKey extends TheKeySessions, TheKeyAttributeApi, TheKeyTicketApi, TheKeyTokenApi {
+public interface TheKey extends TheKeyServices, TheKeySessions, TheKeyAttributeApi, TheKeyTicketApi, TheKeyTokenApi {
     long INVALID_CLIENT_ID = -1;
 
     // OAuth params
