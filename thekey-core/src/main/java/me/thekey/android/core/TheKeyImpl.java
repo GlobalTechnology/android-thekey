@@ -191,6 +191,15 @@ public abstract class TheKeyImpl implements TheKey {
         } catch (final Exception e) {
             Timber.tag("TheKey").d(e, "Unable to initialize LocalBroadcastManagerEventsManager");
         }
+
+        // attach the LiveDataRegistry if it's on the classpath
+        try {
+            initService((TheKeyService) Class.forName("me.thekey.android.livedata.LiveDataRegistry")
+                    .getDeclaredField("INSTANCE")
+                    .get(null));
+        } catch (final Exception e) {
+            Timber.tag("TheKey").d(e, "Unable to initialize LiveDataRegistry");
+        }
     }
 
     private void initService(@NonNull final TheKeyService service) {
