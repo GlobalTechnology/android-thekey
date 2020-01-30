@@ -1,3 +1,9 @@
+android {
+    defaultConfig {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+}
+
 dependencies {
     api project(':thekey-api')
 
