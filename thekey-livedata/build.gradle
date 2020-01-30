@@ -2,4 +2,6 @@ dependencies {
     api project(':thekey-api')
 
     api "androidx.lifecycle:lifecycle-livedata:${deps.androidX.lifecycle}"
+
+    implementation "com.jakewharton.timber:timber:${deps.timber}"
 }
