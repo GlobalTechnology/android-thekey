@@ -12,12 +12,20 @@ object LiveDataRegistry : EventsManager {
     internal fun register(liveData: AttributesLiveData) = registry.put(liveData, Unit)
     internal fun register(liveData: DefaultSessionGuidLiveData) = defaultGuidRegistry.put(liveData, Unit)
 
+    override fun changeDefaultSessionEvent(guid: String) {
+        registry.keys.forEach { it.invalidateForDefaultGuid() }
+        defaultGuidRegistry.keys.forEach { it.invalidate() }
+    }
+
     override fun attributesUpdatedEvent(guid: String) {
         registry.keys.forEach { it.invalidateFor(guid) }
     }
 
-    override fun changeDefaultSessionEvent(guid: String) {
-        registry.keys.forEach { it.invalidateDefaultGuid() }
+    override fun logoutEvent(guid: String, changingUser: Boolean) {
+        registry.keys.forEach {
+            it.invalidateFor(guid)
+            it.invalidateForDefaultGuid()
+        }
         defaultGuidRegistry.keys.forEach { it.invalidate() }
     }
 }
