@@ -793,6 +793,7 @@ public abstract class TheKeyImpl implements TheKey {
         @Nullable
         final Configuration mMigrationSource;
 
+        @SuppressWarnings("checkstyle:ParameterNumber")
         private Configuration(@Nullable final Uri server, final long id, @Nullable final String accountType,
                               @Nullable final Uri redirectUri, final int trafficTag,
                               @Nullable final EventsManager eventsManager,
