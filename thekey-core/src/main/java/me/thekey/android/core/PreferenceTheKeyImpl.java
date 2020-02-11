@@ -2,9 +2,6 @@ package me.thekey.android.core;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import org.json.JSONException;
@@ -19,6 +16,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import me.thekey.android.Attributes;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
@@ -262,6 +262,9 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
 
             prefs.apply();
         }
+
+        // reset the default session
+        resetDefaultSession(guid);
 
         if (sendBroadcast) {
             // broadcast a logout action if we had a guid

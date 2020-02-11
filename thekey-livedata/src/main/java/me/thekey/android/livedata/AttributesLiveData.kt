@@ -36,7 +36,7 @@ internal class AttributesLiveData(
     }
 
     @AnyThread
-    internal fun invalidateDefaultGuid() {
+    internal fun invalidateForDefaultGuid() {
         if (guid == null) invalidate()
     }
 }
