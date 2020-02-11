@@ -7,11 +7,6 @@ import android.net.TrafficStats;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.AsyncTask;
-import androidx.annotation.AnyThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.WorkerThread;
 import android.text.TextUtils;
 
 import org.json.JSONException;
@@ -34,10 +29,17 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.WorkerThread;
+import kotlin.collections.ArraysKt;
 import me.thekey.android.Attributes;
 import me.thekey.android.LoginUriBuilder;
 import me.thekey.android.TheKey;
-import me.thekey.android.core.events.NoopEventsManager;
+import me.thekey.android.TheKeyService;
+import me.thekey.android.core.events.CompoundEventsManager;
 import me.thekey.android.events.EventsManager;
 import me.thekey.android.exception.TheKeyApiError;
 import me.thekey.android.exception.TheKeyInvalidSessionException;
@@ -81,8 +83,8 @@ public abstract class TheKeyImpl implements TheKey {
     @RestrictTo(SUBCLASSES)
     final Context mContext;
     @NonNull
-    @RestrictTo(SUBCLASSES)
-    final EventsManager mEventsManager;
+    @RestrictTo(LIBRARY_GROUP)
+    final CompoundEventsManager mEventsManager = new CompoundEventsManager();
 
     @NonNull
     @RestrictTo(SUBCLASSES)
@@ -112,7 +114,14 @@ public abstract class TheKeyImpl implements TheKey {
         mDefaultRedirectUri = mConfig.mDefaultRedirectUri != null ? mConfig.mDefaultRedirectUri :
                 getCasUri("oauth", "client", "public");
 
-        mEventsManager = resolveEventsManager(mContext, mConfig);
+        initDefaultServices();
+        for (final TheKeyService service : config.mServices) {
+            initService(service);
+        }
+        if (mConfig.mEventsManager != null) {
+            initService(mConfig.mEventsManager);
+        }
+
         if (mConfig.mMigrationSource != null) {
             mMigrationSource = createInstance(mContext, mConfig.mMigrationSource);
         }
@@ -139,32 +148,6 @@ public abstract class TheKeyImpl implements TheKey {
         instance.migrateAccounts();
 
         return instance;
-    }
-
-    @NonNull
-    private static EventsManager resolveEventsManager(@NonNull final Context context,
-                                                      @NonNull final Configuration config) {
-        // use configured EventsManager
-        EventsManager manager = config.mEventsManager;
-
-        // try creating a default LocalBroadcastManagerEventsManager
-        if (manager == null) {
-            try {
-                manager = (EventsManager) Class
-                        .forName("me.thekey.android.localbroadcast.LocalBroadcastManagerEventsManager")
-                        .getDeclaredConstructor(Context.class)
-                        .newInstance(context);
-            } catch (final Exception e) {
-                Timber.e(e, "Unable to initialize default EventsManager, try initializing one manually");
-            }
-        }
-
-        // create a NoopEventsManager if all else failed
-        if (manager == null) {
-            manager = NoopEventsManager.INSTANCE;
-        }
-
-        return manager;
     }
 
     public static void configure(@NonNull final Configuration config) {
@@ -194,6 +177,52 @@ public abstract class TheKeyImpl implements TheKey {
 
         throw new IllegalStateException("TheKeyImpl has not been configured yet!");
     }
+
+    // region TheKeyServices
+    private final Map<String, TheKeyService> mRegisteredServices = new HashMap<>();
+
+    private void initDefaultServices() {
+        // create the LocalBroadcastManagerEventsManager if it's on the classpath
+        try {
+            initService((TheKeyService) Class
+                    .forName("me.thekey.android.localbroadcast.LocalBroadcastManagerEventsManager")
+                    .getDeclaredConstructor(Context.class)
+                    .newInstance(mContext));
+        } catch (final Exception e) {
+            Timber.tag("TheKey").d(e, "Unable to initialize LocalBroadcastManagerEventsManager");
+        }
+
+        // attach the LiveDataRegistry if it's on the classpath
+        try {
+            initService((TheKeyService) Class.forName("me.thekey.android.livedata.LiveDataRegistry")
+                    .getDeclaredField("INSTANCE")
+                    .get(null));
+        } catch (final Exception e) {
+            Timber.tag("TheKey").d(e, "Unable to initialize LiveDataRegistry");
+        }
+    }
+
+    private void initService(@NonNull final TheKeyService service) {
+        service.init(this);
+        if (service instanceof EventsManager) {
+            mEventsManager.addEventsManager((EventsManager) service);
+        }
+    }
+
+    @Override
+    @RestrictTo(LIBRARY_GROUP)
+    public void registerService(@NonNull final TheKeyService service, @NonNull final String key) {
+        mRegisteredServices.put(key, service);
+    }
+
+    @Nullable
+    @Override
+    @RestrictTo(LIBRARY_GROUP)
+    @SuppressWarnings("unchecked")
+    public TheKeyService getService(@NonNull final String key) {
+        return mRegisteredServices.get(key);
+    }
+    // endregion TheKeyServices
 
     @NonNull
     private SharedPreferences getPrefs() {
@@ -751,28 +780,38 @@ public abstract class TheKeyImpl implements TheKey {
 
         final int mTrafficTag;
 
+        @NonNull
+        final TheKeyService[] mServices;
+
+        /**
+         * @deprecated Since v4.0.0
+         */
         @Nullable
+        @Deprecated
         final EventsManager mEventsManager;
 
         @Nullable
         final Configuration mMigrationSource;
 
+        @SuppressWarnings("checkstyle:ParameterNumber")
         private Configuration(@Nullable final Uri server, final long id, @Nullable final String accountType,
                               @Nullable final Uri redirectUri, final int trafficTag,
                               @Nullable final EventsManager eventsManager,
+                              @Nullable final TheKeyService[] services,
                               @Nullable final Configuration migrationSource) {
             mServer = server != null ? server : CAS_SERVER;
             mClientId = id;
             mAccountType = accountType;
             mDefaultRedirectUri = redirectUri;
             mTrafficTag = trafficTag;
+            mServices = services != null ? services : new TheKeyService[0];
             mEventsManager = eventsManager;
             mMigrationSource = migrationSource;
         }
 
         @NonNull
         public static Configuration base() {
-            return new Configuration(null, INVALID_CLIENT_ID, null, null, DEFAULT_TRAFFIC_STATS_TAG, null, null);
+            return new Configuration(null, INVALID_CLIENT_ID, null, null, DEFAULT_TRAFFIC_STATS_TAG, null, null, null);
         }
 
         @NonNull
@@ -783,19 +822,19 @@ public abstract class TheKeyImpl implements TheKey {
         @NonNull
         public Configuration server(@Nullable final Uri uri) {
             return new Configuration(uri, mClientId, mAccountType, mDefaultRedirectUri, mTrafficTag, mEventsManager,
-                                     mMigrationSource);
+                                     mServices, mMigrationSource);
         }
 
         @NonNull
         public Configuration accountType(@Nullable final String type) {
             return new Configuration(mServer, mClientId, type, mDefaultRedirectUri, mTrafficTag, mEventsManager,
-                                     mMigrationSource);
+                                     mServices, mMigrationSource);
         }
 
         @NonNull
         public Configuration clientId(final long id) {
             return new Configuration(mServer, id, mAccountType, mDefaultRedirectUri, mTrafficTag, mEventsManager,
-                                     mMigrationSource);
+                                     mServices, mMigrationSource);
         }
 
         @NonNull
@@ -806,25 +845,35 @@ public abstract class TheKeyImpl implements TheKey {
         @NonNull
         public Configuration redirectUri(@Nullable final Uri uri) {
             return new Configuration(mServer, mClientId, mAccountType, uri, mTrafficTag, mEventsManager,
-                                     mMigrationSource);
+                                     mServices, mMigrationSource);
+        }
+
+        /**
+         * @deprecated Since v4.0.0, use {@link Configuration#service(TheKeyService)} to register the events manager.
+         */
+        @NonNull
+        @Deprecated
+        public Configuration eventsManager(@Nullable final EventsManager manager) {
+            return new Configuration(mServer, mClientId, mAccountType, mDefaultRedirectUri, mTrafficTag, manager,
+                                     mServices, mMigrationSource);
         }
 
         @NonNull
-        public Configuration eventsManager(@Nullable final EventsManager manager) {
-            return new Configuration(mServer, mClientId, mAccountType, mDefaultRedirectUri, mTrafficTag, manager,
-                                     mMigrationSource);
+        public Configuration service(@NonNull final TheKeyService service) {
+            return new Configuration(mServer, mClientId, mAccountType, mDefaultRedirectUri, mTrafficTag, mEventsManager,
+                                     ArraysKt.plus(mServices, service), mMigrationSource);
         }
 
         @NonNull
         public Configuration trafficStatsTag(final int tag) {
             return new Configuration(mServer, mClientId, mAccountType, mDefaultRedirectUri, tag, mEventsManager,
-                                     mMigrationSource);
+                                     mServices, mMigrationSource);
         }
 
         @NonNull
         public Configuration migrationSource(@Nullable final Configuration source) {
             return new Configuration(mServer, mClientId, mAccountType, mDefaultRedirectUri, mTrafficTag, mEventsManager,
-                                     source);
+                                     mServices, source);
         }
 
         @Override
@@ -842,6 +891,7 @@ public abstract class TheKeyImpl implements TheKey {
                     (mDefaultRedirectUri != null ? mDefaultRedirectUri.equals(that.mDefaultRedirectUri) :
                             that.mDefaultRedirectUri == null) &&
                     mTrafficTag == that.mTrafficTag &&
+                    Arrays.equals(mServices, that.mServices) &&
                     (mEventsManager != null ? mEventsManager.equals(that.mEventsManager) :
                             that.mEventsManager == null) &&
                     (mMigrationSource != null ? mMigrationSource.equals(that.mMigrationSource) :

@@ -16,6 +16,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 final class NoOpTheKey implements TheKey {
     static final TheKey INSTANCE = new NoOpTheKey();
 
+    @Override
+    public void registerService(@NonNull final TheKeyService service, @NonNull final String key) { }
+
+    public TheKeyService getService(@NonNull String key) {
+        return null;
+    }
+
     @NonNull
     @Override
     public Uri getDefaultRedirectUri() {

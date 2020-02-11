@@ -1,0 +1,23 @@
+package me.thekey.android.livedata
+
+import androidx.annotation.RestrictTo
+import me.thekey.android.events.EventsManager
+import java.util.WeakHashMap
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+object LiveDataRegistry : EventsManager {
+    private val registry: MutableMap<AttributesLiveData, Unit> = WeakHashMap()
+    private val defaultGuidRegistry: MutableMap<DefaultSessionGuidLiveData, Unit> = WeakHashMap()
+
+    internal fun register(liveData: AttributesLiveData) = registry.put(liveData, Unit)
+    internal fun register(liveData: DefaultSessionGuidLiveData) = defaultGuidRegistry.put(liveData, Unit)
+
+    override fun attributesUpdatedEvent(guid: String) {
+        registry.keys.forEach { it.invalidateFor(guid) }
+    }
+
+    override fun changeDefaultSessionEvent(guid: String) {
+        registry.keys.forEach { it.invalidateDefaultGuid() }
+        defaultGuidRegistry.keys.forEach { it.invalidate() }
+    }
+}
