@@ -1,11 +1,13 @@
 /gradlew     text
+/gradlew.bat text
+*.gradle     text
 
 .gitignore   text
-*.bat        text
-*.gradle     text
 *.java       text
+*.kt         text
 *.md         text
 *.pro        text
 *.properties text
 *.txt        text
 *.xml        text
+*.yml        text
