@@ -1,5 +1,6 @@
 package me.thekey.android.livedata
 
+import android.annotation.SuppressLint
 import android.os.AsyncTask
 import androidx.annotation.AnyThread
 import androidx.lifecycle.ComputableLiveData
@@ -9,6 +10,7 @@ import me.thekey.android.exception.TheKeySocketException
 import me.thekey.android.getService
 import timber.log.Timber
 
+@SuppressLint("RestrictedApi")
 internal class AttributesLiveData(
     private val thekey: TheKey,
     private val guid: String? = null
