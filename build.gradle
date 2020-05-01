@@ -4,7 +4,7 @@ buildscript {
     // define dependency versions for this project
     ext.deps = [
             eventbus    : '3.0.0',
-            kotlin      : '1.3.71',
+            kotlin      : '1.3.72',
             timber      : '4.7.1',
             weakDelegate: '1.0.1'
     ]
