@@ -7,6 +7,3 @@ include ':thekey-localbroadcast'
 include ':thekey-view-activity'
 include ':thekey-view-base'
 include ':thekey-view-dialog-fragment'
-
-// Enable Gradle 5.0 publish behavior. This can be removed once we upgrade to Gradle 5.0
-enableFeaturePreview('STABLE_PUBLISHING')
