@@ -37,7 +37,7 @@ subprojects {
     apply plugin: 'kotlin-android'
 
     group 'me.thekey.android'
-    version = '4.0.0-SNAPSHOT'
+    version = '4.0.0'
 
     repositories {
         google()
