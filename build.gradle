@@ -71,7 +71,7 @@ subprojects {
             implementation "org.jetbrains.kotlin:kotlin-stdlib:${deps.kotlin}"
 
             compileOnly "androidx.annotation:annotation:${deps.androidX.annotation}"
-            compileOnly "org.jetbrains:annotations:19.0.0"
+            compileOnly "org.jetbrains:annotations:20.0.0"
         }
     }
 
