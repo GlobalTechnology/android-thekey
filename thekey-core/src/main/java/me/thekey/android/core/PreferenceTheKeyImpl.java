@@ -190,14 +190,6 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
 
     @Override
     void storeAttributes(@NonNull final String guid, @NonNull final JSONObject json) {
-        final SharedPreferences.Editor prefs = getPrefs().edit();
-        prefs.putLong(PREF_ATTR_LOAD_TIME, System.currentTimeMillis());
-        final Iterator<String> attrs = json.keys();
-        while (attrs.hasNext()) {
-            final String key = attrs.next();
-            prefs.putString(PREF_ATTR_PREFIX + key, json.optString(key, null));
-        }
-
         // we synchronize this to prevent race conditions with getCachedAttributes
         synchronized (mLockPrefs) {
             // short-circuit if the specified guid is different from the stored session
@@ -206,7 +198,14 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
             }
 
             // apply updates
+            final SharedPreferences.Editor prefs = getPrefs().edit();
             removeOldAttributes(prefs);
+            prefs.putLong(PREF_ATTR_LOAD_TIME, System.currentTimeMillis());
+            final Iterator<String> attrs = json.keys();
+            while (attrs.hasNext()) {
+                final String key = attrs.next();
+                prefs.putString(PREF_ATTR_PREFIX + key, json.optString(key, null));
+            }
             prefs.apply();
         }
     }
