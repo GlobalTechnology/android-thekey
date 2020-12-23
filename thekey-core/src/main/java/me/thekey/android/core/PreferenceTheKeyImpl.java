@@ -235,13 +235,6 @@ final class PreferenceTheKeyImpl extends TheKeyImpl {
                 prefs.remove(key);
             }
         }
-
-        // TODO: remove after 2.1.0
-        // legacy attributes, no longer used
-        prefs.remove("attr_guid");
-        prefs.remove("attr_email");
-        prefs.remove("attr_firstName");
-        prefs.remove("attr_lastName");
     }
 
     @Override
