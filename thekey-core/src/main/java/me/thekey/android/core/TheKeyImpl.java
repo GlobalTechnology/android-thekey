@@ -71,6 +71,9 @@ public abstract class TheKeyImpl implements TheKey {
     private static final String PREFFILE_THEKEY = "me.thekey";
     private static final String PREF_DEFAULT_GUID = "default_guid";
 
+    private static final int HTTP_TOO_MANY_REQUESTS = 429;
+    private static final int LIMIT_LOAD_ATTRIBUTES = 3;
+
     private static final Object INSTANCE_LOCK = new Object();
     @Nullable
     private static Configuration sInstanceConfig = null;
@@ -315,8 +318,14 @@ public abstract class TheKeyImpl implements TheKey {
             return false;
         }
 
+        int attempts = 0;
         String accessToken;
         while ((accessToken = getValidAccessToken(guid, 0)) != null) {
+            // limit number of retries for loading attributes
+            if (++attempts > LIMIT_LOAD_ATTRIBUTES) {
+                return false;
+            }
+
             final int currTrafficTag = TrafficStats.getThreadStatsTag();
             TrafficStats.setThreadStatsTag(mConfig.mTrafficTag);
 
@@ -358,6 +367,21 @@ public abstract class TheKeyImpl implements TheKey {
                             }
                         }
                     }
+                } else if (conn.getResponseCode() == HTTP_TOO_MANY_REQUESTS) {
+                    if (attempts < LIMIT_LOAD_ATTRIBUTES) {
+                        // Rate Limiting Header
+                        final String retryAfter = conn.getHeaderField("Retry-After");
+                        if (retryAfter != null) {
+                            try {
+                                //noinspection BusyWait
+                                Thread.sleep(Long.parseLong(retryAfter) * 1000);
+                                continue;
+                            } catch (Exception ignored) {
+                            }
+                        }
+                    }
+
+                    return false;
                 }
             } catch (final MalformedURLException e) {
                 throw new RuntimeException("malformed CAS URL", e);
