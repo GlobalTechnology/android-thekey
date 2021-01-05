@@ -450,7 +450,7 @@ public abstract class TheKeyImpl implements TheKey {
                 return json.optString(JSON_TICKET, null);
             }
         } catch (final MalformedURLException e) {
-            throw new RuntimeException("malformed CAS URL", e);
+            throw new IllegalStateException("malformed CAS URL", e);
         } catch (final IOException e) {
             throw new TheKeySocketException("connect error", e);
         } finally {
