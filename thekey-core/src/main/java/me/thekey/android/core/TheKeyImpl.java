@@ -644,6 +644,7 @@ public abstract class TheKeyImpl implements TheKey {
                 case HTTP_BAD_REQUEST:
                 case HTTP_TOO_MANY_REQUESTS:
                     throw TheKeyApiError.parse(conn.getResponseCode(), parseJsonResponse(conn.getErrorStream()));
+                default:
             }
         } catch (final MalformedURLException e) {
             throw new RuntimeException("invalid CAS URL", e);
