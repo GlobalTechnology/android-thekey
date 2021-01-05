@@ -41,6 +41,7 @@ import me.thekey.android.TheKey;
 import me.thekey.android.TheKeyService;
 import me.thekey.android.core.events.CompoundEventsManager;
 import me.thekey.android.events.EventsManager;
+import me.thekey.android.exception.RateLimitExceededApiError;
 import me.thekey.android.exception.TheKeyApiError;
 import me.thekey.android.exception.TheKeyInvalidSessionException;
 import me.thekey.android.exception.TheKeySocketException;
@@ -493,6 +494,14 @@ public abstract class TheKeyImpl implements TheKey {
                     if (processRefreshTokenGrant(guid, refreshToken)) {
                         return getValidAccessToken(guid, depth + 1);
                     }
+                } catch (final RateLimitExceededApiError e) {
+                    try {
+                        Thread.sleep(e.getRetryAfter() * 1000);
+                        return getValidAccessToken(guid, depth + 1);
+                    } catch (InterruptedException ignored) {
+                        Thread.currentThread().interrupt();
+                        return null;
+                    }
                 } catch (final TheKeyApiError ignored) {
                 }
 
@@ -627,10 +636,12 @@ public abstract class TheKeyImpl implements TheKey {
             conn.getOutputStream().write(data);
 
             // if it's a successful request, return the parsed JSON
-            if (conn.getResponseCode() == HTTP_OK) {
-                return parseJsonResponse(conn.getInputStream());
-            } else if (conn.getResponseCode() == HTTP_BAD_REQUEST) {
-                throw TheKeyApiError.parse(conn.getResponseCode(), parseJsonResponse(conn.getErrorStream()));
+            switch (conn.getResponseCode()) {
+                case HTTP_OK:
+                    return parseJsonResponse(conn.getInputStream());
+                case HTTP_BAD_REQUEST:
+                case HTTP_TOO_MANY_REQUESTS:
+                    throw TheKeyApiError.parse(conn.getResponseCode(), parseJsonResponse(conn.getErrorStream()));
             }
         } catch (final MalformedURLException e) {
             throw new RuntimeException("invalid CAS URL", e);
