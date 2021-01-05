@@ -377,7 +377,9 @@ public abstract class TheKeyImpl implements TheKey {
                                 //noinspection BusyWait
                                 Thread.sleep(Long.parseLong(retryAfter) * 1000);
                                 continue;
-                            } catch (Exception ignored) {
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                            } catch (NumberFormatException ignored) {
                             }
                         }
                     }
