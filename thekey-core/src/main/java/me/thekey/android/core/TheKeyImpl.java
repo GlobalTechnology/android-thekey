@@ -41,6 +41,7 @@ import me.thekey.android.TheKey;
 import me.thekey.android.TheKeyService;
 import me.thekey.android.core.events.CompoundEventsManager;
 import me.thekey.android.events.EventsManager;
+import me.thekey.android.exception.RateLimitExceededApiError;
 import me.thekey.android.exception.TheKeyApiError;
 import me.thekey.android.exception.TheKeyInvalidSessionException;
 import me.thekey.android.exception.TheKeySocketException;
@@ -70,6 +71,9 @@ import static me.thekey.android.core.PkceUtils.generateVerifier;
 public abstract class TheKeyImpl implements TheKey {
     private static final String PREFFILE_THEKEY = "me.thekey";
     private static final String PREF_DEFAULT_GUID = "default_guid";
+
+    private static final int HTTP_TOO_MANY_REQUESTS = 429;
+    private static final int LIMIT_LOAD_ATTRIBUTES = 3;
 
     private static final Object INSTANCE_LOCK = new Object();
     @Nullable
@@ -315,8 +319,14 @@ public abstract class TheKeyImpl implements TheKey {
             return false;
         }
 
+        int attempts = 0;
         String accessToken;
         while ((accessToken = getValidAccessToken(guid, 0)) != null) {
+            // limit number of retries for loading attributes
+            if (++attempts > LIMIT_LOAD_ATTRIBUTES) {
+                return false;
+            }
+
             final int currTrafficTag = TrafficStats.getThreadStatsTag();
             TrafficStats.setThreadStatsTag(mConfig.mTrafficTag);
 
@@ -358,6 +368,23 @@ public abstract class TheKeyImpl implements TheKey {
                             }
                         }
                     }
+                } else if (conn.getResponseCode() == HTTP_TOO_MANY_REQUESTS) {
+                    if (attempts < LIMIT_LOAD_ATTRIBUTES) {
+                        // Rate Limiting Header
+                        final String retryAfter = conn.getHeaderField("Retry-After");
+                        if (retryAfter != null) {
+                            try {
+                                //noinspection BusyWait
+                                Thread.sleep(Long.parseLong(retryAfter) * 1000);
+                                continue;
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                            } catch (NumberFormatException ignored) {
+                            }
+                        }
+                    }
+
+                    return false;
                 }
             } catch (final MalformedURLException e) {
                 throw new RuntimeException("malformed CAS URL", e);
@@ -425,7 +452,7 @@ public abstract class TheKeyImpl implements TheKey {
                 return json.optString(JSON_TICKET, null);
             }
         } catch (final MalformedURLException e) {
-            throw new RuntimeException("malformed CAS URL", e);
+            throw new IllegalStateException("malformed CAS URL", e);
         } catch (final IOException e) {
             throw new TheKeySocketException("connect error", e);
         } finally {
@@ -468,6 +495,14 @@ public abstract class TheKeyImpl implements TheKey {
                 try {
                     if (processRefreshTokenGrant(guid, refreshToken)) {
                         return getValidAccessToken(guid, depth + 1);
+                    }
+                } catch (final RateLimitExceededApiError e) {
+                    try {
+                        Thread.sleep(e.getRetryAfter() * 1000);
+                        return getValidAccessToken(guid, depth + 1);
+                    } catch (InterruptedException ignored) {
+                        Thread.currentThread().interrupt();
+                        return null;
                     }
                 } catch (final TheKeyApiError ignored) {
                 }
@@ -603,10 +638,13 @@ public abstract class TheKeyImpl implements TheKey {
             conn.getOutputStream().write(data);
 
             // if it's a successful request, return the parsed JSON
-            if (conn.getResponseCode() == HTTP_OK) {
-                return parseJsonResponse(conn.getInputStream());
-            } else if (conn.getResponseCode() == HTTP_BAD_REQUEST) {
-                throw TheKeyApiError.parse(conn.getResponseCode(), parseJsonResponse(conn.getErrorStream()));
+            switch (conn.getResponseCode()) {
+                case HTTP_OK:
+                    return parseJsonResponse(conn.getInputStream());
+                case HTTP_BAD_REQUEST:
+                case HTTP_TOO_MANY_REQUESTS:
+                    throw TheKeyApiError.parse(conn.getResponseCode(), parseJsonResponse(conn.getErrorStream()));
+                default:
             }
         } catch (final MalformedURLException e) {
             throw new RuntimeException("invalid CAS URL", e);

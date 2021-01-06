@@ -8,6 +8,7 @@ import androidx.annotation.RestrictTo;
 import static androidx.annotation.RestrictTo.Scope.SUBCLASSES;
 import static me.thekey.android.exception.InvalidGrantApiError.ERROR_INVALID_GRANT;
 import static me.thekey.android.exception.InvalidGrantApiError.parseInvalidGrantError;
+import static me.thekey.android.exception.RateLimitExceededApiError.ERROR_RATE_LIMIT_EXCEEDED;
 
 public class TheKeyApiError extends TheKeyException {
     public static final String ERROR_UNKNOWN_ERROR = "unknown_error";
@@ -48,6 +49,8 @@ public class TheKeyApiError extends TheKeyException {
         switch (json.optString(JSON_ERROR, ERROR_UNKNOWN_ERROR)) {
             case ERROR_INVALID_GRANT:
                 return parseInvalidGrantError(responseCode, json);
+            case ERROR_RATE_LIMIT_EXCEEDED:
+                return new RateLimitExceededApiError(responseCode, json);
             case ERROR_UNKNOWN_ERROR:
             default:
                 return new TheKeyApiError(responseCode, json);
